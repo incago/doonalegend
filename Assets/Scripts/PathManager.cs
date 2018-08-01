@@ -25,6 +25,37 @@ namespace DoonaLegend
         public int pathWidth = 3;
         public int maxMaintainSectionCount = 20;
 
+        [Header("Item Components")]
+        public Dictionary<int, Dictionary<int, ItemComponent>> itemDictionaryByOrigin = new Dictionary<int, Dictionary<int, ItemComponent>>();
+        public ItemComponent GetItemComponent(Node node)
+        {
+            if (itemDictionaryByOrigin.ContainsKey(node.x))
+            {
+                if (itemDictionaryByOrigin[node.x].ContainsKey(node.y))
+                {
+                    return itemDictionaryByOrigin[node.x][node.y];
+                }
+            }
+            // Debug.Log("itemDictionaryByOrigin do not have key: " + node.ToString());
+            return null;
+        }
+        public void PutItemComponent(ItemComponent itemComponent)
+        {
+            if (!itemDictionaryByOrigin.ContainsKey(itemComponent.origin.x))
+            {
+                itemDictionaryByOrigin.Add(itemComponent.origin.x, new Dictionary<int, ItemComponent>());
+            }
+            itemDictionaryByOrigin[itemComponent.origin.x].Add(itemComponent.origin.y, itemComponent);
+        }
+        public void RemoveItemComponent(ItemComponent itemComponent)
+        {
+            if (itemDictionaryByOrigin.ContainsKey(itemComponent.origin.x))
+            {
+                itemDictionaryByOrigin[itemComponent.origin.x].Remove(itemComponent.origin.y);
+            }
+        }
+
+
         [Header("Block Components")]
         public int lastBlockComponentId = 0;
         public Dictionary<int, BlockComponent> blockDictionary = new Dictionary<int, BlockComponent>();

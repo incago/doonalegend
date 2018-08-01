@@ -32,6 +32,11 @@ namespace DoonaLegend
             }
         }
 
+        public void SetPosition(Node node)
+        {
+            gameObject.transform.position = new Vector3(node.x + 0.5f, 0, node.y + 0.5f);
+        }
+
         public void SetTarget(PlayerComponent target)
         {
             this.player = target;

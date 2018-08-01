@@ -12,10 +12,20 @@ namespace DoonaLegend
     public class PlayManager : MonoBehaviour
     {
         #region Variables
+        [Header("Managers")]
         public PathManager pathManager;
         public CameraController cameraController;
+        public UIManager uiManager;
+
+        [Header("Player")]
         public Transform playerPrefab;
         public PlayerComponent player;
+        public bool isHpDecreasing = false;
+        private Coroutine hpDecreasingCoroutine;
+
+        [Header("Score")]
+        public int score;
+
         #endregion
 
         #region Method
@@ -27,13 +37,20 @@ namespace DoonaLegend
         public void ResetGame()
         {
             pathManager.InitPath();
+            uiManager.InitUIManager();
+            score = 0;
+            uiManager.UpdateScore(this.score);
 
+            isHpDecreasing = false;
+            if (hpDecreasingCoroutine != null) StopCoroutine(hpDecreasingCoroutine);
             if (this.player != null) Destroy(this.player.gameObject);
             Transform playerTransform = Instantiate(playerPrefab) as Transform;
             PlayerComponent playerComponent = playerTransform.GetComponent<PlayerComponent>();
-            playerComponent.InitPlayerComponent(new Node(1, 1), Direction.right);
+            Node startNode = new Node(1, 1);
+            playerComponent.InitPlayerComponent(startNode, Direction.right);
             this.player = playerComponent;
 
+            cameraController.SetPosition(startNode);
             cameraController.SetTarget(playerComponent);
             cameraController.SetPivotAngle(Direction.right);
         }
@@ -41,6 +58,11 @@ namespace DoonaLegend
         //TODO:특수스킬이나 아이템 사용과 같은 입력이 들어올 수 있으
         public void PlayerAction(PlayerInput input)
         {
+            if (!isHpDecreasing)
+            {
+                isHpDecreasing = true;
+                StartCoroutine(DecreasingPlayerHp());
+            }
             //플레이어의 방향과 서있는 블럭의 타잎에 따라 다음에 가야할 노드와 회전유무가 정해진다.
             if (input == PlayerInput.left || input == PlayerInput.right || input == PlayerInput.forward || input == PlayerInput.backward)
             {
@@ -147,16 +169,32 @@ namespace DoonaLegend
                         else if (input == PlayerInput.forward) targetNode += new Node(1, 0);
                     }
                 }
-                player.MovePlayer(player.origin, targetNode, 0.05f);
+                player.MovePlayer(player.origin, targetNode, 0.1f);
                 if (player.direction != targetDirection)
                 {
-                    player.RotatePlayer(player.direction, targetDirection, 0.05f);
+                    player.RotatePlayer(player.direction, targetDirection, 0.1f);
                 }
             }
             else
             {
                 //이동이외의 입력이 들어온다면 여기서 구현해야 한다
             }
+        }
+
+        IEnumerator DecreasingPlayerHp()
+        {
+            while (!player.isDead)
+            {
+                yield return new WaitForSeconds(0.1f);
+                player.TakeDamage(0.1f);
+                uiManager.UpdateHp();
+            }
+        }
+
+        public void AddScore(int add)
+        {
+            this.score += add;
+            uiManager.UpdateScore(this.score);
         }
         #endregion
     }

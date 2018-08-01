@@ -22,6 +22,10 @@ namespace DoonaLegend
         public Transform blockPrefab;
         public Transform blockContainer;
         public List<BlockComponent> blockComponents = new List<BlockComponent>();
+        public Transform coinPrefab;
+        public Transform hpPotionPrefab;
+        public Transform itemContainer;
+        public List<ItemComponent> itemComponents = new List<ItemComponent>();
         public int maxProgress;
         #endregion
 
@@ -89,6 +93,31 @@ namespace DoonaLegend
                     blockComponent.InitBlockComponent(this, blockData);
                     blockComponents.Add(blockComponent);
                     pm.pathManager.PutBlockComponent(blockComponent);
+
+                    if (sectionData.sectionType == SectionType.straight)
+                    {
+                        int randomNumber = Random.Range(0, 100);
+                        if (randomNumber < 5)
+                        {
+                            Node itemOrigin = this.sectionData.origin + new Node(j, i);
+                            Transform hpPotionTransform = Instantiate(hpPotionPrefab) as Transform;
+                            hpPotionTransform.SetParent(itemContainer);
+                            ItemComponent itemComponent = hpPotionTransform.GetComponent<ItemComponent>();
+                            itemComponent.InitItemComponent(this, itemOrigin);
+                            itemComponents.Add(itemComponent);
+                            pm.pathManager.PutItemComponent(itemComponent);
+                        }
+                        else if (randomNumber < 15)
+                        {
+                            Node itemOrigin = this.sectionData.origin + new Node(j, i);
+                            Transform coinTransform = Instantiate(coinPrefab) as Transform;
+                            coinTransform.SetParent(itemContainer);
+                            ItemComponent itemComponent = coinTransform.GetComponent<ItemComponent>();
+                            itemComponent.InitItemComponent(this, itemOrigin);
+                            itemComponents.Add(itemComponent);
+                            pm.pathManager.PutItemComponent(itemComponent);
+                        }
+                    }
                 }
             }
 
@@ -106,7 +135,15 @@ namespace DoonaLegend
             foreach (BlockComponent blockComponent in blockComponents)
             {
                 pm.pathManager.RemoveBlockComponent(blockComponent);
+                //TODO : recycle block gameObject
             }
+
+            foreach (ItemComponent itemComponent in itemComponents)
+            {
+                pm.pathManager.RemoveItemComponent(itemComponent);
+                //TODO : recycle item gameObject
+            }
+
             Destroy(gameObject);
         }
         #endregion

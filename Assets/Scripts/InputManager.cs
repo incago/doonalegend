@@ -26,7 +26,7 @@ namespace DoonaLegend
             { pm.PlayerAction(PlayerInput.left); }
             if (Input.GetKeyDown(KeyCode.RightArrow))
             { pm.PlayerAction(PlayerInput.right); }
-            if (Input.GetKeyDown(KeyCode.UpArrow))
+            if (Input.GetKey(KeyCode.UpArrow))
             { pm.PlayerAction(PlayerInput.forward); }
         }
         #endregion
