@@ -35,6 +35,6 @@ namespace DoonaLegend
 
     public enum ItemType
     {
-        coin = 0, potion_hp = 1, potion_somethingelse = 2
+        coin = 0, potion_hp = 1, potion_sp = 2
     }
 }

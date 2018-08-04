@@ -1,0 +1,731 @@
+fileFormatVersion: 2
+guid: 86047a1d9b36c41d78eabd50285d07a6
+TextureImporter:
+  fileIDToRecycleName:
+    21300000: icon_skincolor_0
+    21300002: icon_skincolor_1
+    21300004: icon_skincolor_2
+    21300006: icon_skincolor_3
+    21300008: icon_skincolor_4
+    21300010: icon_skincolor_5
+    21300012: icon_itemmask_weapon
+    21300014: icon_itemmask_tool
+    21300016: icon_itemmask_bodyarmor
+    21300018: icon_itemmask_shield
+    21300020: icon_itemmask_helm
+    21300022: icon_itemmask_belt
+    21300024: icon_itemmask_gloves
+    21300026: icon_itemmask_boots
+    21300028: icon_itemmask_ring
+    21300030: icon_itemmask_amulet
+    21300032: icon_itemmask_general
+    21300034: icon_itemmask_11
+    21300036: icon_itemmask_12
+    21300038: icon_itemmask_13
+    21300040: icon_itemmask_14
+    21300042: icon_itemmask_15
+    21300044: icon_itemmask_16
+    21300046: icon_itemmask_17
+    21300048: icon_itemmask_18
+    21300050: icon_itemmask_19
+    21300052: icon_itemmask_20
+    21300054: icon_itemmask_21
+    21300056: icon_itemmask_22
+    21300058: icon_itemmask_23
+    21300060: icon_itemmask_24
+    21300062: icon_itemmask_25
+    21300064: icon_itemmask_26
+    21300066: icon_itemmask_27
+    21300068: icon_itemmask_28
+    21300070: icon_itemmask_29
+    21300072: icon_itemmask_30
+    21300074: icon_itemmask_31
+    21300076: icon_ui_open1
+    21300078: icon_ui_item
+    21300080: icon_ui_unit
+    21300082: icon_ui_shop
+    21300084: icon_ui_cross
+    21300086: icon_ui_ghost
+    21300088: icon_ui_timer
+    21300090: icon_ui_sp
+    21300092: icon_ui_8
+    21300094: icon_ui_9
+    21300096: icon_ui_general
+    21300098: icon_ui_hold
+    21300100: icon_ui_deck
+    21300102: icon_ui_crown
+    21300104: icon_ui_craft
+    21300106: icon_ui_coin
+    21300108: icon_ui_arrow_back
+    21300110: icon_ui_plus
+    21300112: icon_ui_arrow_up
+    21300114: icon_ui_arrow_down
+    21300116: icon_ui_exclamationmark
+    21300118: icon_ui_pause
+    21300120: icon_ui_skull
+    21300122: icon_ui_gem
+    21300124: icon_ui_arrow_right
+    21300126: icon_ui_gear
+    21300128: icon_ui_envelope
+    21300130: icon_ui_heart
+    21300132: icon_ui_scroll
+    21300134: icon_ui_attackup
+    21300136: icon_ui_flag
+    21300138: icon_ui_target
+    21300140: icon_ui_monster
+    21300142: icon_ui_tower
+    21300144: icon_ui_tree
+    21300146: icon_ui_rock
+    21300148: icon_ui_check
+    21300150: icon_ui_spawn
+    21300152: icon_ui_cam
+    21300154: icon_ui_map
+    21300156: icon_ui_item
+    21300158: icon_ui_unit
+    21300160: icon_ui_shop
+    21300162: icon_ui_cross
+    21300164: icon_ui_ghost
+    21300166: icon_ui_timer
+    21300168: icon_ui_sp
+    21300170: icon_ui_8
+    21300172: icon_ui_9
+    21300174: icon_ui_general
+    21300176: icon_ui_hold
+    21300178: icon_ui_deck
+    21300180: icon_ui_crown
+    21300182: icon_ui_craft
+    21300184: icon_ui_coin
+    21300186: icon_ui_arrow_back
+    21300188: icon_ui_plus
+    21300190: icon_ui_arrow_up
+    21300192: icon_ui_arrow_down
+    21300194: icon_ui_exclamationmark
+    21300196: icon_ui_pause
+    21300198: icon_ui_skull
+    21300200: icon_ui_gem
+    21300202: icon_ui_arrow_right
+    21300204: icon_ui_gear
+    21300206: icon_ui_envelope
+    21300208: icon_ui_heart
+    21300210: icon_ui_scroll
+    21300212: icon_ui_attackup
+    21300214: icon_ui_flag
+    21300216: icon_ui_target
+    21300218: icon_ui_monster
+    21300220: icon_ui_tower
+    21300222: icon_ui_tree
+    21300224: icon_ui_rock
+    21300226: icon_ui_e
+    21300228: icon_ui_spawn
+    21300230: icon_ui_cam
+    21300232: icon_ui_map
+    21300234: icon_ui_f
+    21300236: icon_ui_g
+    21300238: icon_ui_h
+    21300240: icon_ui_shield
+    21300242: icon_ui_refresh
+    21300244: icon_ui_check
+    21300246: icon_ui_shield
+    21300248: icon_ui_refresh
+    21300250: icon_ui_open
+    21300252: icon_ui_efficiency
+    21300254: icon_ui_attack
+    21300256: icon_ui_item
+    21300258: icon_ui_unit
+    21300260: icon_ui_shop
+    21300262: icon_ui_cross
+    21300264: icon_ui_ghost
+    21300266: icon_ui_timer
+    21300268: icon_ui_sp
+    21300270: icon_ui_crown
+    21300272: icon_ui_craft
+    21300274: icon_ui_coin
+    21300276: icon_ui_arrow_up
+    21300278: icon_ui_exclamationmark
+    21300280: icon_ui_pause
+    21300282: icon_ui_skull
+    21300284: icon_ui_gem
+    21300286: icon_ui_gear
+    21300288: icon_ui_envelope
+    21300290: icon_ui_heart
+    21300292: icon_ui_attackup
+    21300294: icon_ui_flag
+    21300296: icon_ui_target
+    21300298: icon_ui_monster
+    21300300: icon_ui_tower
+    21300302: icon_ui_tree
+    21300304: icon_ui_rock
+    21300306: icon_ui_check
+    21300308: icon_ui_spawn
+    21300310: icon_ui_cam
+    21300312: icon_ui_map
+    21300314: icon_ui_general
+    21300316: icon_ui_arrow_back
+    21300318: icon_ui_plus
+    21300320: icon_ui_arrow_down
+    21300322: icon_ui_arrow_right
+    21300324: icon_ui_shield
+    21300326: icon_ui_refresh
+    21300328: icon_ui_item
+    21300330: icon_ui_unit
+    21300332: icon_ui_shop
+    21300334: icon_ui_cross
+    21300336: icon_ui_ghost
+    21300338: icon_ui_timer
+    21300340: icon_ui_sp
+    21300342: icon_ui_crown
+    21300344: icon_ui_craft
+    21300346: icon_ui_coin
+    21300348: icon_ui_arrow_up
+    21300350: icon_ui_exclamationmark
+    21300352: icon_ui_pause
+    21300354: icon_ui_skull
+    21300356: icon_ui_gem
+    21300358: icon_ui_gear
+    21300360: icon_ui_envelope
+    21300362: icon_ui_heart
+    21300364: icon_ui_attackup
+    21300366: icon_ui_flag
+    21300368: icon_ui_target
+    21300370: icon_ui_monster
+    21300372: icon_ui_tower
+    21300374: icon_ui_tree
+    21300376: icon_ui_rock
+    21300378: icon_ui_check
+    21300380: icon_ui_spawn
+    21300382: icon_ui_cam
+    21300384: icon_ui_map
+    21300386: icon_ui_general
+    21300388: icon_ui_arrow_back
+    21300390: icon_ui_plus
+    21300392: icon_ui_arrow_down
+    21300394: icon_ui_arrow_right
+    21300396: icon_ui_shield
+    21300398: icon_ui_refresh
+    21300400: icon_ui_efficiency
+    21300402: icon_ui_attack
+    21300404: icon_ui_magic
+    21300406: icon_ui_resist
+    21300408: icon_ui_player
+    21300410: icon_ui_0
+    21300412: icon_ui_1
+    21300414: icon_ui_2
+    21300416: icon_ui_3
+    21300418: icon_ui_4
+    21300420: icon_ui_5
+    21300422: icon_ui_6
+    21300424: icon_ui_7
+    21300426: icon_ui_10
+    21300428: icon_ui_11
+    21300430: icon_ui_12
+    21300432: icon_ui_13
+    21300434: icon_ui_14
+    21300436: icon_ui_15
+    21300438: icon_ui_16
+    21300440: icon_ui_17
+    21300442: icon_ui_18
+    21300444: icon_ui_19
+    21300446: icon_ui_20
+    21300448: icon_ui_21
+    21300450: icon_ui_22
+    21300452: icon_ui_23
+    21300454: icon_ui_24
+    21300456: icon_ui_25
+    21300458: icon_ui_26
+    21300460: icon_ui_27
+    21300462: icon_ui_28
+    21300464: icon_ui_29
+    21300466: icon_ui_30
+    21300468: icon_ui_31
+    21300470: icon_ui_32
+    21300472: icon_ui_33
+    21300474: icon_ui_34
+    21300476: icon_ui_35
+    21300478: icon_ui_36
+    21300480: icon_ui_37
+    21300482: icon_ui_38
+    21300484: icon_ui_39
+    21300486: icon_ui_40
+    21300488: icon_ui_41
+    21300490: icon_ui_42
+    21300492: icon_ui_43
+    21300494: icon_ui_44
+    21300496: icon_ui_45
+    21300498: icon_ui_46
+    21300500: icon_ui_47
+    21300502: icon_ui_48
+    21300504: icon_ui_49
+    21300506: icon_ui_50
+    21300508: icon_ui_51
+    21300510: icon_ui_52
+    21300512: icon_ui_53
+    21300514: icon_ui_54
+    21300516: icon_ui_55
+    21300518: icon_ui_56
+    21300520: icon_ui_57
+    21300522: icon_ui_58
+    21300524: icon_ui_59
+    21300526: icon_ui_60
+    21300528: icon_ui_61
+    21300530: icon_ui_62
+    21300532: icon_ui_63
+    21300534: icon_ui4_0
+    21300536: icon_ui4_1
+    21300538: icon_ui4_2
+    21300540: icon_ui4_3
+    21300542: icon_ui4_4
+    21300544: icon_ui4_5
+    21300546: icon_ui4_6
+    21300548: icon_ui4_7
+    21300550: icon_ui4_8
+    21300552: icon_ui4_9
+    21300554: icon_ui4_10
+    21300556: icon_ui4_11
+    21300558: icon_ui4_12
+    21300560: icon_ui4_13
+    21300562: icon_ui4_14
+    21300564: icon_ui4_15
+  externalObjects: {}
+  serializedVersion: 5
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 16
+    mipBias: -1
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 50
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 0
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  platformSettings:
+  - serializedVersion: 2
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+  - serializedVersion: 2
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+  - serializedVersion: 2
+    buildTarget: iPhone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+  - serializedVersion: 2
+    buildTarget: tvOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+  - serializedVersion: 2
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: icon_ui4_0
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 204
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1f191bde173194a15a552f0dd0d1a5cf
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icon_ui4_1
+      rect:
+        serializedVersion: 2
+        x: 60
+        y: 204
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: eda4b7b42ffcb429cb8d5917eaad7c70
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icon_ui4_2
+      rect:
+        serializedVersion: 2
+        x: 116
+        y: 204
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6afe75600197d4f648c14f97da66d24a
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icon_ui4_3
+      rect:
+        serializedVersion: 2
+        x: 172
+        y: 204
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 045a42526fc4b4cb4888463042311cab
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icon_ui4_4
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 148
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 71e22bc54da464f37b3acba7ead5776b
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icon_ui4_5
+      rect:
+        serializedVersion: 2
+        x: 60
+        y: 148
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 20605b9b784f54b9d8f6fc5f6e0c4c55
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icon_ui4_6
+      rect:
+        serializedVersion: 2
+        x: 116
+        y: 148
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 523574cd98cef49c99013d45b57fadeb
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icon_ui4_7
+      rect:
+        serializedVersion: 2
+        x: 172
+        y: 148
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: dad3d195285aa45069d0ea072dfa15da
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icon_ui4_8
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 92
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4d5861697d07544719e0b44166b841d4
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icon_ui4_9
+      rect:
+        serializedVersion: 2
+        x: 60
+        y: 92
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7de170cd08a744aa281d2b2b6b20f3e0
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icon_ui4_10
+      rect:
+        serializedVersion: 2
+        x: 116
+        y: 92
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 04ff523f972034856be8e7327cfae666
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icon_ui4_11
+      rect:
+        serializedVersion: 2
+        x: 172
+        y: 92
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: dad45a635a0214b51be275f5114d636b
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icon_ui4_12
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 36
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2eb0acea32f4849e2b6647461b596253
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icon_ui4_13
+      rect:
+        serializedVersion: 2
+        x: 60
+        y: 36
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b049a3624ab8b4036974b0696d53a375
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icon_ui4_14
+      rect:
+        serializedVersion: 2
+        x: 116
+        y: 36
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 732c6157390714457a14bd1420ba7d52
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icon_ui4_15
+      rect:
+        serializedVersion: 2
+        x: 172
+        y: 36
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4048c151dc65346dfa2be2226df38fa5
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 405541f491365402e9cabed75da83230
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+  spritePackingTag: 
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

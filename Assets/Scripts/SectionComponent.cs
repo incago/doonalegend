@@ -18,38 +18,71 @@ namespace DoonaLegend
             get { if (_pm == null) _pm = GameObject.FindGameObjectWithTag("PlayManager").GetComponent<PlayManager>(); return _pm; }
         }
         public SectionModel sectionData;
+        public SectionComponent beforeSectionComponent;
+        public SectionComponent nextSectionComponent;
+
         //TODO : prefab manager
-        public Transform blockPrefab;
+        [Header("Block")]
         public Transform blockContainer;
+        public GameObject grassBlockPrefab, dirtBlockPrefab;
         public List<BlockComponent> blockComponents = new List<BlockComponent>();
+
+        [Header("Item")]
         public Transform coinPrefab;
         public Transform hpPotionPrefab;
+        public Transform spPotionPrefab;
         public Transform itemContainer;
         public List<ItemComponent> itemComponents = new List<ItemComponent>();
+
+        [Header("Trap")]
+        public Transform thornFloorPrefab;
+        public Transform trapContainer;
+        public List<TrapComponent> trapComponents = new List<TrapComponent>();
+        public int minProgress;
         public int maxProgress;
         #endregion
 
         #region Method
-        public void InitSectionComponent(SectionModel sectionData, SectionComponent lastSectionComponent)
+        public void InitSectionComponent(SectionModel sectionData, SectionModel nextSectionData, SectionComponent lastSectionComponent)
         {
             blockComponents.Clear();
             this.sectionData = sectionData;
             SetSectionPosition(this.sectionData.origin);
 
+            int baseProgress = lastSectionComponent != null ? lastSectionComponent.maxProgress : 0;
+            minProgress = baseProgress;
             int _maxProgress = -1;
             for (int i = 0; i < this.sectionData.height; i++)
             {
                 for (int j = 0; j < this.sectionData.width; j++)
                 {
-                    Transform blockTransform = Instantiate(blockPrefab) as Transform;
-                    blockTransform.gameObject.name = "block#" + pm.pathManager.lastBlockComponentId.ToString();
-                    blockTransform.SetParent(blockContainer);
-                    BlockComponent blockComponent = blockTransform.GetComponent<BlockComponent>();
+                    int randomNumber = Random.Range(0, 100);
+                    if (sectionData.sectionType == SectionType.straight && randomNumber < 2 && sectionData.sectionId != 0) //2%확률로 구멍
+                    {
+                        // continue;
+                    }
+
+                    GameObject blockPrefab = null;
+                    if (sectionData.sectionType == SectionType.straight)
+                    {
+                        blockPrefab = grassBlockPrefab;
+                    }
+                    else if (sectionData.sectionType == SectionType.corner)
+                    {
+                        blockPrefab = dirtBlockPrefab;
+                    }
+                    GameObject blockGameObject = Instantiate(blockPrefab) as GameObject;
+                    blockGameObject.name = "block#" + pm.pathManager.lastBlockComponentId.ToString();
+                    blockGameObject.transform.SetParent(blockContainer);
+                    BlockComponent blockComponent = blockGameObject.GetComponent<BlockComponent>();
                     BlockType blockType = this.sectionData.sectionType == SectionType.corner ? BlockType.corner : BlockType.straight;
                     if (this.sectionData.sectionType == SectionType.corner)
                     {
-                        if ((this.sectionData.direction == Direction.right && i == this.sectionData.height - 1) ||
-                        (this.sectionData.direction == Direction.up && j == this.sectionData.width - 1))
+                        if (
+                        (lastSectionComponent.sectionData.direction == Direction.up && this.sectionData.direction == Direction.right && i == this.sectionData.height - 1) ||
+                        (lastSectionComponent.sectionData.direction == Direction.down && this.sectionData.direction == Direction.right && i == 0) ||
+                        (this.sectionData.direction == Direction.up && j == this.sectionData.width - 1) ||
+                        (this.sectionData.direction == Direction.down && j == this.sectionData.width - 1))
                         {
                             blockType = BlockType.edge;
                         }
@@ -58,26 +91,51 @@ namespace DoonaLegend
                             blockType = BlockType.corner;
                         }
                     }
-                    else if (j == this.sectionData.width - 1 && i == this.sectionData.height - 1)
+                    else if (this.sectionData.sectionType == SectionType.straight)
                     {
-                        blockType = BlockType.shortcut_start;
-                    }
-                    else if (j == 0 && i == 0)
-                    {
-                        blockType = BlockType.shortcut_end;
-                    }
-                    else
-                    {
-                        blockType = BlockType.straight;
+                        //다음 코너에서 방향이 어떨게 되냐에따라 현재 스트레이트 섹션의 숏컷이 결정된다
+                        if ((this.sectionData.direction == Direction.right && nextSectionData.direction == Direction.up) ||
+                        (this.sectionData.direction == Direction.up && nextSectionData.direction == Direction.right))
+                        {
+                            if (j == this.sectionData.width - 1 && i == this.sectionData.height - 1)
+                            {
+                                blockType = BlockType.shortcut_start;
+                            }
+                            else if (j == 0 && i == 0)
+                            {
+                                blockType = BlockType.shortcut_end;
+                            }
+                            else
+                            {
+                                blockType = BlockType.straight;
+                            }
+                        }
+                        else
+                        {
+                            if (j == this.sectionData.width - 1 && i == 0)
+                            {
+                                blockType = BlockType.shortcut_start;
+                            }
+                            else if (j == 0 && i == this.sectionData.height - 1)
+                            {
+                                blockType = BlockType.shortcut_end;
+                            }
+                            else
+                            {
+                                blockType = BlockType.straight;
+                            }
+                        }
                     }
                     int progress = 0;
-                    int baseProgress = lastSectionComponent != null ? lastSectionComponent.maxProgress : 0;
+
                     if (sectionData.sectionType == SectionType.straight)
                     {
                         if (sectionData.direction == Direction.right)
                         { progress = baseProgress + j + 1; }
                         else if (sectionData.direction == Direction.up)
                         { progress = baseProgress + i + 1; }
+                        else if (sectionData.direction == Direction.down)
+                        { progress = baseProgress + (this.sectionData.height - i); }
                     }
                     else if (sectionData.sectionType == SectionType.corner)
                     { progress = baseProgress + 1; }
@@ -94,9 +152,11 @@ namespace DoonaLegend
                     blockComponents.Add(blockComponent);
                     pm.pathManager.PutBlockComponent(blockComponent);
 
+                    if (sectionData.sectionId == 0) continue; //첫번째 섹션에는 아무것도 만들지 않는다
+
                     if (sectionData.sectionType == SectionType.straight)
                     {
-                        int randomNumber = Random.Range(0, 100);
+
                         if (randomNumber < 5)
                         {
                             Node itemOrigin = this.sectionData.origin + new Node(j, i);
@@ -107,7 +167,17 @@ namespace DoonaLegend
                             itemComponents.Add(itemComponent);
                             pm.pathManager.PutItemComponent(itemComponent);
                         }
-                        else if (randomNumber < 15)
+                        else if (randomNumber < 10)
+                        {
+                            Node itemOrigin = this.sectionData.origin + new Node(j, i);
+                            Transform spPotionTransform = Instantiate(spPotionPrefab) as Transform;
+                            spPotionTransform.SetParent(itemContainer);
+                            ItemComponent itemComponent = spPotionTransform.GetComponent<ItemComponent>();
+                            itemComponent.InitItemComponent(this, itemOrigin);
+                            itemComponents.Add(itemComponent);
+                            pm.pathManager.PutItemComponent(itemComponent);
+                        }
+                        else if (randomNumber < 20)
                         {
                             Node itemOrigin = this.sectionData.origin + new Node(j, i);
                             Transform coinTransform = Instantiate(coinPrefab) as Transform;
@@ -117,6 +187,16 @@ namespace DoonaLegend
                             itemComponents.Add(itemComponent);
                             pm.pathManager.PutItemComponent(itemComponent);
                         }
+                        // else if (randomNumber < 22 && sectionData.sectionId != 0)
+                        // {
+                        //     Node trapOrigin = this.sectionData.origin + new Node(j, i);
+                        //     Transform trapTransform = Instantiate(thornFloorPrefab) as Transform;
+                        //     trapTransform.SetParent(trapContainer);
+                        //     TrapComponent trapComponent = trapTransform.GetComponent<TrapComponent>();
+                        //     trapComponent.InitItemComponent(this, trapOrigin);
+                        //     trapComponents.Add(trapComponent);
+                        //     pm.pathManager.PutTrapComponent(trapComponent);
+                        // }
                     }
                 }
             }
@@ -142,6 +222,12 @@ namespace DoonaLegend
             {
                 pm.pathManager.RemoveItemComponent(itemComponent);
                 //TODO : recycle item gameObject
+            }
+
+            foreach (TrapComponent trapComponent in trapComponents)
+            {
+                pm.pathManager.RemoveTrapComponent(trapComponent);
+                //TODO : recycle trap gameObject
             }
 
             Destroy(gameObject);

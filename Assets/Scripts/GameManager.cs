@@ -46,6 +46,29 @@ namespace DoonaLegend
         {
             Debug.Log("GameManager.InitGameManager()");
             SpriteManager.Instance.InitSpriteManager();
+            CharacterManager.Instance.InitCharacterManager();
+        }
+
+        public int GetPlayerCoinFromPref()
+        {
+            return PlayerPrefs.GetInt("coin", 0);
+        }
+
+        public void SetPlayerCoinToPref(int value)
+        {
+            PlayerPrefs.SetInt("coin", value);
+            PlayerPrefs.Save();
+        }
+
+        public int GetBestScoreFromPref()
+        {
+            return PlayerPrefs.GetInt("bestScore", 0);
+        }
+
+        public void SetBestScoreToPref(int value)
+        {
+            PlayerPrefs.SetInt("bestScore", value);
+            PlayerPrefs.Save();
         }
         #endregion
     }

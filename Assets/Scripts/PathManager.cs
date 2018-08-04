@@ -55,6 +55,36 @@ namespace DoonaLegend
             }
         }
 
+        [Header("Trap Components")]
+        public Dictionary<int, Dictionary<int, TrapComponent>> trapDictionaryByOrigin = new Dictionary<int, Dictionary<int, TrapComponent>>();
+        public TrapComponent GetTrapComponent(Node node)
+        {
+            if (trapDictionaryByOrigin.ContainsKey(node.x))
+            {
+                if (trapDictionaryByOrigin[node.x].ContainsKey(node.y))
+                {
+                    return trapDictionaryByOrigin[node.x][node.y];
+                }
+            }
+            // Debug.Log("trapDictionaryByOrigin do not have key: " + node.ToString());
+            return null;
+        }
+        public void PutTrapComponent(TrapComponent trapComponent)
+        {
+            if (!trapDictionaryByOrigin.ContainsKey(trapComponent.origin.x))
+            {
+                trapDictionaryByOrigin.Add(trapComponent.origin.x, new Dictionary<int, TrapComponent>());
+            }
+            trapDictionaryByOrigin[trapComponent.origin.x].Add(trapComponent.origin.y, trapComponent);
+        }
+        public void RemoveTrapComponent(TrapComponent trapComponent)
+        {
+            if (trapDictionaryByOrigin.ContainsKey(trapComponent.origin.x))
+            {
+                trapDictionaryByOrigin[trapComponent.origin.x].Remove(trapComponent.origin.y);
+            }
+        }
+
 
         [Header("Block Components")]
         public int lastBlockComponentId = 0;
@@ -72,7 +102,14 @@ namespace DoonaLegend
             {
                 blockDictionaryByOrigin.Add(blockComponent.blockData.origin.x, new Dictionary<int, BlockComponent>());
             }
-            blockDictionaryByOrigin[blockComponent.blockData.origin.x].Add(blockComponent.blockData.origin.y, blockComponent);
+            if (!blockDictionaryByOrigin[blockComponent.blockData.origin.x].ContainsKey(blockComponent.blockData.origin.y))
+            {
+                blockDictionaryByOrigin[blockComponent.blockData.origin.x].Add(blockComponent.blockData.origin.y, blockComponent);
+            }
+            else
+            {
+                Debug.Log("blockDictionaryByOrigin already have key: " + blockComponent.blockData.origin.ToString());
+            }
         }
         public BlockComponent GetBlockComponent(int blockId)
         {
@@ -135,19 +172,24 @@ namespace DoonaLegend
 
         #region Method
 
-        SectionComponent MakeSection(SectionModel sectionData)
+        SectionComponent MakeSection(SectionModel sectionData, SectionModel nextSectionData = null)
         {
+            // Debug.Log("PathManager.MakeSection(" + sectionData.sectionId + ")");
             Transform sectionTransform = Instantiate(sectionPrefab) as Transform;
             sectionTransform.gameObject.name = "section#" + sectionData.sectionId.ToString();
             sectionTransform.SetParent(sectionContainer);
             SectionComponent sectionComponent = sectionTransform.GetComponent<SectionComponent>();
-            sectionComponent.InitSectionComponent(sectionData, lastSectionComponent);
+            sectionComponent.InitSectionComponent(sectionData, nextSectionData, lastSectionComponent);
 
             return sectionComponent;
         }
 
         void ClearPath()
         {
+            itemDictionaryByOrigin.Clear();
+
+            trapDictionaryByOrigin.Clear();
+
             blockDictionary.Clear();
             blockDictionaryByOrigin.Clear();
             lastBlockComponentId = 0;
@@ -168,14 +210,21 @@ namespace DoonaLegend
                 Direction.right,
                 new Node(0, 0),
                 firstStraightSectionLength, pathWidth);
-            PutSectionComponent(MakeSection(firstStraightSection));
+            Direction firstCornerSectionDirection = Random.Range(0, 100) < 50 ? Direction.up : Direction.down;
             SectionModel firstCornerSection = new SectionModel(
-                lastSectionComponent.sectionData.sectionId + 1,
+                firstStraightSection.sectionId + 1,
                 SectionType.corner,
-                Direction.up,
+                // Direction.up,
+                firstCornerSectionDirection,
                 new Node(firstStraightSectionLength, 0),
                 pathWidth, pathWidth);
-            PutSectionComponent(MakeSection(firstCornerSection));
+
+            SectionComponent firstStraightSectionComponent = MakeSection(firstStraightSection, firstCornerSection);
+            PutSectionComponent(firstStraightSectionComponent);
+            SectionComponent firstCornerSectionComponent = MakeSection(firstCornerSection);
+            firstStraightSectionComponent.nextSectionComponent = firstCornerSectionComponent;
+            firstCornerSectionComponent.beforeSectionComponent = firstStraightSectionComponent;
+            PutSectionComponent(firstCornerSectionComponent);
 
             for (int i = 0; i < 5; i++) { AddSection(); }
         }
@@ -183,21 +232,68 @@ namespace DoonaLegend
         public void AddSection()
         {
             int straightSectionLength = Random.Range(1, 10) * 3; //3,6,9,12,15
+            Node straightSectionOrigin = lastSectionComponent.sectionData.origin;
+            int straightSectionWidth = 0;
+            int straightSectionHeight = 0;
+            if (lastSectionComponent.sectionData.direction == Direction.up)
+            {
+                straightSectionOrigin += new Node(0, pathWidth);
+                straightSectionWidth = pathWidth;
+                straightSectionHeight = straightSectionLength;
+            }
+            else if (lastSectionComponent.sectionData.direction == Direction.right)
+            {
+                straightSectionOrigin += new Node(pathWidth, 0);
+                straightSectionWidth = straightSectionLength;
+                straightSectionHeight = pathWidth;
+            }
+            else if (lastSectionComponent.sectionData.direction == Direction.down)
+            {
+                straightSectionOrigin += new Node(0, -straightSectionLength);
+                straightSectionWidth = pathWidth;
+                straightSectionHeight = straightSectionLength;
+            }
             SectionModel addStraightSection = new SectionModel(
                 lastSectionComponent.sectionData.sectionId + 1,
                 SectionType.straight,
                 lastSectionComponent.sectionData.direction,
-                lastSectionComponent.sectionData.origin + (lastSectionComponent.sectionData.direction == Direction.up ? new Node(0, pathWidth) : new Node(pathWidth, 0)),
-                lastSectionComponent.sectionData.direction == Direction.up ? pathWidth : straightSectionLength,
-                lastSectionComponent.sectionData.direction == Direction.up ? straightSectionLength : pathWidth);
-            PutSectionComponent(MakeSection(addStraightSection));
+                straightSectionOrigin,
+                straightSectionWidth,
+                straightSectionHeight);
+
+
+            Direction cornerSectionDirection = Direction.none;
+            Node cornerSectionOrigin = addStraightSection.origin;
+            if (addStraightSection.direction == Direction.up)
+            {
+                cornerSectionDirection = Direction.right;
+                cornerSectionOrigin += new Node(0, addStraightSection.height);
+            }
+            else if (addStraightSection.direction == Direction.right)
+            {
+                cornerSectionDirection = Random.Range(0, 100) < 50 ? Direction.up : Direction.down;
+                cornerSectionOrigin += new Node(addStraightSection.width, 0);
+            }
+            else if (addStraightSection.direction == Direction.down)
+            {
+                cornerSectionDirection = Direction.right;
+                cornerSectionOrigin += new Node(0, -pathWidth);
+            }
             SectionModel addCornerSection = new SectionModel(
-                lastSectionComponent.sectionData.sectionId + 1,
+                addStraightSection.sectionId + 1,
                 SectionType.corner,
-                lastSectionComponent.sectionData.direction == Direction.up ? Direction.right : Direction.up,
-                lastSectionComponent.sectionData.origin + (lastSectionComponent.sectionData.direction == Direction.up ? new Node(0, lastSectionComponent.sectionData.height) : new Node(lastSectionComponent.sectionData.width, 0)),
+                cornerSectionDirection,
+                cornerSectionOrigin,
                 pathWidth, pathWidth);
-            PutSectionComponent(MakeSection(addCornerSection));
+
+            SectionComponent straightSectionComponent = MakeSection(addStraightSection, addCornerSection);
+            lastSectionComponent.nextSectionComponent = straightSectionComponent;
+            straightSectionComponent.beforeSectionComponent = lastSectionComponent;
+            PutSectionComponent(straightSectionComponent);
+            SectionComponent cornerSectionComponent = MakeSection(addCornerSection);
+            straightSectionComponent.nextSectionComponent = cornerSectionComponent;
+            cornerSectionComponent.beforeSectionComponent = straightSectionComponent;
+            PutSectionComponent(cornerSectionComponent);
 
             if (sectionList.Count > maxMaintainSectionCount)
             {

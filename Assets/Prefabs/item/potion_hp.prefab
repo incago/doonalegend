@@ -22,7 +22,7 @@ GameObject:
   - component: {fileID: 95757370261400462}
   - component: {fileID: 114658203791606688}
   m_Layer: 0
-  m_Name: potion
+  m_Name: potion_hp
   m_TagString: Untagged
   m_Icon: {fileID: 2974397684917235467, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -185,7 +185,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9814405fa67104db2a632dcb0cecb870, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemType: 0
+  itemType: 1
   origin:
     x: 0
     y: 0

@@ -17,23 +17,44 @@ namespace DoonaLegend
         {
             get { if (_pm == null) _pm = GameObject.FindGameObjectWithTag("PlayManager").GetComponent<PlayManager>(); return _pm; }
         }
+        public PlayerInput lastInput;
         #endregion
 
         #region Method
+
+        void Awake()
+        {
+            lastInput = PlayerInput.none;
+        }
         void Update()
         {
+            // if (Input.GetKeyDown(KeyCode.LeftArrow))
+            // { lastInput = PlayerInput.left; }
+            // if (Input.GetKeyDown(KeyCode.RightArrow))
+            // { lastInput = PlayerInput.right; }
+
             if (Input.GetKeyDown(KeyCode.LeftArrow))
             { pm.PlayerAction(PlayerInput.left); }
             if (Input.GetKeyDown(KeyCode.RightArrow))
             { pm.PlayerAction(PlayerInput.right); }
-            if (Input.GetKey(KeyCode.UpArrow))
+            if (Input.GetKeyDown(KeyCode.UpArrow))
             { pm.PlayerAction(PlayerInput.forward); }
+            // if (Input.GetKeyDown(KeyCode.DownArrow))
+            // { pm.PlayerAction(PlayerInput.backward); }
+
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                Time.timeScale = 1.0f;
+                pm.uiManager.panel_pause.SetActive(false);
+                pm.uiManager.HideGameOverPanel();
+                pm.ResetGame();
+            }
         }
         #endregion
     }
 
     public enum PlayerInput
     {
-        left = 0, right = 1, forward = 2, backward = 3
+        none = 0, left = 1, right = 2, forward = 3, backward = 4
     }
 }

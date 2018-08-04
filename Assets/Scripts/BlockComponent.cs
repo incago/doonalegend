@@ -14,9 +14,10 @@ namespace DoonaLegend
         #region Variables
         public BlockModel blockData;
         public SectionComponent sectionComponent;
-        public Renderer renderer;
+        public Renderer blockRenderer;
         public Material greenMaterial, purpleMaterial, redMaterial, orangeMaterial, yellowMaterial;
         public Material brightGreenMaterial, brightPurpleMaterial;
+        // public Material brightMaterial, darkMaterial;
         #endregion
 
         #region Method
@@ -25,36 +26,45 @@ namespace DoonaLegend
             this.sectionComponent = sectionComponent;
             this.blockData = blockData;
 
+            // if ((blockData.origin.x % 2 == 0 && blockData.origin.y % 2 == 0) ||
+            // (blockData.origin.x % 2 == 1 && blockData.origin.y % 2 == 1))
+            // {
+            //     blockRenderer.sharedMaterial = brightMaterial;
+            // }
+            // else { blockRenderer.sharedMaterial = darkMaterial; }
+
+
             if (this.blockData.blockType == BlockType.straight)
             {
-                if ((blockData.origin.x % 2 == 0 && blockData.origin.y % 2 == 0) ||
-                (blockData.origin.x % 2 == 1 && blockData.origin.y % 2 == 1))
+                if ((Mathf.Abs(blockData.origin.x) % 2 == 0 && Mathf.Abs(blockData.origin.y) % 2 == 0) ||
+                (Mathf.Abs(blockData.origin.x) % 2 == 1 && Mathf.Abs(blockData.origin.y) % 2 == 1))
                 {
-                    renderer.sharedMaterial = greenMaterial;
+                    blockRenderer.sharedMaterial = greenMaterial;
                 }
-                else { renderer.sharedMaterial = brightGreenMaterial; }
+                else { blockRenderer.sharedMaterial = brightGreenMaterial; }
             }
             else if (this.blockData.blockType == BlockType.corner)
             {
-                if ((blockData.origin.x % 2 == 0 && blockData.origin.y % 2 == 0) ||
-                (blockData.origin.x % 2 == 1 && blockData.origin.y % 2 == 1))
+                if ((Mathf.Abs(blockData.origin.x) % 2 == 0 && Mathf.Abs(blockData.origin.y) % 2 == 0) ||
+                (Mathf.Abs(blockData.origin.x) % 2 == 1 && Mathf.Abs(blockData.origin.y) % 2 == 1))
                 {
-                    renderer.sharedMaterial = purpleMaterial;
+                    blockRenderer.sharedMaterial = purpleMaterial;
                 }
-                else { renderer.sharedMaterial = brightPurpleMaterial; }
+                else { blockRenderer.sharedMaterial = brightPurpleMaterial; }
             }
             else if (this.blockData.blockType == BlockType.shortcut_start)
             {
-                renderer.sharedMaterial = redMaterial;
+                blockRenderer.sharedMaterial = redMaterial;
             }
             else if (this.blockData.blockType == BlockType.shortcut_end)
             {
-                renderer.sharedMaterial = yellowMaterial;
+                blockRenderer.sharedMaterial = yellowMaterial;
             }
             else if (this.blockData.blockType == BlockType.edge)
             {
-                renderer.sharedMaterial = orangeMaterial;
+                blockRenderer.sharedMaterial = orangeMaterial;
             }
+
 
             SetBlockPosition(this.blockData.origin);
         }
