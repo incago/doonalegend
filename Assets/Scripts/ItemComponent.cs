@@ -14,6 +14,7 @@ namespace DoonaLegend
         #region Variables
         private SectionComponent sectionComponent;
         public ItemType itemType;
+        public float value;
         public Node origin;
         #endregion
 
@@ -35,6 +36,6 @@ namespace DoonaLegend
 
     public enum ItemType
     {
-        coin = 0, potion_hp = 1, potion_sp = 2
+        coin = 0, hp = 1, sp = 2, heart
     }
 }

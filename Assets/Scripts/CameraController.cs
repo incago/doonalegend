@@ -12,7 +12,12 @@ namespace DoonaLegend
     public class CameraController : MonoBehaviour
     {
         #region Variables
-        private PlayerComponent player;
+        private PlayManager _pm;
+        public PlayManager pm
+        {
+            get { if (_pm == null) _pm = GameObject.FindGameObjectWithTag("PlayManager").GetComponent<PlayManager>(); return _pm; }
+        }
+        private ChampionComponent player;
         public Transform pivot;
         public Vector3 playerUpAngle = new Vector3(45.0f, 30.0f, 0);
         // public Vector3 playerUpPosition = new Vector3(-5, 10, -5);
@@ -48,9 +53,35 @@ namespace DoonaLegend
             gameObject.transform.position = new Vector3(node.x + 0.5f, 0, node.y + 0.5f);
         }
 
-        public void SetTarget(PlayerComponent target)
+        public void SetTarget(ChampionComponent target)
         {
             this.player = target;
+        }
+
+        public void SetInitialRotation(Node playerOrigin)
+        {
+            BlockComponent currentBlockComponent = pm.pathManager.GetBlockComponentByOrigin(playerOrigin);
+            // SectionComponent firstSectionComponent = pm.pathManager.GetSectionComponent(1);
+            // SectionComponent secondSectionComponent = pm.pathManager.GetSectionComponent(2);
+            int currentProgress = currentBlockComponent.blockData.progress;
+            int minProgressInSection = currentBlockComponent.sectionComponent.minProgress;
+            int maxProgressInSection = currentBlockComponent.sectionComponent.maxProgress;
+            float startPercent = (float)(currentProgress - minProgressInSection - 1) / (float)(maxProgressInSection - minProgressInSection);
+            float endPercent = (float)(currentProgress - minProgressInSection) / (float)(maxProgressInSection - minProgressInSection);
+            Quaternion initialRotation = Quaternion.identity;
+            Quaternion targetRotation = Quaternion.identity;
+
+            if (currentBlockComponent.sectionComponent.nextSectionComponent.nextSectionComponent.sectionData.direction == Direction.up)
+            { initialRotation = Quaternion.Euler(pm.cameraController.playerRightUpAngle); }
+            else if (currentBlockComponent.sectionComponent.nextSectionComponent.nextSectionComponent.sectionData.direction == Direction.down)
+            { initialRotation = Quaternion.Euler(pm.cameraController.playerRightDownAngle); }
+
+            if (currentBlockComponent.sectionComponent.nextSectionComponent.nextSectionComponent.sectionData.direction == Direction.up)
+            { targetRotation = Quaternion.Euler(pm.cameraController.playerUpAngle); }
+            else if (currentBlockComponent.sectionComponent.nextSectionComponent.nextSectionComponent.sectionData.direction == Direction.down)
+            { targetRotation = Quaternion.Euler(pm.cameraController.playerDownAngle); }
+
+            pm.cameraController.AnimatePivotAngle(initialRotation, targetRotation, startPercent, endPercent, 0.3f);
         }
 
         /*
@@ -79,6 +110,8 @@ namespace DoonaLegend
 
         public void AnimatePivotAngle(Quaternion initialRotation, Quaternion targetRotation, float startPercent, float endPercent, float duration)
         {
+            // Debug.Log("initialRotation: " + initialRotation.ToString());
+            // Debug.Log("targetRotation: " + targetRotation.ToString());
             if (animatePivotRotateCoroutine != null) StopCoroutine(animatePivotRotateCoroutine);
             animatePivotRotateCoroutine = StartCoroutine(AnimatePivotAngleHelper(initialRotation, targetRotation, startPercent, endPercent, duration));
         }

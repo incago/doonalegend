@@ -15,6 +15,7 @@ namespace DoonaLegend
         private SectionComponent sectionComponent;
         public TrapType trapType;
         public Node origin;
+        public int attack;
         #endregion
 
         #region Method
