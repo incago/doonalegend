@@ -28,6 +28,7 @@ namespace DoonaLegend
         public Transform trapContainer;
         public bool isCollapsing = false;
         public bool isCollapsed = false;
+        public bool isGrid = false;
 
         #endregion
 
@@ -38,14 +39,21 @@ namespace DoonaLegend
             this.blockData = blockData;
             isCollapsing = isCollapsed = false;
 
-            if ((Mathf.Abs(blockData.origin.x) % 2 == 0 && Mathf.Abs(blockData.origin.y) % 2 == 0) ||
-            (Mathf.Abs(blockData.origin.x) % 2 == 1 && Mathf.Abs(blockData.origin.y) % 2 == 1))
+            if (isGrid)
             {
-                foreach (Renderer renderer in renderers) { renderer.sharedMaterial = brightMaterial; }
+                if ((Mathf.Abs(blockData.origin.x) % 2 == 0 && Mathf.Abs(blockData.origin.y) % 2 == 0) ||
+                (Mathf.Abs(blockData.origin.x) % 2 == 1 && Mathf.Abs(blockData.origin.y) % 2 == 1))
+                {
+                    foreach (Renderer renderer in renderers) { renderer.sharedMaterial = brightMaterial; }
+                }
+                else
+                {
+                    foreach (Renderer renderer in renderers) { renderer.sharedMaterial = darkMaterial; }
+                }
             }
             else
             {
-                foreach (Renderer renderer in renderers) { renderer.sharedMaterial = darkMaterial; }
+                foreach (Renderer renderer in renderers) { renderer.sharedMaterial = brightMaterial; }
             }
 
 

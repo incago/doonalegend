@@ -81,7 +81,8 @@ namespace DoonaLegend
                     blockGameObject.name = "block#" + pm.pathManager.lastBlockComponentId.ToString();
                     blockGameObject.transform.SetParent(blockContainer);
                     BlockComponent blockComponent = blockGameObject.GetComponent<BlockComponent>();
-                    BlockType blockType = this.sectionData.sectionType == SectionType.corner ? BlockType.corner : BlockType.straight;
+                    BlockCategory blockCategory = this.sectionData.sectionType == SectionType.corner ? BlockCategory.corner : BlockCategory.straight;
+                    BlockType blockType = BlockType.basic_straight;
                     if (this.sectionData.sectionType == SectionType.corner)
                     {
                         if (
@@ -90,11 +91,11 @@ namespace DoonaLegend
                         (this.sectionData.direction == Direction.up && j == this.sectionData.width - 1) ||
                         (this.sectionData.direction == Direction.down && j == this.sectionData.width - 1))
                         {
-                            blockType = BlockType.corner_edge;
+                            blockCategory = BlockCategory.corner_edge;
                         }
                         else
                         {
-                            blockType = BlockType.corner;
+                            blockCategory = BlockCategory.corner;
                         }
                     }
                     else if (this.sectionData.sectionType == SectionType.straight)
@@ -105,46 +106,46 @@ namespace DoonaLegend
                         {
                             if (j == this.sectionData.width - 1 && i == this.sectionData.height - 1)
                             {
-                                blockType = BlockType.shortcut_start;
+                                blockCategory = BlockCategory.shortcut_start;
                             }
                             else if (this.sectionData.direction == Direction.right && j == this.sectionData.width - 1)
                             {
-                                blockType = BlockType.straight_edge;
+                                blockCategory = BlockCategory.straight_edge;
                             }
                             else if (this.sectionData.direction == Direction.up && i == this.sectionData.height - 1)
                             {
-                                blockType = BlockType.straight_edge;
+                                blockCategory = BlockCategory.straight_edge;
                             }
                             else if (j == 0 && i == 0)
                             {
-                                blockType = BlockType.shortcut_end;
+                                blockCategory = BlockCategory.shortcut_end;
                             }
                             else
                             {
-                                blockType = BlockType.straight;
+                                blockCategory = BlockCategory.straight;
                             }
                         }
                         else
                         {
                             if (j == this.sectionData.width - 1 && i == 0)
                             {
-                                blockType = BlockType.shortcut_start;
+                                blockCategory = BlockCategory.shortcut_start;
                             }
                             else if (this.sectionData.direction == Direction.right && j == this.sectionData.width - 1)
                             {
-                                blockType = BlockType.straight_edge;
+                                blockCategory = BlockCategory.straight_edge;
                             }
                             else if (this.sectionData.direction == Direction.down && i == 0)
                             {
-                                blockType = BlockType.straight_edge;
+                                blockCategory = BlockCategory.straight_edge;
                             }
                             else if (j == 0 && i == this.sectionData.height - 1)
                             {
-                                blockType = BlockType.shortcut_end;
+                                blockCategory = BlockCategory.shortcut_end;
                             }
                             else
                             {
-                                blockType = BlockType.straight;
+                                blockCategory = BlockCategory.straight;
                             }
                         }
                     }
@@ -166,7 +167,8 @@ namespace DoonaLegend
 
                     BlockModel blockData = new BlockModel(
                         pm.pathManager.lastBlockComponentId++,
-                        blockType, this.sectionData.direction,
+                        blockCategory, blockType,
+                        this.sectionData.direction,
                         this.sectionData.origin + new Node(j, i),
                         progress);
 

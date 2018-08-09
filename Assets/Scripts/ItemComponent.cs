@@ -16,6 +16,7 @@ namespace DoonaLegend
         public ItemType itemType;
         public float value;
         public Node origin;
+        public string sfx;
         #endregion
 
         #region Method

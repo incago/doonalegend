@@ -29,7 +29,8 @@ namespace DoonaLegend
         private Coroutine gameOverCoroutine;
 
         [Header("Score")]
-        public int score;
+        public int distance;
+        public int kill;
         public int totalCoin;
         public int addCoin;
 
@@ -63,9 +64,11 @@ namespace DoonaLegend
         public void ResetGame()
         {
             pathManager.InitPath();
-            score = 0;
+            distance = 0;
+            kill = 0;
             addCoin = 0;
-            uiManager.UpdateScore(this.score);
+            uiManager.UpdateKill(this.kill);
+            uiManager.UpdateDistance(this.distance);
             uiManager.UpdateCoin(false);
 
             isHpDecreasing = false;
@@ -124,16 +127,16 @@ namespace DoonaLegend
                 // Debug.Log("player.origin: " + player.origin.ToString());
                 Node possibleEnemyNode = GetNextNode(player, input);
                 // Debug.Log("possibleEnemyNode: " + possibleEnemyNode.ToString());
-                if (blockComponent.blockData.blockType == BlockType.straight && IsEnemyInDirection(possibleEnemyNode))
+                if (blockComponent.blockData.blockCategory == BlockCategory.straight && IsEnemyInDirection(possibleEnemyNode))
                 {
                     player.Attack(player.origin, possibleEnemyNode, 0.2f);
                     return;
                 }
                 else if (
-                    (blockComponent.blockData.blockType == BlockType.straight) ||
-                    (blockComponent.blockData.blockType == BlockType.shortcut_end) ||
-                    (blockComponent.blockData.blockType == BlockType.corner && player.direction == blockComponent.blockData.direction) ||
-                    (blockComponent.blockData.blockType == BlockType.corner_edge && player.direction == blockComponent.blockData.direction))
+                    (blockComponent.blockData.blockCategory == BlockCategory.straight) ||
+                    (blockComponent.blockData.blockCategory == BlockCategory.shortcut_end) ||
+                    (blockComponent.blockData.blockCategory == BlockCategory.corner && player.direction == blockComponent.blockData.direction) ||
+                    (blockComponent.blockData.blockCategory == BlockCategory.corner_edge && player.direction == blockComponent.blockData.direction))
                 {
                     if (blockComponent.blockData.direction == Direction.right)
                     {
@@ -157,7 +160,7 @@ namespace DoonaLegend
                         // else if (input == PlayerInput.backward) targetNode += new Node(0, -1);
                     }
                 }
-                else if (blockComponent.blockData.blockType == BlockType.shortcut_start)
+                else if (blockComponent.blockData.blockCategory == BlockCategory.shortcut_start)
                 {
                     if (player.direction != blockComponent.blockData.direction)
                     {
@@ -235,7 +238,7 @@ namespace DoonaLegend
                         }
                     }
                 }
-                else if (blockComponent.blockData.blockType == BlockType.corner && player.direction != blockComponent.blockData.direction)
+                else if (blockComponent.blockData.blockCategory == BlockCategory.corner && player.direction != blockComponent.blockData.direction)
                 {
                     if (player.direction == Direction.right)
                     {
@@ -282,7 +285,7 @@ namespace DoonaLegend
                         else if (input == PlayerInput.forward) targetNode += new Node(0, -1);
                     }
                 }
-                else if (blockComponent.blockData.blockType == BlockType.corner_edge && player.direction != blockComponent.blockData.direction)
+                else if (blockComponent.blockData.blockCategory == BlockCategory.corner_edge && player.direction != blockComponent.blockData.direction)
                 {
                     if (blockComponent.blockData.direction == Direction.right)
                     {
@@ -328,7 +331,7 @@ namespace DoonaLegend
                         else if (input == PlayerInput.forward) targetNode += new Node(1, 0);
                     }
                 }
-                else if (blockComponent.blockData.blockType == BlockType.straight_edge)
+                else if (blockComponent.blockData.blockCategory == BlockCategory.straight_edge)
                 {
                     if (blockComponent.blockData.direction == Direction.right)
                     {
@@ -456,10 +459,16 @@ namespace DoonaLegend
             }
         }
 
-        public void AddScore(int add)
+        public void AddDistance(int add)
         {
-            this.score += add;
-            uiManager.UpdateScore(this.score);
+            this.distance += add;
+            uiManager.UpdateDistance(this.distance, true);
+        }
+
+        public void AddKill(int add)
+        {
+            this.kill += add;
+            uiManager.UpdateKill(this.kill, true);
         }
 
         public void GameOver()
@@ -472,9 +481,9 @@ namespace DoonaLegend
         {
             yield return new WaitForSeconds(1.5f);
             int bestScore = GameManager.Instance.GetBestScoreFromPref();
-            if (score > bestScore)
+            if (distance > bestScore)
             {
-                GameManager.Instance.SetBestScoreToPref(score);
+                GameManager.Instance.SetBestScoreToPref(distance);
             }
             uiManager.animator_control.SetTrigger("slideout");
             uiManager.animator_menu.SetTrigger("slidein");

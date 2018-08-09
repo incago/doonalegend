@@ -40,6 +40,14 @@ namespace DoonaLegend
         public float maxSp;
         public float sp;
 
+        [Header("SFX")]
+        public string damageSfx;
+        public string deadSfx;
+        public string attackSfx;
+
+        [Header("Etc")]
+        public Vector3 canvasHudOffset;
+
         #endregion
 
         #region Method
@@ -73,6 +81,7 @@ namespace DoonaLegend
         public void Attack(Node playerNode, Node enemyNode, float attackDuration)
         {
             if (isAttacking) return;
+            if (!string.IsNullOrEmpty(attackSfx)) SoundManager.Instance.Play(attackSfx);
             StartCoroutine(AttackHelper(playerNode, enemyNode, attackDuration));
             animator.SetTrigger("jump");
         }
@@ -104,6 +113,7 @@ namespace DoonaLegend
             }
             else
             {
+                pm.AddKill(1);
                 origin = enemyNode;
                 pm.pathManager.RemoveEnemyComponent(enemyComponent);
                 Destroy(enemyComponent.gameObject);
@@ -178,7 +188,7 @@ namespace DoonaLegend
                 if (currentBlockComponent.blockData.progress > progress)
                 {
                     progress = currentBlockComponent.blockData.progress;
-                    pm.AddScore(currentBlockComponent.blockData.progress - beforeBlockComponent.blockData.progress);
+                    pm.AddDistance(currentBlockComponent.blockData.progress - beforeBlockComponent.blockData.progress);
                 }
 
                 // if (currentBlockComponent.sectionComponent.sectionData.sectionType == SectionType.straight)
@@ -189,16 +199,20 @@ namespace DoonaLegend
                 ItemComponent itemComponent = pm.pathManager.GetItemComponent(this.origin);
                 if (itemComponent != null)
                 {
+                    if (!string.IsNullOrEmpty(itemComponent.sfx))
+                        SoundManager.Instance.Play(itemComponent.sfx);
                     //eat item and destroy
                     if (itemComponent.itemType == ItemType.hp)
                     {
                         AddHp((int)itemComponent.value);
                         pm.uiManager.UpdateHpUI(true);
+                        pm.uiManager.MakeCanvasMessageHud(gameObject.transform, "+" + ((int)itemComponent.value).ToString(), canvasHudOffset, Color.green, Color.black);
                     }
                     else if (itemComponent.itemType == ItemType.sp)
                     {
                         AddSp(itemComponent.value);
                         pm.uiManager.UpdateSp();
+                        pm.uiManager.MakeCanvasMessageHud(gameObject.transform, "+" + ((int)itemComponent.value).ToString(), canvasHudOffset, Color.magenta, Color.black);
                     }
                     else if (itemComponent.itemType == ItemType.coin)
                     {
@@ -206,6 +220,7 @@ namespace DoonaLegend
                         pm.addCoin += (int)itemComponent.value;
                         GameManager.Instance.SetPlayerCoinToPref(pm.totalCoin);
                         pm.uiManager.UpdateCoin(true);
+                        pm.uiManager.MakeCanvasMessageHud(gameObject.transform, "+" + ((int)itemComponent.value).ToString(), canvasHudOffset, Color.yellow, Color.black);
                     }
                     else if (itemComponent.itemType == ItemType.heart)
                     {
@@ -214,6 +229,7 @@ namespace DoonaLegend
                         pm.player.maxHp = Mathf.Clamp(pm.player.maxHp, 1, 32);
                         pm.player.hp += addHp;
                         pm.uiManager.InitHpUI(pm.player.maxHp, pm.player.hp, true);
+                        pm.uiManager.MakeCanvasMessageHud(gameObject.transform, "Feeling Healty!", canvasHudOffset, Color.white, Color.black);
                     }
                     pm.pathManager.RemoveItemComponent(itemComponent);
                     Destroy(itemComponent.gameObject);
@@ -357,10 +373,20 @@ namespace DoonaLegend
             // Debug.Log("PlayerComponent.TakeDamage(" + damage.ToString() + ")");
             if (isDead) return;
 
+            Vector3 _canvasHudOffset = canvasHudOffset;
+            if (damageType == DamageType.enemy)
+            {
+                _canvasHudOffset = new Vector3(0, 0, 0);
+            }
+            Vector3 attackPosition = new Vector3(origin.x + 0.5f, 0, origin.y + 0.5f);
+            pm.uiManager.MakeCanvasMessageHud(attackPosition, "-" + damage.ToString(), _canvasHudOffset, Color.red, Color.white);
+
             hp -= damage;
             pm.uiManager.UpdateHpUI(true);
             if (hp <= 0)
             {
+                if (!string.IsNullOrEmpty(deadSfx)) SoundManager.Instance.Play(deadSfx);
+
                 hp = 0;
                 isDead = true;
                 if (damageType == DamageType.trap || damageType == DamageType.time || damageType == DamageType.enemy)
@@ -372,6 +398,11 @@ namespace DoonaLegend
                     animator.SetTrigger("dead_drop");
                 }
                 pm.GameOver();
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(damageSfx)) SoundManager.Instance.Play(damageSfx);
+
             }
         }
 

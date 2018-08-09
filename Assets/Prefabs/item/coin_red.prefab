@@ -263,3 +263,4 @@ MonoBehaviour:
   origin:
     x: 0
     y: 0
+  sfx: coin

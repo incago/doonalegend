@@ -629,3 +629,7 @@ MonoBehaviour:
   attack: 1
   maxSp: 0
   sp: 0
+  damageSfx: pop
+  deadSfx: pop
+  attackSfx: pop
+  canvasHudOffset: {x: 0, y: 1.5, z: 0}

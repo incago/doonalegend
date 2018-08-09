@@ -12,6 +12,11 @@ namespace DoonaLegend
     public class EnemyComponent : MonoBehaviour
     {
         #region Variables
+        private PlayManager _pm;
+        public PlayManager pm
+        {
+            get { if (_pm == null) _pm = GameObject.FindGameObjectWithTag("PlayManager").GetComponent<PlayManager>(); return _pm; }
+        }
         public string enemyId;
         public Node origin;
         public Direction direction;
@@ -23,6 +28,14 @@ namespace DoonaLegend
         public int maxHp;
         public int hp;
         public int attack;
+
+        [Header("SFX")]
+        public string damageSfx;
+        public string deadSfx;
+        public string attackSfx;
+
+        [Header("Etc")]
+        public Vector3 canvasHudOffset;
         #endregion
 
         #region Method
@@ -49,19 +62,30 @@ namespace DoonaLegend
             body.rotation = targetRotation;
         }
 
+        public void Attack(ChampionComponent champion)
+        {
+            if (!string.IsNullOrEmpty(attackSfx)) SoundManager.Instance.Play(attackSfx);
+            champion.TakeDamage(attack, DamageType.enemy);
+        }
+
         public bool TakeDamage(ChampionComponent player, int damage)
         {
             // Debug.Log("EnemyComponent.TakeDamage(" + damage.ToString() + ")");
+
+            pm.uiManager.MakeCanvasMessageHud(gameObject.transform, "-" + damage.ToString(), canvasHudOffset, Color.red, Color.white);
+
             hp -= damage;
             if (hp <= 0)
             {
+                if (!string.IsNullOrEmpty(deadSfx)) SoundManager.Instance.Play(deadSfx);
                 hp = 0;
                 isDead = true;
                 return false;
             }
             else
             {
-                player.TakeDamage(attack, DamageType.enemy);
+                if (!string.IsNullOrEmpty(damageSfx)) SoundManager.Instance.Play(damageSfx);
+                Attack(player);
                 return true;
             }
         }

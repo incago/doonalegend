@@ -20,13 +20,13 @@ namespace DoonaLegend
         #region Method
         public void FadeOut()
         {
-            Debug.Log("SceneTransition.FadeOut()");
+            // Debug.Log("SceneTransition.FadeOut()");
             animator.SetTrigger("fadeout");
         }
 
         public void FadeIn(Action callback)
         {
-            Debug.Log("SceneTransition.FadeIn()");
+            // Debug.Log("SceneTransition.FadeIn()");
             animator.SetTrigger("fadein");
             StartCoroutine(FadeInHelper(0.6666f, callback));
         }

@@ -22,7 +22,8 @@ namespace DoonaLegend
         }
         public PathManager pathManager;
         public Button button_addsection;
-        public Text text_score, text_kill;
+        public Text text_distance, text_kill;
+        public Animator animator_distance, animator_kill;
 
         [Header("Coin")]
         public Animator animator_coin;
@@ -62,6 +63,10 @@ namespace DoonaLegend
 
         [Header("Scene Transition")]
         public SceneTransition sceneTransition;
+
+        [Header("HUD")]
+        public Transform container_hud;
+        public CanvasHud canvasHudPrefab;
         #endregion
 
         #region Method
@@ -104,16 +109,27 @@ namespace DoonaLegend
             // fill_hp.color = color_hp_green;
             slider_sp.maxValue = 100.0f;
             slider_sp.value = 0.0f;
-            text_score.text = "0";
-            text_kill.text = "0";
+            // text_distance.text = "0";
+            // text_kill.text = "0";
         }
 
-        public void UpdateScore(int score)
+        public void UpdateDistance(int score, bool withAnimation = false)
         {
-            text_score.text = score.ToString();
+            text_distance.text = score.ToString();
+            if (withAnimation)
+            {
+                animator_distance.SetTrigger("update");
+            }
         }
 
-
+        public void UpdateKill(int kill, bool withAnimation = false)
+        {
+            text_kill.text = kill.ToString();
+            if (withAnimation)
+            {
+                animator_kill.SetTrigger("update");
+            }
+        }
 
         public void UpdateSp()
         {
@@ -201,6 +217,21 @@ namespace DoonaLegend
             // { fill_hp.color = Color.Lerp(color_hp_red, color_hp_yellow, percent * 2); }
             // else
             // { fill_hp.color = Color.Lerp(color_hp_yellow, color_hp_green, (percent - 0.5f) * 2); }
+        }
+
+        public void MakeCanvasMessageHud(Transform target, string message, Vector3 localOffset, Color fontColor, Color outlineColor)
+        {
+            // Debug.Log("UIManager.MakeCanvasMessageHud()");
+            MakeCanvasMessageHud(target.position, message, localOffset, fontColor, outlineColor);
+        }
+
+        public void MakeCanvasMessageHud(Vector3 position, string message, Vector3 localOffset, Color fontColor, Color outlineColor)
+        {
+            // Debug.Log("UIManager.MakeCanvasMessageHud()");
+            CanvasHud messageHUDInstance = Instantiate(canvasHudPrefab) as CanvasHud;
+            messageHUDInstance.transform.SetParent(container_hud);
+            messageHUDInstance.transform.localScale = Vector3.one;
+            messageHUDInstance.Init(position, message, localOffset, fontColor, outlineColor);
         }
 
         public void DestroyChildGameObject(Transform parent)

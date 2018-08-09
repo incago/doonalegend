@@ -433,7 +433,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   blockData:
     blockId: 0
-    blockType: 0
+    blockCategory: 0
     direction: 0
     origin:
       x: 0
@@ -456,3 +456,6 @@ MonoBehaviour:
   animator: {fileID: 95370897346005394}
   itemContainer: {fileID: 4774441583928442}
   trapContainer: {fileID: 4554437249181320}
+  isCollapsing: 0
+  isCollapsed: 0
+  isGrid: 1
