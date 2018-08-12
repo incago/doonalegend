@@ -20,6 +20,32 @@ namespace INCAGO_TMX
         public Orientation orientation;
         public int nextobjectid;
         public List<Layer> layers;
+        public List<TilesetRef> tilesets;
+    }
+
+    [Serializable]
+    public class TilesetRef
+    {
+        public int firstgid;
+        public string source;
+    }
+
+    [Serializable]
+    public class Tileset
+    {
+        public int firstgid;
+        public int columns;
+        public string image;
+        public int imageheight;
+        public int imagewidth;
+        public int margin;
+        public string name;
+        public int spacing;
+        public int tilecount;
+        public int tileheight;
+        public int tilewidth;
+        public Dictionary<int, TileProperty> tileproperties;
+        // public Dictionary<int, TileProperty> tilepropertytypes;
     }
 
     [Serializable]
@@ -47,7 +73,7 @@ namespace INCAGO_TMX
         public bool visible;
         public int x;
         public int y;
-        public ObjectProperty properties;
+        public TileProperty properties;
         public int index
         {
             get
@@ -60,35 +86,13 @@ namespace INCAGO_TMX
     }
 
     [Serializable]
-    public class ObjectProperty
+    public class TileProperty
     {
         public string objectId;
         public string objectType; //thingType이 될수도 unitType이 될수도. 상황에 맞추어 특정타입으로 파싱하여 사용한다.
-        public Direction direction;
-        public string color;
-        public string contents;
-        public int quantity;
-        // public int durability;
-        public string itemOption;
-
-        public string title;
-        public string message;
-
-        public bool isObstacle;
-        public bool isDestroyed;
-        public bool isOn;
-        public bool isLocked;
-        public bool isBoss;
-        public bool isOpponentUnit;
-
-        public string camp;
-        public bool isDead;
-        public bool isRevived;
-        public int life; //이것은 current health를 의미한다.
-        public int level; //타일드를 이용하여 유닛을 생성할때 레벨정보가 된다.
-        public float delay;
-        // public int coin;
-        public int exp;
+        public string itemType;
+        public float value;
+        public bool isDead;//for test
     }
 
     public enum Orientation : byte

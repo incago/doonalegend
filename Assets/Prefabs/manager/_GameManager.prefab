@@ -25,6 +25,7 @@ GameObject:
   - component: {fileID: 114946913785274382}
   - component: {fileID: 114304304033333160}
   - component: {fileID: 82253017219624660}
+  - component: {fileID: 114115934584248438}
   m_Layer: 0
   m_Name: _GameManager
   m_TagString: Untagged
@@ -140,6 +141,31 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &114115934584248438
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1703607629065926}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2f04cc60953146db9c0f96a53af6bc9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  unit_2:
+  - {fileID: 4900000, guid: c2ef8fc28768d496499252d078a553d3, type: 3}
+  - {fileID: 4900000, guid: 3f2e1f929d4564a32b077b3fae4315b7, type: 3}
+  unit_3:
+  - {fileID: 4900000, guid: cf44fb5f73d6f4728a0c5c5f216bddb4, type: 3}
+  unit_4:
+  - {fileID: 4900000, guid: 2a977d844f20241b2b0b1dda4d48f931, type: 3}
+  unit_5:
+  - {fileID: 4900000, guid: 8c5233809bd154e78aec2f8dddf38f04, type: 3}
+  tilesets:
+  - {fileID: 4900000, guid: 8477622159ec94cb88266c04950a5c62, type: 3}
+  - {fileID: 4900000, guid: 8c01d569d395248b8ac85ca8ed096a4e, type: 3}
+  - {fileID: 4900000, guid: c17f5f77461c744afba23467e9946cee, type: 3}
+  tilesetList: []
 --- !u!114 &114304304033333160
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -212,5 +238,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4fb1650c8c3f44cabe37d7aa16ec767, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  items:
+  - {fileID: 114658203791606688, guid: c69c8430b06d74c3aa82baa04e52b8f0, type: 2}
+  - {fileID: 114658203791606688, guid: 9303d7048f7d548b0b7351de2cdf9523, type: 2}
+  - {fileID: 114658203791606688, guid: 3cb38e67ac60f45be9ee9b2c540cdbad, type: 2}
+  - {fileID: 114658203791606688, guid: 74ae7d188352f409ebd48bfa9f289180, type: 2}
+  - {fileID: 114658203791606688, guid: d676731fb25ba49a8b799aab9a2a976a, type: 2}
+  - {fileID: 114658203791606688, guid: bff97402f31eb49bbb461058787aad55, type: 2}
   enemies:
   - {fileID: 114860708596728174, guid: 98476466efcbb4c8ca1ab3cc122db723, type: 2}
+  traps:
+  - {fileID: 114503254946646262, guid: e892ab5bdfefd408c8f955cde125b9a4, type: 2}
+  blocks:
+  - {fileID: 114979247916057648, guid: 9d7638503e8bb4af2a77db169762e2bc, type: 2}
+  - {fileID: 114979247916057648, guid: 7bc6a5896bdbb471bbd3247a2a6d47f6, type: 2}
+  - {fileID: 114979247916057648, guid: 09bbbd8495d2743ec908765661ef0a28, type: 2}
+  - {fileID: 114979247916057648, guid: bd17539e6f93b47b289046ff52c00efd, type: 2}
+  - {fileID: 114030696498773054, guid: b02a7a8cf1c414eaeb01ee9704aa087f, type: 2}

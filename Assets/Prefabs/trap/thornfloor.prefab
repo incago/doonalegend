@@ -854,6 +854,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e1add439a193467497eae56afe9a8d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  trapGid: 33
   trapType: 0
   origin:
     x: 0

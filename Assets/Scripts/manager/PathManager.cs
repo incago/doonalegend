@@ -233,8 +233,10 @@ namespace DoonaLegend
         {
             int startSectionId = 0;
             ClearPath();
-            // int firstStraightSectionLength = Random.Range(3, 6) * 3;
-            int firstStraightSectionLength = 12;
+            int unitLength = Random.Range(3, 6);
+            unitLength = 3;
+            int firstStraightSectionLength = unitLength * 3;
+            SectionContent sectionContent = MapManager.Instance.GetSectorContent(unitLength);
             SectionModel firstStraightSection = new SectionModel(
                 startSectionId,
                 SectionType.straight,
@@ -262,7 +264,17 @@ namespace DoonaLegend
 
         public void AddSection()
         {
-            int straightSectionLength = Random.Range(2, 6) * 3; //3,6,9,12,15
+            int unitLength = Random.Range(2, 6);
+            int straightSectionLength = unitLength * 3; //6, 9, 12, 15
+
+            SectionContent sectionContent = MapManager.Instance.GetSectorContent(unitLength);
+            // Debug.Log("unitLength: " + unitLength.ToString());
+            // Debug.Log(sectionContent.unitLength.ToString());
+            // Debug.Log(sectionContent.fileName);
+            // Debug.Log(sectionContent.terrains.GetLength(0)); //always 3
+            // Debug.Log(sectionContent.terrains.GetLength(1));
+            // Debug.Log("---");
+
             Node straightSectionOrigin = lastSectionComponent.sectionData.origin;
             int straightSectionWidth = 0;
             int straightSectionHeight = 0;
@@ -284,13 +296,86 @@ namespace DoonaLegend
                 straightSectionWidth = pathWidth;
                 straightSectionHeight = straightSectionLength;
             }
+            int[,] terrains = new int[straightSectionHeight, straightSectionWidth];
+            int[,] objects = new int[straightSectionHeight, straightSectionWidth];
+            // Debug.Log("straightSectionHeight: " + straightSectionHeight.ToString());
+            // Debug.Log("straightSectionWidth: " + straightSectionWidth.ToString());
+
+            if (lastSectionComponent.sectionData.direction == Direction.right)
+            {
+                terrains = sectionContent.terrains;
+                foreach (KeyValuePair<int, Dictionary<int, int>> kv in sectionContent.objects)
+                {
+                    int x = kv.Key;
+                    foreach (KeyValuePair<int, int> kv2 in kv.Value)
+                    {
+                        int y = kv2.Key;
+                        int gid = kv2.Value;
+                        // Debug.Log(x.ToString() + "," + y.ToString());
+                        objects[x, y] = gid;
+                    }
+                }
+                foreach (KeyValuePair<int, Dictionary<int, int>> kv in sectionContent.objects)
+                {
+                    int x = kv.Key;
+                    foreach (KeyValuePair<int, int> kv2 in kv.Value)
+                    {
+                        int y = kv2.Key;
+                        int gid = kv2.Value;
+                        objects[x, y] = gid;
+                    }
+                }
+            }
+            else if (lastSectionComponent.sectionData.direction == Direction.up)
+            {
+                for (int i = 0; i < sectionContent.terrains.GetLength(0); i++)
+                {
+                    for (int j = 0; j < sectionContent.terrains.GetLength(1); j++)
+                    {
+                        //TODO: 검증해봐야 함
+                        terrains[j, sectionContent.terrains.GetLength(0) - 1 - i] = sectionContent.terrains[i, j];
+                    }
+                }
+                foreach (KeyValuePair<int, Dictionary<int, int>> kv in sectionContent.objects)
+                {
+                    int x = kv.Key;
+                    foreach (KeyValuePair<int, int> kv2 in kv.Value)
+                    {
+                        int y = kv2.Key;
+                        int gid = kv2.Value;
+                        objects[y, sectionContent.terrains.GetLength(0) - 1 - x] = gid;
+                    }
+                }
+            }
+            else if (lastSectionComponent.sectionData.direction == Direction.down)
+            {
+                for (int i = 0; i < sectionContent.terrains.GetLength(0); i++)
+                {
+                    for (int j = 0; j < sectionContent.terrains.GetLength(1); j++)
+                    {
+                        //TODO: 검증해봐야 함
+                        terrains[sectionContent.terrains.GetLength(1) - 1 - j, i] = sectionContent.terrains[i, j];
+                    }
+                }
+                foreach (KeyValuePair<int, Dictionary<int, int>> kv in sectionContent.objects)
+                {
+                    int x = kv.Key;
+                    foreach (KeyValuePair<int, int> kv2 in kv.Value)
+                    {
+                        int y = kv2.Key;
+                        int gid = kv2.Value;
+                        objects[sectionContent.terrains.GetLength(1) - 1 - y, x] = gid;
+                    }
+                }
+            }
+
             SectionModel addStraightSection = new SectionModel(
                 lastSectionComponent.sectionData.sectionId + 1,
                 SectionType.straight,
                 lastSectionComponent.sectionData.direction,
                 straightSectionOrigin,
-                straightSectionWidth,
-                straightSectionHeight);
+                straightSectionWidth, straightSectionHeight,
+                terrains, objects);
 
 
             Direction cornerSectionDirection = Direction.none;

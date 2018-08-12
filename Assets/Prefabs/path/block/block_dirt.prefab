@@ -135,7 +135,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4261422858260522}
   m_Layer: 9
-  m_Name: container_item
+  m_Name: container_object
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -231,7 +231,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1281485585404176}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1, y: 0, z: 0}
+  m_LocalPosition: {x: 3, y: 0, z: 1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4170336061171982}
@@ -439,6 +439,7 @@ MonoBehaviour:
       x: 0
       y: 0
     progress: 0
+  terrainGid: 3
   sectionComponent: {fileID: 0}
   renderers:
   - {fileID: 23064867307666692}
@@ -454,8 +455,7 @@ MonoBehaviour:
   brightMaterial: {fileID: 2100000, guid: 464aa7035ef0a49b39eb0ba79ec3be5e, type: 2}
   darkMaterial: {fileID: 2100000, guid: 012928971977449879282fbcee5fb6cb, type: 2}
   animator: {fileID: 95335525934901624}
-  itemContainer: {fileID: 4261422858260522}
-  trapContainer: {fileID: 4971586883188176}
+  objectContainer: {fileID: 4261422858260522}
   isCollapsing: 0
   isCollapsed: 0
   isGrid: 1

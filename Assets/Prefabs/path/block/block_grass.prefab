@@ -85,7 +85,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4774441583928442}
   m_Layer: 9
-  m_Name: container_item
+  m_Name: container_object
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -439,6 +439,7 @@ MonoBehaviour:
       x: 0
       y: 0
     progress: 0
+  terrainGid: 2
   sectionComponent: {fileID: 0}
   renderers:
   - {fileID: 23283900943886372}
@@ -454,8 +455,7 @@ MonoBehaviour:
   brightMaterial: {fileID: 2100000, guid: 1b367b17945794156903a96183631033, type: 2}
   darkMaterial: {fileID: 2100000, guid: c30fd3bdea4874603a462e86902a230b, type: 2}
   animator: {fileID: 95370897346005394}
-  itemContainer: {fileID: 4774441583928442}
-  trapContainer: {fileID: 4554437249181320}
+  objectContainer: {fileID: 4774441583928442}
   isCollapsing: 0
   isCollapsed: 0
   isGrid: 1

@@ -1,0 +1,100 @@
+{
+  "firstgid": 17,
+  "columns": 4,
+  "image": "tileset_item.png",
+  "imageheight": 96,
+  "imagewidth": 96,
+  "margin": 0,
+  "name": "tileset_item",
+  "spacing": 0,
+  "tilecount": 16,
+  "tileheight": 24,
+  "tileproperties": {
+    "0": {
+      "objectId": "coin_yellow",
+      "objectType": "item",
+      "itemType": "coin",
+      "value": 1.0
+    },
+    "1": {
+      "objectId": "food_apple",
+      "objectType": "item",
+      "itemType": "food",
+      "value": 1.0
+    },
+    "2": {
+      "objectId": "potion_sp",
+      "objectType": "item",
+      "itemType": "potion",
+      "value": 1.0
+    },
+    "3": {
+      "objectId": "heart",
+      "objectType": "item",
+      "itemType": "heart",
+      "value": 1.0
+    },
+    "4": {
+      "objectId": "coin_blue",
+      "objectType": "item",
+      "itemType": "coin",
+      "value": 2.0
+    },
+    "5": {
+      "objectId": "temp",
+      "objectType": "item",
+      "itemType": "none",
+      "value": 1.0
+    },
+    "8": {
+      "objectId": "coin_red",
+      "objectType": "item",
+      "itemType": "coin",
+      "value": 3.0
+    }
+  },
+  "tilepropertytypes": {
+    "0": {
+      "objectId": "string",
+      "objectType": "string",
+      "itemType": "string",
+      "value": "number"
+    },
+    "1": {
+      "objectId": "string",
+      "objectType": "string",
+      "itemType": "string",
+      "value": "number"
+    },
+    "2": {
+      "objectId": "string",
+      "objectType": "string",
+      "itemType": "string",
+      "value": "number"
+    },
+    "3": {
+      "objectId": "string",
+      "objectType": "string",
+      "itemType": "string",
+      "value": "number"
+    },
+    "4": {
+      "objectId": "string",
+      "objectType": "string",
+      "itemType": "string",
+      "value": "number"
+    },
+    "5": {
+      "objectId": "string",
+      "objectType": "string",
+      "itemType": "string"
+    },
+    "8": {
+      "objectId": "string",
+      "objectType": "string",
+      "itemType": "string",
+      "value": "number"
+    }
+  },
+  "tilewidth": 24
+}

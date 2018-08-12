@@ -26,9 +26,21 @@ namespace DoonaLegend
             }
         }
 
+        [Header("Item")]
+        public ItemComponent[] items;
+        public Dictionary<ItemGid, GameObject> itemDictionary = new Dictionary<ItemGid, GameObject>();
+
         [Header("Enemy")]
         public EnemyComponent[] enemies;
-        public Dictionary<string, GameObject> enemyDictionry = new Dictionary<string, GameObject>();
+        public Dictionary<EnemyGid, GameObject> enemyDictionary = new Dictionary<EnemyGid, GameObject>();
+
+        [Header("Trap")]
+        public TrapComponent[] traps;
+        public Dictionary<TrapGid, GameObject> trapDictionary = new Dictionary<TrapGid, GameObject>();
+
+        [Header("Block")]
+        public BlockComponent[] blocks;
+        public Dictionary<TerrainGid, GameObject> blockDictionary = new Dictionary<TerrainGid, GameObject>();
 
         #endregion
 
@@ -50,25 +62,84 @@ namespace DoonaLegend
 
         public void InitPrefabManager()
         {
-            enemyDictionry.Clear();
+            enemyDictionary.Clear();
+            blockDictionary.Clear();
+            itemDictionary.Clear();
             foreach (EnemyComponent enemy in enemies)
             {
-                if (enemyDictionry.ContainsKey(enemy.enemyId))
+                if (enemyDictionary.ContainsKey(enemy.enemyGid))
                 {
-                    Debug.Log("enemyDictionry already have key: " + enemy.enemyId);
+                    Debug.Log("enemyDictionry already have key: " + enemy.enemyGid);
                 }
-                enemyDictionry.Add(enemy.enemyId, enemy.gameObject);
+                enemyDictionary.Add(enemy.enemyGid, enemy.gameObject);
+            }
+
+            foreach (BlockComponent block in blocks)
+            {
+                if (blockDictionary.ContainsKey(block.terrainGid))
+                {
+                    Debug.Log("blockDictionary already have key: " + block.terrainGid.ToString());
+                }
+                blockDictionary.Add(block.terrainGid, block.gameObject);
+            }
+
+            foreach (ItemComponent item in items)
+            {
+                if (itemDictionary.ContainsKey(item.itemGid))
+                {
+                    Debug.Log("itemDictionary already have key: " + item.itemGid.ToString());
+                }
+                itemDictionary.Add(item.itemGid, item.gameObject);
+            }
+
+            foreach (TrapComponent trap in traps)
+            {
+                if (trapDictionary.ContainsKey(trap.trapGid))
+                {
+                    Debug.Log("trapDictionary already have key: " + trap.trapGid.ToString());
+                }
+                trapDictionary.Add(trap.trapGid, trap.gameObject);
             }
         }
 
-        public GameObject GetEnemyPrefab(string enemyId)
+        public GameObject GetEnemyPrefab(EnemyGid enemyGid)
         {
-            if (!enemyDictionry.ContainsKey(enemyId))
+            if (!enemyDictionary.ContainsKey(enemyGid))
             {
-                Debug.Log("enemyDictionry do have key: " + enemyId);
+                Debug.Log("enemyDictionry do have key: " + enemyGid.ToString());
                 return null;
             }
-            return enemyDictionry[enemyId];
+            return enemyDictionary[enemyGid];
+        }
+
+        public GameObject GetBlockPrefab(TerrainGid terrainGid)
+        {
+            if (!blockDictionary.ContainsKey(terrainGid))
+            {
+                Debug.Log("blockDictionary do not have key: " + terrainGid.ToString());
+                return null;
+            }
+            return blockDictionary[terrainGid];
+        }
+
+        public GameObject GetItemPrefab(ItemGid itemGid)
+        {
+            if (!itemDictionary.ContainsKey(itemGid))
+            {
+                Debug.Log("itemDictionary do not have key: " + itemGid.ToString());
+                return null;
+            }
+            return itemDictionary[itemGid];
+        }
+
+        public GameObject GetTrapPrefab(TrapGid trapGid)
+        {
+            if (!trapDictionary.ContainsKey(trapGid))
+            {
+                Debug.Log("trapDictionry do not have key: " + trapGid.ToString());
+                return null;
+            }
+            return trapDictionary[trapGid];
         }
         #endregion
     }

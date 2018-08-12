@@ -1,0 +1,13 @@
+{
+  "firstgid": 1,
+  "columns": 4,
+  "image": "tileset_terrain.png",
+  "imageheight": 96,
+  "imagewidth": 96,
+  "margin": 0,
+  "name": "tileset_terrain",
+  "spacing": 0,
+  "tilecount": 16,
+  "tileheight": 24,
+  "tilewidth": 24
+}

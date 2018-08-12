@@ -4,6 +4,7 @@
 */
 
 using System;
+using INCAGO_TMX;
 
 namespace DoonaLegend
 {
@@ -15,8 +16,11 @@ namespace DoonaLegend
         public Direction direction; //right, up
         public Node origin;
         public int width, height;
+        public int[,] terrains;
+        public int[,] objects;
 
-        public SectionModel(int sectionId, SectionType sectionType, Direction direction, Node origin, int width, int height)
+        public SectionModel(int sectionId, SectionType sectionType, Direction direction, Node origin, int width, int height,
+        int[,] terrains = null, int[,] objects = null)
         {
             this.sectionId = sectionId;
             this.sectionType = sectionType;
@@ -24,6 +28,9 @@ namespace DoonaLegend
             this.origin = origin;
             this.width = width;
             this.height = height;
+
+            this.terrains = terrains;
+            this.objects = objects;
         }
     }
 

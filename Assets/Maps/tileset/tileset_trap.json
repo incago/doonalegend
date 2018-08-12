@@ -1,0 +1,25 @@
+{
+  "firstgid": 33,
+  "columns": 4,
+  "image": "tileset_trap.png",
+  "imageheight": 96,
+  "imagewidth": 96,
+  "margin": 0,
+  "name": "tileset_trap",
+  "spacing": 0,
+  "tilecount": 16,
+  "tileheight": 24,
+  "tilewidth": 24,
+  "tileproperties": {
+    "0": {
+      "objectId": "thornfloor",
+      "objectType": "trap"
+    }
+  },
+  "tilepropertytypes": {
+    "0": {
+      "objectId": "string",
+      "objectType": "string"
+    }
+  }
+}

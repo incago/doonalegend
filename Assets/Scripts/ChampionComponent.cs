@@ -26,6 +26,7 @@ namespace DoonaLegend
         public bool isMoving = false;
         public bool isRotating = false;
         public bool isDead = false;
+        public bool isWatered = false;
         public Transform body;
         public Animator animator;
         public bool isLeftLeg = false;
@@ -135,10 +136,20 @@ namespace DoonaLegend
 
         IEnumerator MovePlayerHelper(Node beforeNode, Node afterNode, float moveDuration, bool isRotate)
         {
+            BlockComponent currentBlockComponent = pm.pathManager.GetBlockComponentByOrigin(beforeNode);
+            BlockComponent afterBlockComponent = pm.pathManager.GetBlockComponentByOrigin(afterNode);
             origin = afterNode;
             isMoving = true;
             Vector3 initialPosition = new Vector3(beforeNode.x + 0.5f, 0, beforeNode.y + 0.5f);
             Vector3 targetPosition = new Vector3(afterNode.x + 0.5f, 0, afterNode.y + 0.5f);
+            if (currentBlockComponent.terrainGid == TerrainGid.water)
+            {
+                initialPosition += new Vector3(0, -0.083333f * 2, 0);
+            }
+            if (afterBlockComponent != null && afterBlockComponent.terrainGid == TerrainGid.water)
+            {
+                targetPosition += new Vector3(0, -0.083333f * 2, 0);
+            }
             float percent = 0;
             while (percent <= 1)
             {
@@ -170,6 +181,12 @@ namespace DoonaLegend
                     //time to generate more section
                     pm.pathManager.AddSection();
                 }
+
+                if ((beforeBlockComponent != currentBlockComponent && (currentBlockComponent.terrainGid == TerrainGid.water)))
+                {
+                    isWatered = true;
+                }
+
 
                 // 새로운 섹션에 도착했고 해당 섹션은 스트레이트 세션이다
                 // 도착한 섹션에다가 자동파괴명령을 내리자
@@ -248,50 +265,10 @@ namespace DoonaLegend
             if (!isDead &&
             // !isRotate &&
             currentBlockComponent.sectionComponent.sectionData.sectionType == SectionType.straight &&
-            currentBlockComponent.blockData.progress >= progress)
+            currentBlockComponent.blockData.progress >= progress &&
+            beforeBlockComponent != currentBlockComponent)
             {
                 CameraWork(currentBlockComponent);
-                /*
-
-                int currentProgress = currentBlockComponent.blockData.progress;
-                int minProgressInSection = currentBlockComponent.sectionComponent.minProgress;
-                int maxProgressInSection = currentBlockComponent.sectionComponent.maxProgress;
-                float startPercent = (float)(currentProgress - minProgressInSection - 1) / (float)(maxProgressInSection - minProgressInSection);
-                float endPercent = (float)(currentProgress - minProgressInSection) / (float)(maxProgressInSection - minProgressInSection);
-                Quaternion initialRotation = Quaternion.identity;
-                Quaternion targetRotation = Quaternion.identity;
-                if (currentBlockComponent.sectionComponent.sectionData.direction == Direction.right)
-                {
-                    if (currentBlockComponent.sectionComponent.beforeSectionComponent == null)
-                    {
-                        if (currentBlockComponent.sectionComponent.nextSectionComponent.nextSectionComponent.sectionData.direction == Direction.up)
-                        { initialRotation = Quaternion.Euler(pm.cameraController.playerRightUpAngle); }
-                        else if (currentBlockComponent.sectionComponent.nextSectionComponent.nextSectionComponent.sectionData.direction == Direction.down)
-                        { initialRotation = Quaternion.Euler(pm.cameraController.playerRightDownAngle); }
-                    }
-                    else if (currentBlockComponent.sectionComponent.beforeSectionComponent.beforeSectionComponent.sectionData.direction == Direction.down)
-                    { initialRotation = Quaternion.Euler(pm.cameraController.playerRightDownAngle); }
-                    else if (currentBlockComponent.sectionComponent.beforeSectionComponent.beforeSectionComponent.sectionData.direction == Direction.up)
-                    { initialRotation = Quaternion.Euler(pm.cameraController.playerRightUpAngle); }
-
-                    if (currentBlockComponent.sectionComponent.nextSectionComponent.nextSectionComponent.sectionData.direction == Direction.up)
-                    { targetRotation = Quaternion.Euler(pm.cameraController.playerUpAngle); }
-                    else if (currentBlockComponent.sectionComponent.nextSectionComponent.nextSectionComponent.sectionData.direction == Direction.down)
-                    { targetRotation = Quaternion.Euler(pm.cameraController.playerDownAngle); }
-                }
-                else if (currentBlockComponent.sectionComponent.sectionData.direction == Direction.up)
-                {
-                    initialRotation = Quaternion.Euler(pm.cameraController.playerUpAngle);
-                    targetRotation = Quaternion.Euler(pm.cameraController.playerRightUpAngle);
-                }
-                else if (currentBlockComponent.sectionComponent.sectionData.direction == Direction.down)
-                {
-                    initialRotation = Quaternion.Euler(pm.cameraController.playerDownAngle);
-                    targetRotation = Quaternion.Euler(pm.cameraController.playerRightDownAngle);
-                }
-
-                pm.cameraController.AnimatePivotAngle(initialRotation, targetRotation, startPercent, endPercent, 0.3f);
-                 */
             }
         }
 

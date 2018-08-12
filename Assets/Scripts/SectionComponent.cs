@@ -3,6 +3,7 @@
 * http://www.incagostudio.com/
 */
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -21,30 +22,21 @@ namespace DoonaLegend
         public SectionComponent beforeSectionComponent;
         public SectionComponent nextSectionComponent;
         private bool isCollapsing = false;
+        public int minProgress;
+        public int maxProgress;
 
-        //TODO : prefab manager
         [Header("Block")]
         public Transform blockContainer;
-        public GameObject grassBlockPrefab, dirtBlockPrefab;
         public List<BlockComponent> blockComponents = new List<BlockComponent>();
 
         [Header("Enemy")]
         public List<EnemyComponent> enemyComponents = new List<EnemyComponent>();
 
         [Header("Item")]
-        public Transform heartPrefab;
-        public Transform coinPrefab;
-        public Transform hpPotionPrefab;
-        public Transform spPotionPrefab;
-        // public Transform itemContainer;
         public List<ItemComponent> itemComponents = new List<ItemComponent>();
 
         [Header("Trap")]
-        public Transform thornFloorPrefab;
-        // public Transform trapContainer;
         public List<TrapComponent> trapComponents = new List<TrapComponent>();
-        public int minProgress;
-        public int maxProgress;
         #endregion
 
         #region Method
@@ -58,31 +50,38 @@ namespace DoonaLegend
             int baseProgress = lastSectionComponent != null ? lastSectionComponent.maxProgress : 0;
             minProgress = baseProgress;
             int _maxProgress = -1;
+            // Debug.Log("sectionData.height: " + sectionData.height.ToString());
+            // Debug.Log("sectionData.width: " + sectionData.width.ToString());
             for (int i = 0; i < this.sectionData.height; i++)
             {
                 for (int j = 0; j < this.sectionData.width; j++)
                 {
-                    int randomNumber = Random.Range(0, 100);
-                    if (sectionData.sectionType == SectionType.straight && randomNumber < 2 && sectionData.sectionId != 0) //2%확률로 구멍
+                    TerrainGid terrainGid = TerrainGid.empty;
+                    if (sectionData.terrains != null)
                     {
-                        // continue;
+                        terrainGid = (TerrainGid)sectionData.terrains[i, j];
                     }
+                    else
+                    {
+                        //terrain정보가 들어오지 않는 경우는 코너섹션일 때
+                        terrainGid = TerrainGid.basic_dirt;
+                    }
+                    if (terrainGid == TerrainGid.empty) continue;
 
-                    GameObject blockPrefab = null;
-                    if (sectionData.sectionType == SectionType.straight)
-                    {
-                        blockPrefab = grassBlockPrefab;
-                    }
-                    else if (sectionData.sectionType == SectionType.corner)
-                    {
-                        blockPrefab = dirtBlockPrefab;
-                    }
+                    GameObject blockPrefab = PrefabManager.Instance.GetBlockPrefab(terrainGid);
+                    // if (sectionData.sectionType == SectionType.straight)
+                    // {
+                    //     blockPrefab = grassBlockPrefab;
+                    // }
+                    // else if (sectionData.sectionType == SectionType.corner)
+                    // {
+                    //     blockPrefab = dirtBlockPrefab;
+                    // }
                     GameObject blockGameObject = Instantiate(blockPrefab) as GameObject;
                     blockGameObject.name = "block#" + pm.pathManager.lastBlockComponentId.ToString();
                     blockGameObject.transform.SetParent(blockContainer);
                     BlockComponent blockComponent = blockGameObject.GetComponent<BlockComponent>();
                     BlockCategory blockCategory = this.sectionData.sectionType == SectionType.corner ? BlockCategory.corner : BlockCategory.straight;
-                    BlockType blockType = BlockType.basic_straight;
                     if (this.sectionData.sectionType == SectionType.corner)
                     {
                         if (
@@ -167,7 +166,7 @@ namespace DoonaLegend
 
                     BlockModel blockData = new BlockModel(
                         pm.pathManager.lastBlockComponentId++,
-                        blockCategory, blockType,
+                        blockCategory,
                         this.sectionData.direction,
                         this.sectionData.origin + new Node(j, i),
                         progress);
@@ -176,76 +175,117 @@ namespace DoonaLegend
                     blockComponents.Add(blockComponent);
                     pm.pathManager.PutBlockComponent(blockComponent);
 
-                    if (sectionData.sectionId == 0) continue; //첫번째 섹션에는 아무것도 만들지 않는다
-
-                    if (sectionData.sectionType == SectionType.straight)
+                    if (sectionData.objects != null)
                     {
-                        //for test
-                        if (j == 2 && i == 1)
-                        {
-                            Node enemyOrigin = this.sectionData.origin + new Node(j, i);
-                            GameObject enemyInstance = Instantiate(PrefabManager.Instance.GetEnemyPrefab("slime")) as GameObject;
-                            enemyInstance.transform.SetParent(blockComponent.itemContainer);
-                            EnemyComponent enemyComponent = enemyInstance.GetComponent<EnemyComponent>();
-                            enemyComponent.InitEnemyComponent(enemyOrigin, blockData.direction);
-                            enemyComponents.Add(enemyComponent);
-                            pm.pathManager.PutEnemyComponent(enemyComponent);
-                            continue;
-                        }
-
-                        if (randomNumber < 2)
+                        int objectGid = sectionData.objects[i, j];
+                        if (17 <= objectGid && objectGid < 33) //item
                         {
                             Node itemOrigin = this.sectionData.origin + new Node(j, i);
-                            Transform hpPotionTransform = Instantiate(heartPrefab) as Transform;
-                            hpPotionTransform.SetParent(blockComponent.itemContainer);
-                            ItemComponent itemComponent = hpPotionTransform.GetComponent<ItemComponent>();
-                            itemComponent.InitItemComponent(this, itemOrigin);
+                            GameObject itemPrefab = PrefabManager.Instance.GetItemPrefab((ItemGid)objectGid);
+                            GameObject itemInstance = Instantiate(itemPrefab) as GameObject;
+                            itemInstance.transform.SetParent(blockComponent.objectContainer);
+                            ItemComponent itemComponent = itemInstance.GetComponent<ItemComponent>();
+                            itemComponent.InitItemComponent(this, itemOrigin, blockData.direction);
                             itemComponents.Add(itemComponent);
                             pm.pathManager.PutItemComponent(itemComponent);
                         }
-                        else if (randomNumber < 5)
-                        {
-                            Node itemOrigin = this.sectionData.origin + new Node(j, i);
-                            Transform hpPotionTransform = Instantiate(hpPotionPrefab) as Transform;
-                            hpPotionTransform.SetParent(blockComponent.itemContainer);
-                            ItemComponent itemComponent = hpPotionTransform.GetComponent<ItemComponent>();
-                            itemComponent.InitItemComponent(this, itemOrigin);
-                            itemComponents.Add(itemComponent);
-                            pm.pathManager.PutItemComponent(itemComponent);
-                        }
-                        else if (randomNumber < 10)
-                        {
-                            Node itemOrigin = this.sectionData.origin + new Node(j, i);
-                            Transform spPotionTransform = Instantiate(spPotionPrefab) as Transform;
-                            spPotionTransform.SetParent(blockComponent.itemContainer);
-                            ItemComponent itemComponent = spPotionTransform.GetComponent<ItemComponent>();
-                            itemComponent.InitItemComponent(this, itemOrigin);
-                            itemComponents.Add(itemComponent);
-                            pm.pathManager.PutItemComponent(itemComponent);
-                        }
-                        else if (randomNumber < 20)
-                        {
-                            Node itemOrigin = this.sectionData.origin + new Node(j, i);
-                            Transform coinTransform = Instantiate(coinPrefab) as Transform;
-                            coinTransform.SetParent(blockComponent.itemContainer);
-                            ItemComponent itemComponent = coinTransform.GetComponent<ItemComponent>();
-                            itemComponent.InitItemComponent(this, itemOrigin);
-                            itemComponents.Add(itemComponent);
-                            pm.pathManager.PutItemComponent(itemComponent);
-                        }
-                        else if (randomNumber < 22 && sectionData.sectionId != 0)
+                        else if (33 <= objectGid && objectGid < 49) //trap
                         {
                             Node trapOrigin = this.sectionData.origin + new Node(j, i);
-                            Transform trapTransform = Instantiate(thornFloorPrefab) as Transform;
-                            trapTransform.SetParent(blockComponent.trapContainer);
-                            TrapComponent trapComponent = trapTransform.GetComponent<TrapComponent>();
+                            GameObject trapPrefab = PrefabManager.Instance.GetTrapPrefab((TrapGid)objectGid);
+                            GameObject trapInstance = Instantiate(trapPrefab) as GameObject;
+                            trapInstance.transform.SetParent(blockComponent.objectContainer);
+                            TrapComponent trapComponent = trapInstance.GetComponent<TrapComponent>();
                             trapComponent.InitItemComponent(this, trapOrigin);
                             trapComponents.Add(trapComponent);
                             pm.pathManager.PutTrapComponent(trapComponent);
                         }
+                        else if (49 <= objectGid && objectGid < 65) //enemy
+                        {
+                            Node itemOrigin = this.sectionData.origin + new Node(j, i);
+                            GameObject enemyPrefab = PrefabManager.Instance.GetEnemyPrefab((EnemyGid)objectGid);
+                            GameObject enemyInstance = Instantiate(enemyPrefab) as GameObject;
+                            enemyInstance.transform.SetParent(blockComponent.objectContainer);
+                            EnemyComponent enemyComponent = enemyInstance.GetComponent<EnemyComponent>();
+                            enemyComponent.InitEnemyComponent(itemOrigin, blockData.direction);
+                            enemyComponents.Add(enemyComponent);
+                            pm.pathManager.PutEnemyComponent(enemyComponent);
+                        }
                     }
                 }
             }
+
+
+
+            /*
+            if (sectionData.sectionId == 0) continue; //첫번째 섹션에는 아무것도 만들지 않는다
+            if (sectionData.sectionType == SectionType.straight)
+            {
+                //for test
+                if (j == 2 && i == 1)
+                {
+                    Node enemyOrigin = this.sectionData.origin + new Node(j, i);
+                    GameObject enemyInstance = Instantiate(PrefabManager.Instance.GetEnemyPrefab("slime")) as GameObject;
+                    enemyInstance.transform.SetParent(blockComponent.itemContainer);
+                    EnemyComponent enemyComponent = enemyInstance.GetComponent<EnemyComponent>();
+                    enemyComponent.InitEnemyComponent(enemyOrigin, blockData.direction);
+                    enemyComponents.Add(enemyComponent);
+                    pm.pathManager.PutEnemyComponent(enemyComponent);
+                    continue;
+                }
+
+                if (randomNumber < 2)
+                {
+                    Node itemOrigin = this.sectionData.origin + new Node(j, i);
+                    Transform hpPotionTransform = Instantiate(heartPrefab) as Transform;
+                    hpPotionTransform.SetParent(blockComponent.itemContainer);
+                    ItemComponent itemComponent = hpPotionTransform.GetComponent<ItemComponent>();
+                    itemComponent.InitItemComponent(this, itemOrigin);
+                    itemComponents.Add(itemComponent);
+                    pm.pathManager.PutItemComponent(itemComponent);
+                }
+                else if (randomNumber < 5)
+                {
+                    Node itemOrigin = this.sectionData.origin + new Node(j, i);
+                    Transform hpPotionTransform = Instantiate(hpPotionPrefab) as Transform;
+                    hpPotionTransform.SetParent(blockComponent.itemContainer);
+                    ItemComponent itemComponent = hpPotionTransform.GetComponent<ItemComponent>();
+                    itemComponent.InitItemComponent(this, itemOrigin);
+                    itemComponents.Add(itemComponent);
+                    pm.pathManager.PutItemComponent(itemComponent);
+                }
+                else if (randomNumber < 10)
+                {
+                    Node itemOrigin = this.sectionData.origin + new Node(j, i);
+                    Transform spPotionTransform = Instantiate(spPotionPrefab) as Transform;
+                    spPotionTransform.SetParent(blockComponent.itemContainer);
+                    ItemComponent itemComponent = spPotionTransform.GetComponent<ItemComponent>();
+                    itemComponent.InitItemComponent(this, itemOrigin);
+                    itemComponents.Add(itemComponent);
+                    pm.pathManager.PutItemComponent(itemComponent);
+                }
+                else if (randomNumber < 20)
+                {
+                    Node itemOrigin = this.sectionData.origin + new Node(j, i);
+                    Transform coinTransform = Instantiate(coinPrefab) as Transform;
+                    coinTransform.SetParent(blockComponent.itemContainer);
+                    ItemComponent itemComponent = coinTransform.GetComponent<ItemComponent>();
+                    itemComponent.InitItemComponent(this, itemOrigin);
+                    itemComponents.Add(itemComponent);
+                    pm.pathManager.PutItemComponent(itemComponent);
+                }
+                else if (randomNumber < 22 && sectionData.sectionId != 0)
+                {
+                    Node trapOrigin = this.sectionData.origin + new Node(j, i);
+                    Transform trapTransform = Instantiate(thornFloorPrefab) as Transform;
+                    trapTransform.SetParent(blockComponent.trapContainer);
+                    TrapComponent trapComponent = trapTransform.GetComponent<TrapComponent>();
+                    trapComponent.InitItemComponent(this, trapOrigin);
+                    trapComponents.Add(trapComponent);
+                    pm.pathManager.PutTrapComponent(trapComponent);
+                }
+            }
+             */
 
             this.maxProgress = _maxProgress;
         }
@@ -257,7 +297,7 @@ namespace DoonaLegend
             //자신이 가진 블럭들에게 붕괴 명령을 내려야 한다
             foreach (BlockComponent blockComponent in blockComponents)
             {
-                float _collapseDelay = collapseDelay + (blockComponent.blockData.progress - minProgress) * 1.0f + Random.Range(0, 0.5f);
+                float _collapseDelay = collapseDelay + (blockComponent.blockData.progress - minProgress) * 1.0f + UnityEngine.Random.Range(0, 0.5f);
                 blockComponent.StartCollapse(_collapseDelay, shiveringDuration);
             }
         }
@@ -269,7 +309,7 @@ namespace DoonaLegend
                 if (blockComponent.isCollapsing || blockComponent.isCollapsed) continue;
                 if (blockComponent.blockData.progress <= progress)
                 {
-                    float collapseDelay = 1.5f + (blockComponent.blockData.progress - minProgress) * 1.0f + Random.Range(0, 0.5f);
+                    float collapseDelay = 1.5f + (blockComponent.blockData.progress - minProgress) * 1.0f + UnityEngine.Random.Range(0, 0.5f);
                     float shiveringDuration = 1.5f;
                     blockComponent.StartCollapse(collapseDelay, shiveringDuration);
                 }

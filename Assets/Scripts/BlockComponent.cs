@@ -18,14 +18,14 @@ namespace DoonaLegend
             get { if (_pm == null) _pm = GameObject.FindGameObjectWithTag("PlayManager").GetComponent<PlayManager>(); return _pm; }
         }
         public BlockModel blockData;
+        public TerrainGid terrainGid;
         public SectionComponent sectionComponent;
         public Renderer[] renderers;
-        public Material greenMaterial, purpleMaterial, redMaterial, orangeMaterial, yellowMaterial;
-        public Material brightGreenMaterial, brightPurpleMaterial;
+        // public Material greenMaterial, purpleMaterial, redMaterial, orangeMaterial, yellowMaterial;
+        // public Material brightGreenMaterial, brightPurpleMaterial;
         public Material brightMaterial, darkMaterial;
         public Animator animator;
-        public Transform itemContainer;
-        public Transform trapContainer;
+        public Transform objectContainer;
         public bool isCollapsing = false;
         public bool isCollapsed = false;
         public bool isGrid = false;
@@ -55,40 +55,6 @@ namespace DoonaLegend
             {
                 foreach (Renderer renderer in renderers) { renderer.sharedMaterial = brightMaterial; }
             }
-
-
-            // if (this.blockData.blockType == BlockType.straight)
-            // {
-            //     if ((Mathf.Abs(blockData.origin.x) % 2 == 0 && Mathf.Abs(blockData.origin.y) % 2 == 0) ||
-            //     (Mathf.Abs(blockData.origin.x) % 2 == 1 && Mathf.Abs(blockData.origin.y) % 2 == 1))
-            //     {
-            //         blockRenderer.sharedMaterial = greenMaterial;
-            //     }
-            //     else { blockRenderer.sharedMaterial = brightGreenMaterial; }
-            // }
-            // else if (this.blockData.blockType == BlockType.corner)
-            // {
-            //     if ((Mathf.Abs(blockData.origin.x) % 2 == 0 && Mathf.Abs(blockData.origin.y) % 2 == 0) ||
-            //     (Mathf.Abs(blockData.origin.x) % 2 == 1 && Mathf.Abs(blockData.origin.y) % 2 == 1))
-            //     {
-            //         blockRenderer.sharedMaterial = purpleMaterial;
-            //     }
-            //     else { blockRenderer.sharedMaterial = brightPurpleMaterial; }
-            // }
-            // else if (this.blockData.blockType == BlockType.shortcut_start)
-            // {
-            //     blockRenderer.sharedMaterial = redMaterial;
-            // }
-            // else if (this.blockData.blockType == BlockType.shortcut_end)
-            // {
-            //     blockRenderer.sharedMaterial = yellowMaterial;
-            // }
-            // else if (this.blockData.blockType == BlockType.edge)
-            // {
-            //     blockRenderer.sharedMaterial = orangeMaterial;
-            // }
-
-
             SetBlockPosition(this.blockData.origin);
         }
 

@@ -13,6 +13,7 @@ namespace DoonaLegend
     {
         #region Variables
         private SectionComponent sectionComponent;
+        public TrapGid trapGid;
         public TrapType trapType;
         public Node origin;
         public int attack;

@@ -17,7 +17,7 @@ namespace DoonaLegend
         {
             get { if (_pm == null) _pm = GameObject.FindGameObjectWithTag("PlayManager").GetComponent<PlayManager>(); return _pm; }
         }
-        public string enemyId;
+        public EnemyGid enemyGid;
         public Node origin;
         public Direction direction;
         public Transform body;

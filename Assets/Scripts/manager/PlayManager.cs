@@ -122,6 +122,13 @@ namespace DoonaLegend
                 Node targetNode = player.origin;
                 Direction targetDirection = player.direction;
 
+                if (player.isWatered)
+                {
+                    player.isWatered = false;
+                    player.MovePlayer(player.origin, player.origin, 0.2f, false);
+                    return;
+                }
+
                 //스트레이트 블럭 위에 있고 입력받은곳에 적이 있는지 확인해야한다
                 //공격후 적이 죽는다면 적이 있던 자리로 이동하고 적이 죽지 않으면 원래 있던 자리로 돌아와야 한다
                 // Debug.Log("player.origin: " + player.origin.ToString());
