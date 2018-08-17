@@ -7,6 +7,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+using INCAGO_TMX;
+
 namespace DoonaLegend
 {
     public class PathManager : MonoBehaviour
@@ -24,6 +26,7 @@ namespace DoonaLegend
         }
         public int pathWidth = 3;
         public int maxMaintainSectionCount = 20;
+        public SectionComponent currentSectionComponent;
 
         [Header("Enemy Components")]
         public Dictionary<int, Dictionary<int, EnemyComponent>> enemyDictionaryByOrigin = new Dictionary<int, Dictionary<int, EnemyComponent>>();
@@ -258,6 +261,7 @@ namespace DoonaLegend
             firstStraightSectionComponent.nextSectionComponent = firstCornerSectionComponent;
             firstCornerSectionComponent.beforeSectionComponent = firstStraightSectionComponent;
             PutSectionComponent(firstCornerSectionComponent);
+            currentSectionComponent = firstStraightSectionComponent;
 
             for (int i = 0; i < 5; i++) { AddSection(); }
         }
@@ -297,33 +301,19 @@ namespace DoonaLegend
                 straightSectionHeight = straightSectionLength;
             }
             int[,] terrains = new int[straightSectionHeight, straightSectionWidth];
-            int[,] objects = new int[straightSectionHeight, straightSectionWidth];
+            // int[,] objects = new int[straightSectionHeight, straightSectionWidth];
+            Dictionary<Node, TiledObject> objects = new Dictionary<Node, TiledObject>();
             // Debug.Log("straightSectionHeight: " + straightSectionHeight.ToString());
             // Debug.Log("straightSectionWidth: " + straightSectionWidth.ToString());
 
             if (lastSectionComponent.sectionData.direction == Direction.right)
             {
                 terrains = sectionContent.terrains;
-                foreach (KeyValuePair<int, Dictionary<int, int>> kv in sectionContent.objects)
+
+                foreach (KeyValuePair<Node, TiledObject> kv in sectionContent.objects)
                 {
-                    int x = kv.Key;
-                    foreach (KeyValuePair<int, int> kv2 in kv.Value)
-                    {
-                        int y = kv2.Key;
-                        int gid = kv2.Value;
-                        // Debug.Log(x.ToString() + "," + y.ToString());
-                        objects[x, y] = gid;
-                    }
-                }
-                foreach (KeyValuePair<int, Dictionary<int, int>> kv in sectionContent.objects)
-                {
-                    int x = kv.Key;
-                    foreach (KeyValuePair<int, int> kv2 in kv.Value)
-                    {
-                        int y = kv2.Key;
-                        int gid = kv2.Value;
-                        objects[x, y] = gid;
-                    }
+                    Node node = new Node(kv.Key.y, kv.Key.x);
+                    objects.Add(node, kv.Value);
                 }
             }
             else if (lastSectionComponent.sectionData.direction == Direction.up)
@@ -336,15 +326,12 @@ namespace DoonaLegend
                         terrains[j, sectionContent.terrains.GetLength(0) - 1 - i] = sectionContent.terrains[i, j];
                     }
                 }
-                foreach (KeyValuePair<int, Dictionary<int, int>> kv in sectionContent.objects)
+
+                foreach (KeyValuePair<Node, TiledObject> kv in sectionContent.objects)
                 {
-                    int x = kv.Key;
-                    foreach (KeyValuePair<int, int> kv2 in kv.Value)
-                    {
-                        int y = kv2.Key;
-                        int gid = kv2.Value;
-                        objects[y, sectionContent.terrains.GetLength(0) - 1 - x] = gid;
-                    }
+                    Node node = new Node(sectionContent.terrains.GetLength(0) - 1 - kv.Key.x, kv.Key.y);
+                    objects.Add(node, kv.Value);
+                    // Debug.Log(kv.Key.x.ToString() + "," + kv.Key.y.ToString() + ":" + kv.Value.gid.ToString());
                 }
             }
             else if (lastSectionComponent.sectionData.direction == Direction.down)
@@ -357,15 +344,10 @@ namespace DoonaLegend
                         terrains[sectionContent.terrains.GetLength(1) - 1 - j, i] = sectionContent.terrains[i, j];
                     }
                 }
-                foreach (KeyValuePair<int, Dictionary<int, int>> kv in sectionContent.objects)
+
+                foreach (KeyValuePair<Node, TiledObject> kv in sectionContent.objects)
                 {
-                    int x = kv.Key;
-                    foreach (KeyValuePair<int, int> kv2 in kv.Value)
-                    {
-                        int y = kv2.Key;
-                        int gid = kv2.Value;
-                        objects[sectionContent.terrains.GetLength(1) - 1 - y, x] = gid;
-                    }
+                    objects.Add(new Node(kv.Key.x, sectionContent.terrains.GetLength(1) - 1 - kv.Key.y), kv.Value);
                 }
             }
 
@@ -375,7 +357,9 @@ namespace DoonaLegend
                 lastSectionComponent.sectionData.direction,
                 straightSectionOrigin,
                 straightSectionWidth, straightSectionHeight,
-                terrains, objects);
+                terrains,
+                //objects,
+                objects);
 
 
             Direction cornerSectionDirection = Direction.none;

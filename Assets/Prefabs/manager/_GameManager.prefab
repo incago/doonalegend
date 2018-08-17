@@ -161,6 +161,7 @@ MonoBehaviour:
   - {fileID: 4900000, guid: 2a977d844f20241b2b0b1dda4d48f931, type: 3}
   unit_5:
   - {fileID: 4900000, guid: 8c5233809bd154e78aec2f8dddf38f04, type: 3}
+  - {fileID: 4900000, guid: 1655096d4ad4b4b81b37de0ac2eeb259, type: 3}
   tilesets:
   - {fileID: 4900000, guid: 8477622159ec94cb88266c04950a5c62, type: 3}
   - {fileID: 4900000, guid: 8c01d569d395248b8ac85ca8ed096a4e, type: 3}
@@ -249,9 +250,16 @@ MonoBehaviour:
   - {fileID: 114860708596728174, guid: 98476466efcbb4c8ca1ab3cc122db723, type: 2}
   traps:
   - {fileID: 114503254946646262, guid: e892ab5bdfefd408c8f955cde125b9a4, type: 2}
+  - {fileID: 114503254946646262, guid: 5b817241ead70472f8418bff6cd4d6ae, type: 2}
+  - {fileID: 114503254946646262, guid: e025008b1c21c4abd94fa7fae0243f34, type: 2}
+  - {fileID: 114503254946646262, guid: 24aeda1c1291147e3ac13a07ed1b2ae6, type: 2}
+  - {fileID: 114503254946646262, guid: deb14a2b9417849c78cdeb024e1d433f, type: 2}
+  - {fileID: 114503254946646262, guid: bb3179fb1dc6942d8accbb40aba32e1b, type: 2}
+  - {fileID: 114503254946646262, guid: 3297dec2826714813a0b5830d0cb5381, type: 2}
   blocks:
   - {fileID: 114979247916057648, guid: 9d7638503e8bb4af2a77db169762e2bc, type: 2}
   - {fileID: 114979247916057648, guid: 7bc6a5896bdbb471bbd3247a2a6d47f6, type: 2}
   - {fileID: 114979247916057648, guid: 09bbbd8495d2743ec908765661ef0a28, type: 2}
   - {fileID: 114979247916057648, guid: bd17539e6f93b47b289046ff52c00efd, type: 2}
-  - {fileID: 114030696498773054, guid: b02a7a8cf1c414eaeb01ee9704aa087f, type: 2}
+  - {fileID: 114345600494116732, guid: b02a7a8cf1c414eaeb01ee9704aa087f, type: 2}
+  - {fileID: 114223160356133612, guid: 0363f6c6d9cca470f9b566498638965a, type: 2}

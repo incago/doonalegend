@@ -55,7 +55,9 @@ namespace DoonaLegend
                     Time.timeScale = 1.0f;
                 }
                 // pm.uiManager.panel_pause.SetActive(false);
-                pm.uiManager.HideGameOverPanel();
+                pm.gameOverPanel.HideGameOverPanel();
+                pm.uiManager.animator_control.SetTrigger("slidein");
+                pm.uiManager.animator_menu.SetTrigger("slideout");
                 pm.ResetGame();
             }
 

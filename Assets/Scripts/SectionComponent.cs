@@ -7,6 +7,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using INCAGO_TMX;
 
 namespace DoonaLegend
 {
@@ -69,15 +70,9 @@ namespace DoonaLegend
                     if (terrainGid == TerrainGid.empty) continue;
 
                     GameObject blockPrefab = PrefabManager.Instance.GetBlockPrefab(terrainGid);
-                    // if (sectionData.sectionType == SectionType.straight)
-                    // {
-                    //     blockPrefab = grassBlockPrefab;
-                    // }
-                    // else if (sectionData.sectionType == SectionType.corner)
-                    // {
-                    //     blockPrefab = dirtBlockPrefab;
-                    // }
                     GameObject blockGameObject = Instantiate(blockPrefab) as GameObject;
+                    // GameObject blockGameObject = ObjectPool.Spawn(blockPrefab);
+
                     blockGameObject.name = "block#" + pm.pathManager.lastBlockComponentId.ToString();
                     blockGameObject.transform.SetParent(blockContainer);
                     BlockComponent blockComponent = blockGameObject.GetComponent<BlockComponent>();
@@ -174,118 +169,92 @@ namespace DoonaLegend
                     blockComponent.InitBlockComponent(this, blockData);
                     blockComponents.Add(blockComponent);
                     pm.pathManager.PutBlockComponent(blockComponent);
+                }
+            }
 
-                    if (sectionData.objects != null)
+            if (sectionData.objects != null)
+            {
+                // Debug.Log("---------");
+                // Debug.Log(sectionData.objects.Count);
+                // Debug.Log("sectionData.direction: " + sectionData.direction);
+                // Debug.Log("sectionData.width: " + sectionData.width.ToString());
+                // Debug.Log("sectionData.height: " + sectionData.height.ToString());
+                foreach (KeyValuePair<Node, TiledObject> kv in sectionData.objects)
+                {
+                    Node node = kv.Key;
+                    // Debug.Log("node: " + node.ToString());
+                    TiledObject tiledObject = kv.Value;
+                    int objectGid = tiledObject.gid;
+
+                    BlockComponent blockComponent = pm.pathManager.GetBlockComponentByOrigin(this.sectionData.origin + node);
+                    if (blockComponent == null)
                     {
-                        int objectGid = sectionData.objects[i, j];
-                        if (17 <= objectGid && objectGid < 33) //item
+                        Debug.Log("blockComponent is null");
+                        continue;
+                    }
+
+                    if (17 <= objectGid && objectGid < 33) //item
+                    {
+                        Node itemOrigin = this.sectionData.origin + node;
+                        GameObject itemPrefab = PrefabManager.Instance.GetItemPrefab((ItemGid)objectGid);
+                        // GameObject itemInstance = Instantiate(itemPrefab) as GameObject;
+                        GameObject itemInstance = ObjectPool.Spawn(itemPrefab);
+                        itemInstance.transform.SetParent(blockComponent.objectContainer);
+                        ItemComponent itemComponent = itemInstance.GetComponent<ItemComponent>();
+                        itemComponent.InitItemComponent(this, itemOrigin, blockComponent.blockData.direction);
+                        itemComponents.Add(itemComponent);
+                        pm.pathManager.PutItemComponent(itemComponent);
+                    }
+                    else if (33 <= objectGid && objectGid < 49) //trap
+                    {
+                        Node trapOrigin = this.sectionData.origin + node;
+                        GameObject trapPrefab = PrefabManager.Instance.GetTrapPrefab((TrapGid)objectGid);
+                        // GameObject trapInstance = Instantiate(trapPrefab) as GameObject;
+                        GameObject trapInstance = ObjectPool.Spawn(trapPrefab);
+                        trapInstance.transform.SetParent(blockComponent.objectContainer);
+                        TrapComponent trapComponent = trapInstance.GetComponent<TrapComponent>();
+                        Direction trapDirection = blockComponent.blockData.direction;
+                        if (tiledObject.properties != null)
                         {
-                            Node itemOrigin = this.sectionData.origin + new Node(j, i);
-                            GameObject itemPrefab = PrefabManager.Instance.GetItemPrefab((ItemGid)objectGid);
-                            GameObject itemInstance = Instantiate(itemPrefab) as GameObject;
-                            itemInstance.transform.SetParent(blockComponent.objectContainer);
-                            ItemComponent itemComponent = itemInstance.GetComponent<ItemComponent>();
-                            itemComponent.InitItemComponent(this, itemOrigin, blockData.direction);
-                            itemComponents.Add(itemComponent);
-                            pm.pathManager.PutItemComponent(itemComponent);
+                            //TODO TileProperty의 direction을 그대로 사용하는것이 아니라
+                            //섹션의 방향에 따라 수정된 direction을 사용해야 한다
+                            if (sectionData.direction == Direction.right)
+                            {
+                                trapDirection = tiledObject.properties.direction;
+                            }
+                            else if (sectionData.direction == Direction.up)
+                            {
+                                if (tiledObject.properties.direction == Direction.up) { trapDirection = Direction.left; }
+                                else if (tiledObject.properties.direction == Direction.right) { trapDirection = Direction.up; }
+                                else if (tiledObject.properties.direction == Direction.down) { trapDirection = Direction.right; }
+                                else if (tiledObject.properties.direction == Direction.left) { trapDirection = Direction.down; }
+                            }
+                            else if (sectionData.direction == Direction.down)
+                            {
+                                if (tiledObject.properties.direction == Direction.up) { trapDirection = Direction.right; }
+                                else if (tiledObject.properties.direction == Direction.right) { trapDirection = Direction.down; }
+                                else if (tiledObject.properties.direction == Direction.down) { trapDirection = Direction.left; }
+                                else if (tiledObject.properties.direction == Direction.left) { trapDirection = Direction.up; }
+                            }
                         }
-                        else if (33 <= objectGid && objectGid < 49) //trap
-                        {
-                            Node trapOrigin = this.sectionData.origin + new Node(j, i);
-                            GameObject trapPrefab = PrefabManager.Instance.GetTrapPrefab((TrapGid)objectGid);
-                            GameObject trapInstance = Instantiate(trapPrefab) as GameObject;
-                            trapInstance.transform.SetParent(blockComponent.objectContainer);
-                            TrapComponent trapComponent = trapInstance.GetComponent<TrapComponent>();
-                            trapComponent.InitItemComponent(this, trapOrigin);
-                            trapComponents.Add(trapComponent);
-                            pm.pathManager.PutTrapComponent(trapComponent);
-                        }
-                        else if (49 <= objectGid && objectGid < 65) //enemy
-                        {
-                            Node itemOrigin = this.sectionData.origin + new Node(j, i);
-                            GameObject enemyPrefab = PrefabManager.Instance.GetEnemyPrefab((EnemyGid)objectGid);
-                            GameObject enemyInstance = Instantiate(enemyPrefab) as GameObject;
-                            enemyInstance.transform.SetParent(blockComponent.objectContainer);
-                            EnemyComponent enemyComponent = enemyInstance.GetComponent<EnemyComponent>();
-                            enemyComponent.InitEnemyComponent(itemOrigin, blockData.direction);
-                            enemyComponents.Add(enemyComponent);
-                            pm.pathManager.PutEnemyComponent(enemyComponent);
-                        }
+                        trapComponent.InitTrapComponent(this, trapOrigin, trapDirection, tiledObject);
+                        trapComponents.Add(trapComponent);
+                        pm.pathManager.PutTrapComponent(trapComponent);
+                    }
+                    else if (49 <= objectGid && objectGid < 65) //enemy
+                    {
+                        Node itemOrigin = this.sectionData.origin + node;
+                        GameObject enemyPrefab = PrefabManager.Instance.GetEnemyPrefab((EnemyGid)objectGid);
+                        // GameObject enemyInstance = Instantiate(enemyPrefab) as GameObject;
+                        GameObject enemyInstance = ObjectPool.Spawn(enemyPrefab);
+                        enemyInstance.transform.SetParent(blockComponent.objectContainer);
+                        EnemyComponent enemyComponent = enemyInstance.GetComponent<EnemyComponent>();
+                        enemyComponent.InitEnemyComponent(itemOrigin, blockComponent.blockData.direction);
+                        enemyComponents.Add(enemyComponent);
+                        pm.pathManager.PutEnemyComponent(enemyComponent);
                     }
                 }
             }
-
-
-
-            /*
-            if (sectionData.sectionId == 0) continue; //첫번째 섹션에는 아무것도 만들지 않는다
-            if (sectionData.sectionType == SectionType.straight)
-            {
-                //for test
-                if (j == 2 && i == 1)
-                {
-                    Node enemyOrigin = this.sectionData.origin + new Node(j, i);
-                    GameObject enemyInstance = Instantiate(PrefabManager.Instance.GetEnemyPrefab("slime")) as GameObject;
-                    enemyInstance.transform.SetParent(blockComponent.itemContainer);
-                    EnemyComponent enemyComponent = enemyInstance.GetComponent<EnemyComponent>();
-                    enemyComponent.InitEnemyComponent(enemyOrigin, blockData.direction);
-                    enemyComponents.Add(enemyComponent);
-                    pm.pathManager.PutEnemyComponent(enemyComponent);
-                    continue;
-                }
-
-                if (randomNumber < 2)
-                {
-                    Node itemOrigin = this.sectionData.origin + new Node(j, i);
-                    Transform hpPotionTransform = Instantiate(heartPrefab) as Transform;
-                    hpPotionTransform.SetParent(blockComponent.itemContainer);
-                    ItemComponent itemComponent = hpPotionTransform.GetComponent<ItemComponent>();
-                    itemComponent.InitItemComponent(this, itemOrigin);
-                    itemComponents.Add(itemComponent);
-                    pm.pathManager.PutItemComponent(itemComponent);
-                }
-                else if (randomNumber < 5)
-                {
-                    Node itemOrigin = this.sectionData.origin + new Node(j, i);
-                    Transform hpPotionTransform = Instantiate(hpPotionPrefab) as Transform;
-                    hpPotionTransform.SetParent(blockComponent.itemContainer);
-                    ItemComponent itemComponent = hpPotionTransform.GetComponent<ItemComponent>();
-                    itemComponent.InitItemComponent(this, itemOrigin);
-                    itemComponents.Add(itemComponent);
-                    pm.pathManager.PutItemComponent(itemComponent);
-                }
-                else if (randomNumber < 10)
-                {
-                    Node itemOrigin = this.sectionData.origin + new Node(j, i);
-                    Transform spPotionTransform = Instantiate(spPotionPrefab) as Transform;
-                    spPotionTransform.SetParent(blockComponent.itemContainer);
-                    ItemComponent itemComponent = spPotionTransform.GetComponent<ItemComponent>();
-                    itemComponent.InitItemComponent(this, itemOrigin);
-                    itemComponents.Add(itemComponent);
-                    pm.pathManager.PutItemComponent(itemComponent);
-                }
-                else if (randomNumber < 20)
-                {
-                    Node itemOrigin = this.sectionData.origin + new Node(j, i);
-                    Transform coinTransform = Instantiate(coinPrefab) as Transform;
-                    coinTransform.SetParent(blockComponent.itemContainer);
-                    ItemComponent itemComponent = coinTransform.GetComponent<ItemComponent>();
-                    itemComponent.InitItemComponent(this, itemOrigin);
-                    itemComponents.Add(itemComponent);
-                    pm.pathManager.PutItemComponent(itemComponent);
-                }
-                else if (randomNumber < 22 && sectionData.sectionId != 0)
-                {
-                    Node trapOrigin = this.sectionData.origin + new Node(j, i);
-                    Transform trapTransform = Instantiate(thornFloorPrefab) as Transform;
-                    trapTransform.SetParent(blockComponent.trapContainer);
-                    TrapComponent trapComponent = trapTransform.GetComponent<TrapComponent>();
-                    trapComponent.InitItemComponent(this, trapOrigin);
-                    trapComponents.Add(trapComponent);
-                    pm.pathManager.PutTrapComponent(trapComponent);
-                }
-            }
-             */
 
             this.maxProgress = _maxProgress;
         }
@@ -316,6 +285,14 @@ namespace DoonaLegend
             }
         }
 
+        public void StopCollapse()
+        {
+            foreach (BlockComponent blockComponent in blockComponents)
+            {
+                blockComponent.StopCollapse();
+            }
+        }
+
         void SetSectionPosition(Node node)
         {
             gameObject.transform.position = new Vector3(node.x, 0, node.y);
@@ -323,31 +300,33 @@ namespace DoonaLegend
 
         public void RemoveSection()
         {
-            //TODO : recycle block gameObject and destroy section gameObject
-            foreach (BlockComponent blockComponent in blockComponents)
-            {
-                pm.pathManager.RemoveBlockComponent(blockComponent);
-                //TODO : recycle block gameObject
-            }
-
             foreach (ItemComponent itemComponent in itemComponents)
             {
                 pm.pathManager.RemoveItemComponent(itemComponent);
-                //TODO : recycle item gameObject
+                ObjectPool.Recycle(itemComponent);
+                // Destroy(itemComponent.gameObject);
             }
 
             foreach (TrapComponent trapComponent in trapComponents)
             {
                 pm.pathManager.RemoveTrapComponent(trapComponent);
-                //TODO : recycle trap gameObject
+                ObjectPool.Recycle(trapComponent);
+                // Destroy(trapComponent.gameObject);
             }
 
             foreach (EnemyComponent enemyComponent in enemyComponents)
             {
                 pm.pathManager.RemoveEnemyComponent(enemyComponent);
-                //TODO : recycle enemy gameObject
+                ObjectPool.Recycle(enemyComponent);
+                // Destroy(enemyComponent.gameObject);
             }
 
+            foreach (BlockComponent blockComponent in blockComponents)
+            {
+                pm.pathManager.RemoveBlockComponent(blockComponent);
+                ObjectPool.Recycle(blockComponent);
+                // Destroy(blockComponent.gameObject);
+            }
             Destroy(gameObject);
         }
         #endregion

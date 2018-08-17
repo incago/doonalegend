@@ -40,6 +40,7 @@ namespace DoonaLegend
 
         public void Pause()
         {
+            pm.playSceneState = PlaySceneState.pause;
             Time.timeScale = 0.0f;
             animator_pause.SetTrigger("fadein");
             isPaused = true;
@@ -54,8 +55,14 @@ namespace DoonaLegend
 
         public void ResumeHelper()
         {
+            pm.playSceneState = PlaySceneState.play;
             Time.timeScale = 1.0f;
             isPaused = false;
+        }
+
+        public void CountSound()
+        {
+            SoundManager.Instance.Play("pop");
         }
 
 

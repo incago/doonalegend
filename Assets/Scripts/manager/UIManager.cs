@@ -8,6 +8,7 @@ using System.Collections.Generic;
 
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.UI.Extensions;
 using UnityEngine.SceneManagement;
 
 namespace DoonaLegend
@@ -51,6 +52,11 @@ namespace DoonaLegend
 
         [Header("SP")]
         public Slider slider_sp;
+
+        [Header("Combo")]
+        public Text text_combo;
+        public NicerOutline text_combooutline;
+        public Animator animator_combo;
 
         // [Header("Pause")]
         // public Animator animator_pause;
@@ -104,7 +110,7 @@ namespace DoonaLegend
 
         public void InitUIManager()
         {
-            InitHpUI(pm.player.maxHp, pm.player.hp);
+            InitHpUI(pm.champion.maxHp, pm.champion.hp);
             // slider_hp.value = slider_hp.maxValue = 100.0f;
             // fill_hp.color = color_hp_green;
             slider_sp.maxValue = 100.0f;
@@ -133,7 +139,7 @@ namespace DoonaLegend
 
         public void UpdateSp()
         {
-            slider_sp.value = pm.player.sp;
+            slider_sp.value = pm.champion.sp;
         }
 
         public void UpdateCoin(bool withAnimation = false)
@@ -144,19 +150,6 @@ namespace DoonaLegend
             {
                 animator_coin.SetTrigger("update");
             }
-        }
-
-        public void ShowGameOverPanel()
-        {
-            panel_gameover.SetActive(true);
-            // text_bestscore.text = GameManager.Instance.GetBestScoreFromPref().ToString();
-            // text_currentscore.text = pm.score.ToString();
-            // text_getcoin.text = pm.addCoin.ToString();
-        }
-
-        public void HideGameOverPanel()
-        {
-            panel_gameover.SetActive(false);
         }
 
         public void InitHpUI(int maxHp, int currentHp, bool withAnimation = false)
@@ -203,7 +196,7 @@ namespace DoonaLegend
         {
             for (int i = 0; i < hearts.Count; i++)
             {
-                int currentHp = pm.player.hp;
+                int currentHp = pm.champion.hp;
                 HeartStatus heartStatus = HeartStatus.empty;
                 if (i < currentHp / 2) heartStatus = HeartStatus.full;
                 else if ((i == currentHp / 2) && (currentHp % 2 == 1)) heartStatus = HeartStatus.half;
@@ -217,6 +210,19 @@ namespace DoonaLegend
             // { fill_hp.color = Color.Lerp(color_hp_red, color_hp_yellow, percent * 2); }
             // else
             // { fill_hp.color = Color.Lerp(color_hp_yellow, color_hp_green, (percent - 0.5f) * 2); }
+        }
+
+        public void UpdateComboUI(int value, Color? color = null, Color? outline = null)
+        {
+            UpdateComboUI(value.ToString() + " Combo!", color, outline);
+        }
+
+        public void UpdateComboUI(string message, Color? color = null, Color? outline = null)
+        {
+            text_combo.text = message;
+            text_combo.color = color ?? Color.white;
+            text_combooutline.effectColor = outline ?? Color.black;
+            animator_combo.SetTrigger("update");
         }
 
         public void MakeCanvasMessageHud(Transform target, string message, Vector3 localOffset, Color fontColor, Color outlineColor)

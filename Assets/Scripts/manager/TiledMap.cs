@@ -93,6 +93,8 @@ namespace INCAGO_TMX
         public string itemType;
         public float value;
         public bool isDead;//for test
+        public Direction direction;
+        public float delay;
     }
 
     public enum Orientation : byte

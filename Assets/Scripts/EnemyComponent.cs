@@ -50,7 +50,8 @@ namespace DoonaLegend
 
         void SetEnemyPosition(Node node)
         {
-            gameObject.transform.position = new Vector3(node.x + 0.5f, 0, node.y + 0.5f);
+            // gameObject.transform.position = new Vector3(node.x + 0.5f, 0, node.y + 0.5f);
+            gameObject.transform.localPosition = Vector3.zero;
         }
         void SetEnemyRotation(Direction direction)
         {

@@ -39,5 +39,7 @@ sysinfo.txt
 *.apk
 *.unitypackage
 
+# Key file(custom for this project)
+doonalegend.keystore
 
 # End of https://www.gitignore.io/api/unity

@@ -19,8 +19,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4604975792652852}
-  - component: {fileID: 114030696498773054}
-  - component: {fileID: 65649736405588714}
+  - component: {fileID: 114345600494116732}
   - component: {fileID: 95335525934901624}
   m_Layer: 9
   m_Name: block_water
@@ -37,6 +36,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4170336061171982}
+  - component: {fileID: 65714455849900398}
   m_Layer: 9
   m_Name: body
   m_TagString: Untagged
@@ -192,7 +192,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1874219950374936}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.5, y: 0, z: 0.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4604975792652852}
@@ -233,7 +233,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1281485585404176}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -6, y: 0, z: 0}
+  m_LocalPosition: {x: 2, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4170336061171982}
@@ -419,18 +419,18 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!65 &65649736405588714
+--- !u!65 &65714455849900398
 BoxCollider:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1281485585404176}
+  m_GameObject: {fileID: 1342103352650250}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0.5, y: -0.5, z: 0.5}
+  m_Size: {x: 1, y: 0.9166667, z: 1}
+  m_Center: {x: 0.5, y: -0.5416666, z: 0.5}
 --- !u!95 &95335525934901624
 Animator:
   serializedVersion: 3
@@ -449,7 +449,7 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!114 &114030696498773054
+--- !u!114 &114345600494116732
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -457,7 +457,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1281485585404176}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f0c2fcf5f94834ecbad9a8032d3a65e8, type: 3}
+  m_Script: {fileID: 11500000, guid: fbcc51e0eb4d24137b38c257c2f66b6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   blockData:
@@ -470,14 +470,17 @@ MonoBehaviour:
     progress: 0
   terrainGid: 4
   sectionComponent: {fileID: 0}
-  renderers: []
+  renderers:
+  - {fileID: 23215636263677620}
+  - {fileID: 23160539054978952}
   brightMaterial: {fileID: 2100000, guid: b8c06fd3dacd84b208928e492c5233e4, type: 2}
-  darkMaterial: {fileID: 0}
+  darkMaterial: {fileID: 2100000, guid: b8c06fd3dacd84b208928e492c5233e4, type: 2}
   animator: {fileID: 95335525934901624}
   objectContainer: {fileID: 4261422858260522}
   isCollapsing: 0
   isCollapsed: 0
   isGrid: 0
-  effect_splash: {fileID: 198257682142381236, guid: 3c9629169cbc8415fbc73bc72d0a99d4,
+  hasStepEffect: 1
+  effect_step: {fileID: 4342531059715746, guid: 3c9629169cbc8415fbc73bc72d0a99d4,
     type: 2}
   effectTransform: {fileID: 4475289268663622}

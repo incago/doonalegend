@@ -19,6 +19,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4835481688044938}
+  - component: {fileID: 65204482211246362}
   m_Layer: 9
   m_Name: body
   m_TagString: Untagged
@@ -35,7 +36,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4604975792652852}
   - component: {fileID: 114979247916057648}
-  - component: {fileID: 65649736405588714}
   - component: {fileID: 95370897346005394}
   m_Layer: 9
   m_Name: block_grass
@@ -217,7 +217,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1435924104339144}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.5, y: 0, z: 0.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4604975792652852}
@@ -378,6 +378,18 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1566155613251372}
   m_Mesh: {fileID: 4300002, guid: 202a36f7be2aa4bbdaa3a8c8544872d5, type: 3}
+--- !u!65 &65204482211246362
+BoxCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1198045187249106}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0.5, y: -0.5, z: 0.5}
 --- !u!65 &65460847756400044
 BoxCollider:
   m_ObjectHideFlags: 1
@@ -390,18 +402,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!65 &65649736405588714
-BoxCollider:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1281485585404176}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0.5, y: -0.5, z: 0.5}
 --- !u!95 &95370897346005394
 Animator:
   serializedVersion: 3
@@ -444,14 +444,6 @@ MonoBehaviour:
   renderers:
   - {fileID: 23283900943886372}
   - {fileID: 23033895394091058}
-  greenMaterial: {fileID: 2100000, guid: ae95edae2877c4343be3ada06d44ae14, type: 2}
-  purpleMaterial: {fileID: 2100000, guid: 72e39faec12544e43bd74af51cd97742, type: 2}
-  redMaterial: {fileID: 2100000, guid: abe659b1541ae47da96dca7c8d3b1bb0, type: 2}
-  orangeMaterial: {fileID: 2100000, guid: 7ad5da519b95b46d1972b8cb340c9204, type: 2}
-  yellowMaterial: {fileID: 2100000, guid: bc65633b02fe332409f42b7866042787, type: 2}
-  brightGreenMaterial: {fileID: 2100000, guid: 217c1126212bd435ea99d13febb41aa2, type: 2}
-  brightPurpleMaterial: {fileID: 2100000, guid: 73b6b06d8a4fe406d9288ac167e51fa6,
-    type: 2}
   brightMaterial: {fileID: 2100000, guid: 1b367b17945794156903a96183631033, type: 2}
   darkMaterial: {fileID: 2100000, guid: c30fd3bdea4874603a462e86902a230b, type: 2}
   animator: {fileID: 95370897346005394}
@@ -459,3 +451,6 @@ MonoBehaviour:
   isCollapsing: 0
   isCollapsed: 0
   isGrid: 1
+  hasStepEffect: 0
+  effect_step: {fileID: 0}
+  effectTransform: {fileID: 0}

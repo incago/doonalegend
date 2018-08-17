@@ -38,7 +38,8 @@ namespace DoonaLegend
 
         void SetItemPositionAndDirection(Node node, Direction direction)
         {
-            gameObject.transform.position = new Vector3(node.x + 0.5f, 0, node.y + 0.5f);
+            // gameObject.transform.position = new Vector3(node.x + 0.5f, 0, node.y + 0.5f);
+            gameObject.transform.localPosition = Vector3.zero;
             if (direction == Direction.up) { gameObject.transform.rotation = Quaternion.Euler(new Vector3(0, 0, 0)); }
             else if (direction == Direction.right) { gameObject.transform.rotation = Quaternion.Euler(new Vector3(0, 90.0f, 0)); }
             else if (direction == Direction.down) { gameObject.transform.rotation = Quaternion.Euler(new Vector3(0, 180.0f, 0)); }

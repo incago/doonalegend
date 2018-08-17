@@ -17,10 +17,11 @@ namespace DoonaLegend
         public CameraController cameraController;
         public UIManager uiManager;
         public InputManager inputManager;
+        public ObjectPool objectPool;
 
-        [Header("Player")]
+        [Header("Champion")]
         public Transform playerPrefab;
-        public ChampionComponent player;
+        public ChampionComponent champion;
         public bool isHpDecreasing = false;
         public bool isSpIncreasing = false;
         private Coroutine hpDecreasingCoroutine;
@@ -33,6 +34,12 @@ namespace DoonaLegend
         public int kill;
         public int totalCoin;
         public int addCoin;
+        public int combo;
+        public int totalCombo;
+
+        [Header("Play State")]
+        public PlaySceneState playSceneState;
+        // private bool isWaitExit = false;
 
         [Header("Pause")]
         public PausePanel pausePanel;
@@ -47,11 +54,51 @@ namespace DoonaLegend
 
         void Awake()
         {
+            objectPool.InitStartupPools();
+
             pausePanel.gameObject.SetActive(true);
             gameOverPanel.gameObject.SetActive(true);
 
             totalCoin = GameManager.Instance.GetPlayerCoinFromPref();
             ResetGame();
+        }
+
+        void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                Debug.Log("BACK!");
+                if (Application.platform == RuntimePlatform.Android)
+                {
+                    OnPressBackButton();
+                }
+                else
+                {
+                    OnPressBackButton();
+                }
+            }
+        }
+
+        void OnPressBackButton()
+        {
+            Debug.Log("PlayManager.OnPressBackButton()");
+            if (playSceneState == PlaySceneState.ready)
+            {
+                Application.Quit();
+            }
+            else if (playSceneState == PlaySceneState.play)
+            {
+                pausePanel.Pause();
+            }
+            else if (playSceneState == PlaySceneState.pause)
+            {
+                Debug.Log("Quit Application");
+                Application.Quit();
+            }
+            else if (playSceneState == PlaySceneState.gameover)
+            {
+                Application.Quit();
+            }
         }
 
         public void RestartGame()
@@ -63,13 +110,18 @@ namespace DoonaLegend
 
         public void ResetGame()
         {
+            playSceneState = PlaySceneState.ready;
             pathManager.InitPath();
             distance = 0;
             kill = 0;
             addCoin = 0;
+            combo = 0;
+            totalCombo = 0;
             uiManager.UpdateKill(this.kill);
             uiManager.UpdateDistance(this.distance);
             uiManager.UpdateCoin(false);
+
+            pausePanel.isPaused = false;
 
             isHpDecreasing = false;
             isSpIncreasing = false;
@@ -77,12 +129,12 @@ namespace DoonaLegend
             if (hpDecreasingCoroutine != null) StopCoroutine(hpDecreasingCoroutine);
             if (spIncreasingCoroutine != null) StopCoroutine(spIncreasingCoroutine);
             if (autoMoveCoroutine != null) StopCoroutine(autoMoveCoroutine);
-            if (this.player != null) Destroy(this.player.gameObject);
+            if (this.champion != null) Destroy(this.champion.gameObject);
             Transform playerTransform = Instantiate(playerPrefab) as Transform;
             ChampionComponent playerComponent = playerTransform.GetComponent<ChampionComponent>();
             Node startNode = new Node(0, 1);
-            playerComponent.InitPlayerComponent(startNode, Direction.right);
-            this.player = playerComponent;
+            playerComponent.InitChampionComponent(startNode, Direction.right);
+            this.champion = playerComponent;
             // autoMoveCoroutine = StartCoroutine(AutoMove());
 
             cameraController.SetPosition(startNode);
@@ -101,6 +153,10 @@ namespace DoonaLegend
             //     isHpDecreasing = true;
             //     hpDecreasingCoroutine = StartCoroutine(DecreasingPlayerHp());
             // }
+            if (playSceneState == PlaySceneState.ready)
+            {
+                playSceneState = PlaySceneState.play;
+            }
             if (!isSpIncreasing)
             {
                 isSpIncreasing = true;
@@ -110,40 +166,54 @@ namespace DoonaLegend
             //플레이어의 방향과 서있는 블럭의 타잎에 따라 다음에 가야할 노드와 회전유무가 정해진다.
             if (input == PlayerInput.left || input == PlayerInput.right || input == PlayerInput.forward)
             {
-                if (player.isDead)
+                if (champion.isDead)
                 {
                     Debug.Log("player is dead");
                     return;
                 }
-                if (player.isMoving) return;
-                if (player.isAttacking) return;
+                if (champion.isMoving) return;
+                if (champion.isAttacking) return;
 
-                BlockComponent blockComponent = pathManager.GetBlockComponentByOrigin(player.origin);
-                Node targetNode = player.origin;
-                Direction targetDirection = player.direction;
+                BlockComponent blockComponent = pathManager.GetBlockComponentByOrigin(champion.origin);
+                Node targetNode = champion.origin;
+                Direction targetDirection = champion.direction;
 
-                if (player.isWatered)
+                if (champion.isWatered)
                 {
-                    player.isWatered = false;
-                    player.MovePlayer(player.origin, player.origin, 0.2f, false);
+                    champion.isWatered = false;
+                    champion.MoveChampion(champion.origin, champion.origin, 0.2f, MoveType.walk, false);
                     return;
                 }
+                else if (champion.isBitten)
+                {
+                    champion.isBitten = false;
+                    champion.MoveChampion(champion.origin, champion.origin, 0.2f, MoveType.walk, false);
+                    return;
+                }
+
 
                 //스트레이트 블럭 위에 있고 입력받은곳에 적이 있는지 확인해야한다
                 //공격후 적이 죽는다면 적이 있던 자리로 이동하고 적이 죽지 않으면 원래 있던 자리로 돌아와야 한다
                 // Debug.Log("player.origin: " + player.origin.ToString());
-                Node possibleEnemyNode = GetNextNode(player, input);
+                Node possibleEnemyNode = GetNextNode(champion, input);
+
+                TrapComponent trapComponent = pathManager.GetTrapComponent(possibleEnemyNode);
+                if (trapComponent != null && trapComponent.isObstacle)
+                {
+                    champion.MoveChampion(champion.origin, champion.origin, 0.2f, MoveType.walk, false);
+                    return;
+                }
                 // Debug.Log("possibleEnemyNode: " + possibleEnemyNode.ToString());
                 if (blockComponent.blockData.blockCategory == BlockCategory.straight && IsEnemyInDirection(possibleEnemyNode))
                 {
-                    player.Attack(player.origin, possibleEnemyNode, 0.2f);
+                    champion.Attack(champion.origin, possibleEnemyNode, 0.2f);
                     return;
                 }
                 else if (
                     (blockComponent.blockData.blockCategory == BlockCategory.straight) ||
                     (blockComponent.blockData.blockCategory == BlockCategory.shortcut_end) ||
-                    (blockComponent.blockData.blockCategory == BlockCategory.corner && player.direction == blockComponent.blockData.direction) ||
-                    (blockComponent.blockData.blockCategory == BlockCategory.corner_edge && player.direction == blockComponent.blockData.direction))
+                    (blockComponent.blockData.blockCategory == BlockCategory.corner && champion.direction == blockComponent.blockData.direction) ||
+                    (blockComponent.blockData.blockCategory == BlockCategory.corner_edge && champion.direction == blockComponent.blockData.direction))
                 {
                     if (blockComponent.blockData.direction == Direction.right)
                     {
@@ -169,21 +239,21 @@ namespace DoonaLegend
                 }
                 else if (blockComponent.blockData.blockCategory == BlockCategory.shortcut_start)
                 {
-                    if (player.direction != blockComponent.blockData.direction)
+                    if (champion.direction != blockComponent.blockData.direction)
                     {
-                        if (player.direction == Direction.right)
+                        if (champion.direction == Direction.right)
                         {
                             if (input == PlayerInput.left) targetNode += new Node(1, 1);
                             else if (input == PlayerInput.right) targetNode += new Node(1, -1);
                             else if (input == PlayerInput.forward) targetNode += new Node(1, 0);
                         }
-                        else if (player.direction == Direction.up)
+                        else if (champion.direction == Direction.up)
                         {
                             if (input == PlayerInput.left) targetNode += new Node(-1, 1);
                             else if (input == PlayerInput.right) targetNode += new Node(1, 1);
                             else if (input == PlayerInput.forward) targetNode += new Node(0, 1);
                         }
-                        else if (player.direction == Direction.down)
+                        else if (champion.direction == Direction.down)
                         {
                             if (input == PlayerInput.left) targetNode += new Node(1, -1);
                             else if (input == PlayerInput.right) targetNode += new Node(-1, -1);
@@ -245,9 +315,9 @@ namespace DoonaLegend
                         }
                     }
                 }
-                else if (blockComponent.blockData.blockCategory == BlockCategory.corner && player.direction != blockComponent.blockData.direction)
+                else if (blockComponent.blockData.blockCategory == BlockCategory.corner && champion.direction != blockComponent.blockData.direction)
                 {
-                    if (player.direction == Direction.right)
+                    if (champion.direction == Direction.right)
                     {
                         if (blockComponent.blockData.direction == Direction.up)
                         {
@@ -271,7 +341,7 @@ namespace DoonaLegend
                             else if (input == PlayerInput.forward) targetNode += new Node(1, 0);
                         }
                     }
-                    else if (player.direction == Direction.up)
+                    else if (champion.direction == Direction.up)
                     {
                         if (input == PlayerInput.left) targetNode += new Node(-1, 1);
                         else if (input == PlayerInput.right)
@@ -281,7 +351,7 @@ namespace DoonaLegend
                         }
                         else if (input == PlayerInput.forward) targetNode += new Node(0, 1);
                     }
-                    else if (player.direction == Direction.down)
+                    else if (champion.direction == Direction.down)
                     {
                         if (input == PlayerInput.left)
                         {
@@ -292,11 +362,11 @@ namespace DoonaLegend
                         else if (input == PlayerInput.forward) targetNode += new Node(0, -1);
                     }
                 }
-                else if (blockComponent.blockData.blockCategory == BlockCategory.corner_edge && player.direction != blockComponent.blockData.direction)
+                else if (blockComponent.blockData.blockCategory == BlockCategory.corner_edge && champion.direction != blockComponent.blockData.direction)
                 {
                     if (blockComponent.blockData.direction == Direction.right)
                     {
-                        if (player.direction == Direction.up)
+                        if (champion.direction == Direction.up)
                         {
                             if (input == PlayerInput.left) targetNode += new Node(-1, 1);
                             else if (input == PlayerInput.right)
@@ -306,7 +376,7 @@ namespace DoonaLegend
                             }
                             else if (input == PlayerInput.forward) targetNode += new Node(0, 1);
                         }
-                        else if (player.direction == Direction.down)
+                        else if (champion.direction == Direction.down)
                         {
                             if (input == PlayerInput.left)
                             {
@@ -388,11 +458,12 @@ namespace DoonaLegend
                     }
 
                 }
-                bool isRotate = player.direction != targetDirection;
-                player.MovePlayer(player.origin, targetNode, 0.2f, isRotate);
+                bool isRotate = champion.direction != targetDirection;
+                champion.MoveChampion(champion.origin, targetNode, 0.2f, MoveType.walk
+                , isRotate);
                 if (isRotate)
                 {
-                    player.RotatePlayer(player.direction, targetDirection, 0.2f);
+                    champion.RotateChampion(champion.direction, targetDirection, 0.2f);
                 }
             }
             else
@@ -432,7 +503,7 @@ namespace DoonaLegend
         private float step = 0.3f;
         IEnumerator AutoMove()
         {
-            while (!player.isDead)
+            while (!champion.isDead)
             {
                 yield return new WaitForSeconds(step);
                 if (inputManager.lastInput == PlayerInput.none)
@@ -449,19 +520,19 @@ namespace DoonaLegend
 
         IEnumerator DecreasingPlayerHp()
         {
-            while (!player.isDead)
+            while (!champion.isDead)
             {
                 yield return new WaitForSeconds(0.1f);
-                player.TakeDamage(1, DamageType.time);
+                champion.TakeDamage(1, DamageType.time);
             }
         }
 
         IEnumerator IncreasingPlayerSp()
         {
-            while (!player.isDead)
+            while (!champion.isDead)
             {
                 yield return new WaitForSeconds(0.1f);
-                player.AddSp(0.2f);
+                champion.AddSp(0.2f);
                 uiManager.UpdateSp();
             }
         }
@@ -480,6 +551,7 @@ namespace DoonaLegend
 
         public void GameOver()
         {
+            playSceneState = PlaySceneState.gameover;
             if (gameOverCoroutine != null) StopCoroutine(gameOverCoroutine);
             gameOverCoroutine = StartCoroutine(GameOverHelper());
         }
@@ -496,6 +568,52 @@ namespace DoonaLegend
             uiManager.animator_menu.SetTrigger("slidein");
             gameOverPanel.ShowGameOverPanel();
         }
+
+        public void AddCombo()
+        {
+            this.combo++;
+            if (this.combo >= 2)
+            {
+                this.totalCombo++;
+                uiManager.UpdateComboUI(this.combo);
+            }
+        }
+
+        public void ResetCombo()
+        {
+            if (this.combo >= 2)
+            {
+                uiManager.UpdateComboUI(this.combo, Color.red, Color.white);
+                uiManager.animator_combo.SetTrigger("over");
+            }
+            this.combo = 0;
+        }
+
+        void OnApplicationFocus(bool hasFocus)
+        {
+            // Debug.Log("PlayManage.OnApplicationFocus(" + hasFocus + ")");
+            if (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer)
+            {
+                if (hasFocus)
+                {
+
+                }
+                else
+                {
+                    if (!pausePanel.isPaused)
+                    {
+                        pausePanel.Pause();
+                    }
+                }
+            }
+
+        }
         #endregion
     }
+    public enum PlaySceneState
+    {
+        ready, play, pause, gameover
+    }
+    /*
+     */
 }

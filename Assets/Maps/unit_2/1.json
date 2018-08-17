@@ -1,7 +1,7 @@
 { "height":3,
  "layers":[
         {
-         "data":[2, 3, 2, 3, 2, 3, 3, 2, 3, 2, 3, 2, 2, 3, 2, 3, 2, 3],
+         "data":[2, 3, 4, 4, 4, 3, 3, 2, 4, 4, 4, 2, 2, 3, 4, 4, 4, 3],
          "height":3,
          "name":"terrain",
          "opacity":1,
@@ -93,12 +93,84 @@
                  "height":24,
                  "id":21,
                  "name":"",
+                 "properties":
+                    {
+                     "direction":"right"
+                    },
+                 "propertytypes":
+                    {
+                     "direction":"string"
+                    },
                  "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":24,
-                 "x":96,
+                 "x":120,
+                 "y":48
+                }, 
+                {
+                 "gid":33,
+                 "height":24,
+                 "id":22,
+                 "name":"",
+                 "properties":
+                    {
+                     "direction":"right"
+                    },
+                 "propertytypes":
+                    {
+                     "direction":"string"
+                    },
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":24,
+                 "x":120,
                  "y":24
+                }, 
+                {
+                 "gid":33,
+                 "height":24,
+                 "id":23,
+                 "name":"",
+                 "properties":
+                    {
+                     "direction":"right"
+                    },
+                 "propertytypes":
+                    {
+                     "direction":"string"
+                    },
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":24,
+                 "x":120,
+                 "y":72
+                }, 
+                {
+                 "gid":17,
+                 "height":24,
+                 "id":24,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":24,
+                 "x":0,
+                 "y":24
+                }, 
+                {
+                 "gid":17,
+                 "height":24,
+                 "id":25,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":24,
+                 "x":0,
+                 "y":72
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -107,7 +179,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":22,
+ "nextobjectid":26,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tileheight":24,

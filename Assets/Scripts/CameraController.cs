@@ -17,20 +17,12 @@ namespace DoonaLegend
         {
             get { if (_pm == null) _pm = GameObject.FindGameObjectWithTag("PlayManager").GetComponent<PlayManager>(); return _pm; }
         }
-        private ChampionComponent player;
+        private ChampionComponent champion;
         public Transform pivot;
-        public Vector3 playerUpAngle = new Vector3(45.0f, 30.0f, 0);
-        // public Vector3 playerUpPosition = new Vector3(-5, 10, -5);
-
-
-        public Vector3 playerRightUpAngle = new Vector3(45.0f, 60.0f, 0);
-        // public Vector3 playerRightUpPosition = new Vector3(-5, 10, -5);
-        public Vector3 playerRightDownAngle = new Vector3(45.0f, 120.0f, 0);
-        // public Vector3 playerRightDownPosition = new Vector3(0, 0, 0);
-
-
-        public Vector3 playerDownAngle = new Vector3(45.0f, 150.0f, 0);
-        // public Vector3 playerDownPosition = new Vector3(-5, 10, -5);
+        public Vector3 championUpAngle = new Vector3(45.0f, 30.0f, 0);
+        public Vector3 championRightUpAngle = new Vector3(45.0f, 60.0f, 0);
+        public Vector3 championRightDownAngle = new Vector3(45.0f, 120.0f, 0);
+        public Vector3 championDownAngle = new Vector3(45.0f, 150.0f, 0);
         private Coroutine pivotRotateCoroutine;
         private Coroutine animatePivotRotateCoroutine;
         public float pivotRotateDuration = 0.2f;
@@ -40,9 +32,9 @@ namespace DoonaLegend
         #region Method
         void FixedUpdate()
         {
-            if (player != null && !player.isDead)
+            if (champion != null && !champion.isDead)
             {
-                Vector3 targetPosition = player.transform.position;
+                Vector3 targetPosition = champion.transform.position;
                 Vector3 targetCameraPosition = Vector3.Lerp(transform.position, targetPosition, smoothing * Time.fixedDeltaTime);
                 transform.position = new Vector3(targetCameraPosition.x, targetCameraPosition.y, targetCameraPosition.z);
             }
@@ -55,12 +47,12 @@ namespace DoonaLegend
 
         public void SetTarget(ChampionComponent target)
         {
-            this.player = target;
+            this.champion = target;
         }
 
-        public void SetInitialRotation(Node playerOrigin)
+        public void SetInitialRotation(Node championOrigin)
         {
-            BlockComponent currentBlockComponent = pm.pathManager.GetBlockComponentByOrigin(playerOrigin);
+            BlockComponent currentBlockComponent = pm.pathManager.GetBlockComponentByOrigin(championOrigin);
             // SectionComponent firstSectionComponent = pm.pathManager.GetSectionComponent(1);
             // SectionComponent secondSectionComponent = pm.pathManager.GetSectionComponent(2);
             int currentProgress = currentBlockComponent.blockData.progress;
@@ -72,41 +64,17 @@ namespace DoonaLegend
             Quaternion targetRotation = Quaternion.identity;
 
             if (currentBlockComponent.sectionComponent.nextSectionComponent.nextSectionComponent.sectionData.direction == Direction.up)
-            { initialRotation = Quaternion.Euler(pm.cameraController.playerRightUpAngle); }
+            { initialRotation = Quaternion.Euler(pm.cameraController.championRightUpAngle); }
             else if (currentBlockComponent.sectionComponent.nextSectionComponent.nextSectionComponent.sectionData.direction == Direction.down)
-            { initialRotation = Quaternion.Euler(pm.cameraController.playerRightDownAngle); }
+            { initialRotation = Quaternion.Euler(pm.cameraController.championRightDownAngle); }
 
             if (currentBlockComponent.sectionComponent.nextSectionComponent.nextSectionComponent.sectionData.direction == Direction.up)
-            { targetRotation = Quaternion.Euler(pm.cameraController.playerUpAngle); }
+            { targetRotation = Quaternion.Euler(pm.cameraController.championUpAngle); }
             else if (currentBlockComponent.sectionComponent.nextSectionComponent.nextSectionComponent.sectionData.direction == Direction.down)
-            { targetRotation = Quaternion.Euler(pm.cameraController.playerDownAngle); }
+            { targetRotation = Quaternion.Euler(pm.cameraController.championDownAngle); }
 
             pm.cameraController.AnimatePivotAngle(initialRotation, targetRotation, startPercent, endPercent, 0.3f);
         }
-
-        /*
-        public void SetPivotAngle(Direction direction)
-        {
-            if (pivotRotateCoroutine != null) StopCoroutine(pivotRotateCoroutine);
-            pivotRotateCoroutine = StartCoroutine(SetPivotAngleHelper(direction));
-        }
-
-        IEnumerator SetPivotAngleHelper(Direction direction)
-        {
-            Quaternion initialRotation = pivot.rotation;
-            Quaternion targetRotation = Quaternion.identity;
-            if (direction == Direction.up) { targetRotation = Quaternion.Euler(playerUpAngle); }
-            else if (direction == Direction.right) { targetRotation = Quaternion.Euler(playerRightUpAngle); }
-            else if (direction == Direction.down) { targetRotation = Quaternion.Euler(playerDownAngle); }
-            float percent = 0;
-            while (percent <= 1)
-            {
-                percent += Time.deltaTime * (1.0f / pivotRotateDuration);
-                pivot.rotation = Quaternion.Lerp(initialRotation, targetRotation, percent);
-                yield return null;
-            }
-        }
-         */
 
         public void AnimatePivotAngle(Quaternion initialRotation, Quaternion targetRotation, float startPercent, float endPercent, float duration)
         {

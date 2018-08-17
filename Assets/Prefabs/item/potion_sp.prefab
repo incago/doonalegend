@@ -264,4 +264,5 @@ MonoBehaviour:
   origin:
     x: 0
     y: 0
+  direction: 0
   sfx: eat_potion
