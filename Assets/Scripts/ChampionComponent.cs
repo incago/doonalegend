@@ -28,6 +28,8 @@ namespace DoonaLegend
         public bool isDead = false;
         public bool isWatered = false;
         public bool isBitten = false;
+        public bool isInvincible = false;
+        public float invincibleTime = 0.5f;
         public Transform body;
         public Animator animator;
         public bool isLeftLeg = false;
@@ -61,6 +63,14 @@ namespace DoonaLegend
         #region Method
         public void InitChampionComponent(Node node, Direction direction)
         {
+            isAttacking = false;
+            isMoving = false;
+            isRotating = false;
+            isDead = false;
+            isWatered = false;
+            isBitten = false;
+            isInvincible = false;
+
             this.origin = node;
             this.direction = direction;
 
@@ -140,6 +150,7 @@ namespace DoonaLegend
         public void MoveChampion(Node beforeNode, Node afterNode, float moveDuration, MoveType moveType, bool isRotate = false)
         {
             // Debug.Log("ChampionComponent.MoveChampion()");
+            SoundManager.Instance.Play("pop");
             if (moveCoroutine != null) StopCoroutine(moveCoroutine);
             moveCoroutine = StartCoroutine(MoveChampionHelper(beforeNode, afterNode, moveDuration, isRotate));
             if (moveType == MoveType.walk || moveType == MoveType.knockback)
@@ -426,6 +437,12 @@ namespace DoonaLegend
         {
             // Debug.Log("ChampionComponent.TakeDamage(" + damage.ToString() + ")");
             if (isDead) return;
+            if (isInvincible) return;
+            else
+            {
+                isInvincible = true;
+                Invoke("TakeDamageHelper", invincibleTime);
+            }
             DamageEffect();
             Vector3 _canvasHudOffset = canvasHudOffset;
             if (damageType == DamageType.enemy)
@@ -466,17 +483,28 @@ namespace DoonaLegend
             }
         }
 
-        public void DamageEffect()
+        void TakeDamageHelper()
         {
-            StartCoroutine(DamageEffectCo());
+            isInvincible = false;
         }
 
-        IEnumerator DamageEffectCo()
+        public void DamageEffect()
+        {
+            StartCoroutine(DamageEffectCo(invincibleTime));
+        }
+
+        IEnumerator DamageEffectCo(float invincibleTime)
         {
             //Debug.Log("DamageEffectCo");
-            SetDamageMaterial();
-            yield return new WaitForSeconds(0.05f);
-            SetOriginalMaterial();
+            float blinkTime = 0.05f;
+            while (0 <= invincibleTime)
+            {
+                SetDamageMaterial();
+                yield return new WaitForSeconds(blinkTime);
+                SetOriginalMaterial();
+                yield return new WaitForSeconds(blinkTime);
+                invincibleTime -= (blinkTime * 2);
+            }
         }
 
         void SetDamageMaterial()

@@ -94,11 +94,10 @@ public sealed class ObjectPool : MonoBehaviour
     {
         if (!instance.startupPoolsCreated)
         {
-            Debug.Log("here");
             instance.startupPoolsCreated = true;
             var pools = instance.startupPools;
-            Debug.Log(pools);
-            Debug.Log(pools.Length.ToString());
+            // Debug.Log(pools);
+            // Debug.Log(pools.Length.ToString());
             if (pools != null && pools.Length > 0)
             {
                 for (int i = 0; i < pools.Length; ++i)
