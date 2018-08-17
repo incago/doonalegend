@@ -600,13 +600,12 @@ namespace DoonaLegend
                 }
                 else
                 {
-                    if (!pausePanel.isPaused)
+                    if (playSceneState == PlaySceneState.play)
                     {
                         pausePanel.Pause();
                     }
                 }
             }
-
         }
         #endregion
     }
