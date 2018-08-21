@@ -27,6 +27,7 @@ namespace DoonaLegend
         public int pathWidth = 3;
         public int maxMaintainSectionCount = 20;
         public SectionComponent currentSectionComponent;
+        public bool drawGizmos = false;
 
         [Header("Enemy Components")]
         public Dictionary<int, Dictionary<int, EnemyComponent>> enemyDictionaryByOrigin = new Dictionary<int, Dictionary<int, EnemyComponent>>();
@@ -162,7 +163,7 @@ namespace DoonaLegend
                     return blockDictionaryByOrigin[node.x][node.y];
                 }
             }
-            Debug.Log("blockDictionaryByOrigin do not have key: " + node.ToString());
+            // Debug.Log("blockDictionaryByOrigin do not have key: " + node.ToString());
             return null;
         }
         public void RemoveBlockComponent(BlockComponent blockComponent)
@@ -181,7 +182,7 @@ namespace DoonaLegend
         {
             if (!sectionDictionary.ContainsKey(sectionId))
             {
-                Debug.Log("sectionDictionary do not have key: " + sectionId.ToString());
+                // Debug.Log("sectionDictionary do not have key: " + sectionId.ToString());
                 return null;
             }
             return sectionDictionary[sectionId];
@@ -190,7 +191,7 @@ namespace DoonaLegend
         {
             if (sectionDictionary.ContainsKey(sectionComponent.sectionData.sectionId))
             {
-                Debug.Log("sectionDictionary already have key: " + sectionComponent.sectionData.sectionId.ToString());
+                // Debug.Log("sectionDictionary already have key: " + sectionComponent.sectionData.sectionId.ToString());
                 return;
             }
             sectionList.Add(sectionComponent);
@@ -236,32 +237,76 @@ namespace DoonaLegend
         {
             int startSectionId = 0;
             ClearPath();
+
+            SectionModel firstCornerSection = new SectionModel(
+                startSectionId,
+                SectionType.corner,
+                Direction.right,
+                new Node(0, 0),
+                pathWidth, pathWidth, MapManager.Instance.verticalCornerSectionContent.terrains);
+
             int unitLength = Random.Range(3, 6);
             unitLength = 3;
             int firstStraightSectionLength = unitLength * 3;
-            SectionContent sectionContent = MapManager.Instance.GetSectorContent(unitLength);
+            SectionContent sectionContent = MapManager.Instance.GetSectionContent(unitLength);
             SectionModel firstStraightSection = new SectionModel(
-                startSectionId,
+                firstCornerSection.sectionId + 1,
                 SectionType.straight,
                 Direction.right,
-                new Node(0, 0),
+                new Node(3, 0),
                 firstStraightSectionLength, pathWidth);
-            Direction firstCornerSectionDirection = Random.Range(0, 100) < 50 ? Direction.up : Direction.down;
-            SectionModel firstCornerSection = new SectionModel(
+
+            Direction secondCornerSectionDirection = Random.Range(0, 100) < 50 ? Direction.up : Direction.down;
+            SectionModel secondCornerSection = new SectionModel(
                 firstStraightSection.sectionId + 1,
                 SectionType.corner,
-                // Direction.up,
-                firstCornerSectionDirection,
-                new Node(firstStraightSectionLength, 0),
-                pathWidth, pathWidth);
+                secondCornerSectionDirection,
+                new Node(3 + firstStraightSectionLength, 0),
+                pathWidth, pathWidth, secondCornerSectionDirection == Direction.up ? MapManager.Instance.decreaseCornerSectionContent.terrains : MapManager.Instance.increaseCornerSectionContent.terrains);
 
-            SectionComponent firstStraightSectionComponent = MakeSection(firstStraightSection, firstCornerSection);
-            PutSectionComponent(firstStraightSectionComponent);
-            SectionComponent firstCornerSectionComponent = MakeSection(firstCornerSection);
-            firstStraightSectionComponent.nextSectionComponent = firstCornerSectionComponent;
-            firstCornerSectionComponent.beforeSectionComponent = firstStraightSectionComponent;
+            SectionComponent firstCornerSectionComponent = MakeSection(firstCornerSection, firstStraightSection);
             PutSectionComponent(firstCornerSectionComponent);
-            currentSectionComponent = firstStraightSectionComponent;
+            SectionComponent firstStraightSectionComponent = MakeSection(firstStraightSection, secondCornerSection);
+            PutSectionComponent(firstStraightSectionComponent);
+            SectionComponent secondCornerSectionComponent = MakeSection(secondCornerSection);
+            PutSectionComponent(secondCornerSectionComponent);
+
+            firstCornerSectionComponent.nextSectionComponent = firstStraightSectionComponent;
+            firstStraightSectionComponent.beforeSectionComponent = firstCornerSectionComponent;
+            firstStraightSectionComponent.nextSectionComponent = secondCornerSectionComponent;
+            secondCornerSectionComponent.beforeSectionComponent = firstStraightSectionComponent;
+            currentSectionComponent = firstCornerSectionComponent;
+
+
+            // int startSectionId = 0;
+            // ClearPath();
+            // int unitLength = Random.Range(3, 6);
+            // unitLength = 3;
+            // int firstStraightSectionLength = unitLength * 3;
+            // SectionContent sectionContent = MapManager.Instance.GetSectionContent(unitLength);
+            // SectionModel firstStraightSection = new SectionModel(
+            //     startSectionId,
+            //     SectionType.straight,
+            //     Direction.right,
+            //     new Node(0, 0),
+            //     firstStraightSectionLength, pathWidth);
+            // Direction firstCornerSectionDirection = Random.Range(0, 100) < 50 ? Direction.up : Direction.down;
+            // SectionModel firstCornerSection = new SectionModel(
+            //     firstStraightSection.sectionId + 1,
+            //     SectionType.corner,
+            //     // Direction.up,
+            //     firstCornerSectionDirection,
+            //     new Node(firstStraightSectionLength, 0),
+            //     pathWidth, pathWidth);
+
+            // SectionComponent firstStraightSectionComponent = MakeSection(firstStraightSection, firstCornerSection);
+            // PutSectionComponent(firstStraightSectionComponent);
+            // SectionComponent firstCornerSectionComponent = MakeSection(firstCornerSection);
+            // firstStraightSectionComponent.nextSectionComponent = firstCornerSectionComponent;
+            // firstCornerSectionComponent.beforeSectionComponent = firstStraightSectionComponent;
+            // PutSectionComponent(firstCornerSectionComponent);
+            // currentSectionComponent = firstStraightSectionComponent;
+
 
             for (int i = 0; i < 5; i++) { AddSection(); }
         }
@@ -271,7 +316,7 @@ namespace DoonaLegend
             int unitLength = Random.Range(2, 6);
             int straightSectionLength = unitLength * 3; //6, 9, 12, 15
 
-            SectionContent sectionContent = MapManager.Instance.GetSectorContent(unitLength);
+            SectionContent sectionContent = MapManager.Instance.GetSectionContent(unitLength);
             // Debug.Log("unitLength: " + unitLength.ToString());
             // Debug.Log(sectionContent.unitLength.ToString());
             // Debug.Log(sectionContent.fileName);
@@ -379,12 +424,33 @@ namespace DoonaLegend
                 cornerSectionDirection = Direction.right;
                 cornerSectionOrigin += new Node(0, -pathWidth);
             }
+            SectionContent cornerSectionContent = null;
+            if (cornerSectionDirection == Direction.up)
+            {
+                cornerSectionContent = MapManager.Instance.decreaseCornerSectionContent;
+            }
+            else if (cornerSectionDirection == Direction.down)
+            {
+                cornerSectionContent = MapManager.Instance.increaseCornerSectionContent;
+            }
+            else if (cornerSectionDirection == Direction.right)
+            {
+                if (addStraightSection.direction == Direction.up)
+                {
+                    cornerSectionContent = MapManager.Instance.decreaseCornerSectionContent;
+                }
+                else if (addStraightSection.direction == Direction.down)
+                {
+                    cornerSectionContent = MapManager.Instance.increaseCornerSectionContent;
+                }
+            }
+
             SectionModel addCornerSection = new SectionModel(
                 addStraightSection.sectionId + 1,
                 SectionType.corner,
                 cornerSectionDirection,
                 cornerSectionOrigin,
-                pathWidth, pathWidth);
+                pathWidth, pathWidth, cornerSectionContent.terrains);
 
             SectionComponent straightSectionComponent = MakeSection(addStraightSection, addCornerSection);
             lastSectionComponent.nextSectionComponent = straightSectionComponent;

@@ -310,7 +310,7 @@ MonoBehaviour:
   m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 740, y: 1334}
+  m_ReferenceResolution: {x: 690, y: 1334}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
@@ -463,6 +463,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a78bf71ff7cad4871a2f003472ab325d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  canvas: {fileID: 331134431}
+  canvasheight: 1136
+  canvaswidth_phone: 690
+  canvaswidth_tablet: 890
 --- !u!1 &1120332309
 GameObject:
   m_ObjectHideFlags: 0

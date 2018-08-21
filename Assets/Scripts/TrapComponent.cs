@@ -53,7 +53,8 @@ namespace DoonaLegend
             this.direction = direction;
             this.axeDirection = direction;
 
-            SetTrapPosition(this.origin, this.direction);
+            SetTrapPosition(this.origin);
+            SetTrapDirection(this.direction);
             float delay = 0.0f;
             if (tiledObject.properties != null) { delay = tiledObject.properties.delay; }
 
@@ -68,10 +69,14 @@ namespace DoonaLegend
             animator.SetTrigger("start");
         }
 
-        void SetTrapPosition(Node node, Direction direction)
+        void SetTrapPosition(Node node)
         {
             // gameObject.transform.position = new Vector3(node.x + 0.5f, 0, node.y + 0.5f);
             gameObject.transform.localPosition = Vector3.zero;
+        }
+
+        void SetTrapDirection(Direction direction)
+        {
             if (direction == Direction.up) { gameObject.transform.rotation = Quaternion.Euler(new Vector3(0, 0, 0)); }
             else if (direction == Direction.right) { gameObject.transform.rotation = Quaternion.Euler(new Vector3(0, 90.0f, 0)); }
             else if (direction == Direction.down) { gameObject.transform.rotation = Quaternion.Euler(new Vector3(0, 180.0f, 0)); }
@@ -185,6 +190,8 @@ namespace DoonaLegend
             // Debug.Log("targetNode: " + targetNode.ToString());
             if (pm.champion.origin == targetNode)
             {
+                // Debug.Log("punch!!!");
+                // Debug.Log(gameObject.name);
                 TrapComponent trapComponent = pm.pathManager.GetTrapComponent(knockBackNode);
                 if (trapComponent == null || !trapComponent.isObstacle)
                 {
@@ -237,6 +244,26 @@ namespace DoonaLegend
             }
         }
 
+        public void PushpadAction(ChampionComponent champion, Node currentNode, Node beforeNode)
+        {
+            animator.SetTrigger("invoke");
+            Node targetNode = currentNode;
+            if (direction == Direction.up) { targetNode += new Node(0, 1); }
+            else if (direction == Direction.right) { targetNode += new Node(1, 0); }
+            else if (direction == Direction.down) { targetNode += new Node(0, -1); }
+            else if (direction == Direction.left) { targetNode += new Node(-1, 0); }
+            TrapComponent trapComponent = pm.pathManager.GetTrapComponent(targetNode);
+            if (trapComponent == null || !trapComponent.isObstacle)
+            {
+                champion.MoveChampion(currentNode, targetNode, 0.2f, MoveType.walk, false);
+            }
+            else
+            {
+                champion.MoveChampion(currentNode, beforeNode, 0.2f, MoveType.walk, false);
+            }
+
+        }
+
         #endregion
     }
 
@@ -248,6 +275,7 @@ namespace DoonaLegend
         jawmachine = 3,
         punchmachine = 4,
         crossbow = 5,
-        flamemachine = 6
+        flamemachine = 6,
+        pushpad = 7
     }
 }

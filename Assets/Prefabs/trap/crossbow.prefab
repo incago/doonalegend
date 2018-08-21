@@ -477,4 +477,4 @@ MonoBehaviour:
   fireTransform: {fileID: 4791782936362176}
   arrowPrefab: {fileID: 114572333012665308, guid: 92a017d4b1120408fa72f1c677fc86ad,
     type: 2}
-  arrowSpeed: 5
+  arrowSpeed: 4

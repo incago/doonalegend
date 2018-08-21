@@ -28,7 +28,12 @@ namespace DoonaLegend
 
     public enum BlockCategory
     {
-        straight = 0, corner = 1, shortcut_start = 2, shortcut_end = 3, corner_edge = 4, straight_edge = 5
+        straight = 0,
+        corner = 1,
+        shortcut_start = 2,
+        shortcut_end = 3, corner_edge = 4, straight_edge = 5,
+        turn = 6
+
     }
 
 

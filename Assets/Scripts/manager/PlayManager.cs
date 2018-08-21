@@ -36,16 +36,24 @@ namespace DoonaLegend
         public int addCoin;
         public int combo;
         public int totalCombo;
+        public int score;
 
         [Header("Play State")]
         public PlaySceneState playSceneState;
         // private bool isWaitExit = false;
+
+        [Header("Main")]
+        public MainPanel mainPanel;
+
+        [Header("Setting")]
+        public SettingPanel settingPanel;
 
         [Header("Pause")]
         public PausePanel pausePanel;
 
         [Header("GameOver")]
         public GameOverPanel gameOverPanel;
+        public bool isContinued;
 
         #endregion
 
@@ -55,7 +63,8 @@ namespace DoonaLegend
         void Awake()
         {
             objectPool.InitStartupPools();
-
+            mainPanel.gameObject.SetActive(true);
+            settingPanel.gameObject.SetActive(true);
             pausePanel.gameObject.SetActive(true);
             gameOverPanel.gameObject.SetActive(true);
 
@@ -82,7 +91,10 @@ namespace DoonaLegend
         void OnPressBackButton()
         {
             Debug.Log("PlayManager.OnPressBackButton()");
-            if (playSceneState == PlaySceneState.ready)
+            if (playSceneState == PlaySceneState.ready ||
+            playSceneState == PlaySceneState.gameover ||
+            playSceneState == PlaySceneState.pause ||
+            playSceneState == PlaySceneState.main)
             {
                 Application.Quit();
             }
@@ -90,38 +102,33 @@ namespace DoonaLegend
             {
                 pausePanel.Pause();
             }
-            else if (playSceneState == PlaySceneState.pause)
-            {
-                Debug.Log("Quit Application");
-                Application.Quit();
-            }
-            else if (playSceneState == PlaySceneState.gameover)
-            {
-                Application.Quit();
-            }
         }
 
         public void RestartGame()
         {
             ResetGame();
-            uiManager.animator_control.SetTrigger("slidein");
-            uiManager.sceneTransition.FadeOut();
+            // uiManager.animator_control.SetTrigger("slidein");
+            // uiManager.sceneTransition.FadeOut();
         }
 
         public void ResetGame()
         {
-            playSceneState = PlaySceneState.ready;
+            playSceneState = PlaySceneState.main;
             pathManager.InitPath();
             distance = 0;
             kill = 0;
             addCoin = 0;
             combo = 0;
             totalCombo = 0;
+            score = 0;
             uiManager.UpdateKill(this.kill);
             uiManager.UpdateDistance(this.distance);
             uiManager.UpdateCoin(false);
+            uiManager.UpdateScoreUI(this.score);
 
+            isContinued = false;
             pausePanel.isPaused = false;
+            pausePanel.button_pause.gameObject.SetActive(true);
 
             isHpDecreasing = false;
             isSpIncreasing = false;
@@ -132,7 +139,7 @@ namespace DoonaLegend
             if (this.champion != null) Destroy(this.champion.gameObject);
             Transform playerTransform = Instantiate(playerPrefab) as Transform;
             ChampionComponent playerComponent = playerTransform.GetComponent<ChampionComponent>();
-            Node startNode = new Node(0, 1);
+            Node startNode = new Node(1, 1);
             playerComponent.InitChampionComponent(startNode, Direction.right);
             this.champion = playerComponent;
             // autoMoveCoroutine = StartCoroutine(AutoMove());
@@ -153,6 +160,12 @@ namespace DoonaLegend
             //     isHpDecreasing = true;
             //     hpDecreasingCoroutine = StartCoroutine(DecreasingPlayerHp());
             // }
+            if (playSceneState == PlaySceneState.main ||
+            playSceneState == PlaySceneState.gameover ||
+            playSceneState == PlaySceneState.pause)
+            {
+                return;
+            }
             if (playSceneState == PlaySceneState.ready)
             {
                 playSceneState = PlaySceneState.play;
@@ -168,14 +181,16 @@ namespace DoonaLegend
             {
                 if (champion.isDead)
                 {
-                    Debug.Log("player is dead");
+                    // Debug.Log("player is dead");
                     return;
                 }
                 if (champion.isMoving) return;
                 if (champion.isAttacking) return;
 
-                BlockComponent blockComponent = pathManager.GetBlockComponentByOrigin(champion.origin);
                 Node targetNode = champion.origin;
+                Node nextNode = GetNextNode(champion, input);
+                BlockComponent blockComponent = pathManager.GetBlockComponentByOrigin(champion.origin);
+                BlockComponent nextBlockComponent = pathManager.GetBlockComponentByOrigin(nextNode); //null 일 수도있다
                 Direction targetDirection = champion.direction;
 
                 if (champion.isWatered)
@@ -195,269 +210,45 @@ namespace DoonaLegend
                 //스트레이트 블럭 위에 있고 입력받은곳에 적이 있는지 확인해야한다
                 //공격후 적이 죽는다면 적이 있던 자리로 이동하고 적이 죽지 않으면 원래 있던 자리로 돌아와야 한다
                 // Debug.Log("player.origin: " + player.origin.ToString());
-                Node possibleEnemyNode = GetNextNode(champion, input);
-
-                TrapComponent trapComponent = pathManager.GetTrapComponent(possibleEnemyNode);
+                TrapComponent trapComponent = pathManager.GetTrapComponent(nextNode);
                 if (trapComponent != null && trapComponent.isObstacle)
                 {
                     champion.MoveChampion(champion.origin, champion.origin, 0.2f, MoveType.walk, false);
                     return;
                 }
-                // Debug.Log("possibleEnemyNode: " + possibleEnemyNode.ToString());
-                if (blockComponent.blockData.blockCategory == BlockCategory.straight && IsEnemyInDirection(possibleEnemyNode))
+
+                if (IsEnemyInDirection(nextNode))
                 {
-                    champion.Attack(champion.origin, possibleEnemyNode, 0.2f);
+                    champion.Attack(champion.origin, nextNode, 0.2f);
                     return;
                 }
-                else if (
-                    (blockComponent.blockData.blockCategory == BlockCategory.straight) ||
-                    (blockComponent.blockData.blockCategory == BlockCategory.shortcut_end) ||
-                    (blockComponent.blockData.blockCategory == BlockCategory.corner && champion.direction == blockComponent.blockData.direction) ||
-                    (blockComponent.blockData.blockCategory == BlockCategory.corner_edge && champion.direction == blockComponent.blockData.direction))
+                else
                 {
-                    if (blockComponent.blockData.direction == Direction.right)
+                    targetDirection = champion.direction;
+                    if (champion.direction == Direction.right)
                     {
                         if (input == PlayerInput.left) targetNode += new Node(1, 1);
                         else if (input == PlayerInput.right) targetNode += new Node(1, -1);
                         else if (input == PlayerInput.forward) targetNode += new Node(1, 0);
-                        // else if (input == PlayerInput.backward) targetNode += new Node(-1, 0); // TODO : 뒤로 이동하면서 다른 섹션으로 넘어갈경우 예외적인 처리가 필요하다
-                    }
-                    else if (blockComponent.blockData.direction == Direction.up)
-                    {
-                        if (input == PlayerInput.left) targetNode += new Node(-1, 1);
-                        else if (input == PlayerInput.right) targetNode += new Node(1, 1);
-                        else if (input == PlayerInput.forward) targetNode += new Node(0, 1);
-                        // else if (input == PlayerInput.backward) targetNode += new Node(0, -1);
-                    }
-                    else if (blockComponent.blockData.direction == Direction.down)
-                    {
-                        if (input == PlayerInput.left) targetNode += new Node(1, -1);
-                        else if (input == PlayerInput.right) targetNode += new Node(-1, -1);
-                        else if (input == PlayerInput.forward) targetNode += new Node(0, -1);
-                        // else if (input == PlayerInput.backward) targetNode += new Node(0, -1);
-                    }
-                }
-                else if (blockComponent.blockData.blockCategory == BlockCategory.shortcut_start)
-                {
-                    if (champion.direction != blockComponent.blockData.direction)
-                    {
-                        if (champion.direction == Direction.right)
-                        {
-                            if (input == PlayerInput.left) targetNode += new Node(1, 1);
-                            else if (input == PlayerInput.right) targetNode += new Node(1, -1);
-                            else if (input == PlayerInput.forward) targetNode += new Node(1, 0);
-                        }
-                        else if (champion.direction == Direction.up)
-                        {
-                            if (input == PlayerInput.left) targetNode += new Node(-1, 1);
-                            else if (input == PlayerInput.right) targetNode += new Node(1, 1);
-                            else if (input == PlayerInput.forward) targetNode += new Node(0, 1);
-                        }
-                        else if (champion.direction == Direction.down)
-                        {
-                            if (input == PlayerInput.left) targetNode += new Node(1, -1);
-                            else if (input == PlayerInput.right) targetNode += new Node(-1, -1);
-                            else if (input == PlayerInput.forward) targetNode += new Node(0, -1);
-                        }
-                    }
-                    else
-                    {
-                        //이게 문제다. 오른쪽으로 향하고 있는 숏컷블럭인데 다음 섹션(코너)의 방향을 알아야 우상단숏컷인지 우하단 숏컷인지 알 수 있다.
-                        if (blockComponent.blockData.direction == Direction.right)
-                        {
-                            if (blockComponent.sectionComponent.nextSectionComponent.sectionData.direction == Direction.up)
-                            {
-                                if (input == PlayerInput.left)
-                                {
-                                    targetNode += new Node(1, 1);
-                                    BlockComponent targetBlockComponent = pathManager.GetBlockComponentByOrigin(targetNode);
-                                    targetDirection = targetBlockComponent.blockData.direction;
-                                }
-                                else if (input == PlayerInput.right) targetNode += new Node(1, -1);
-                                else if (input == PlayerInput.forward) targetNode += new Node(1, 0);
-                            }
-                            else if (blockComponent.sectionComponent.nextSectionComponent.sectionData.direction == Direction.down)
-                            {
-                                if (input == PlayerInput.left)
-                                {
-                                    targetNode += new Node(1, 1);
-                                }
-                                else if (input == PlayerInput.right)
-                                {
-                                    targetNode += new Node(1, -1);
-                                    BlockComponent targetBlockComponent = pathManager.GetBlockComponentByOrigin(targetNode);
-                                    targetDirection = targetBlockComponent.blockData.direction;
-                                }
-                                else if (input == PlayerInput.forward) targetNode += new Node(1, 0);
-                            }
-                        }
-                        else if (blockComponent.blockData.direction == Direction.up)
-                        {
-                            if (input == PlayerInput.left) targetNode += new Node(-1, 1);
-                            else if (input == PlayerInput.right)
-                            {
-                                targetNode += new Node(1, 1);
-                                BlockComponent targetBlockComponent = pathManager.GetBlockComponentByOrigin(targetNode);
-                                targetDirection = targetBlockComponent.blockData.direction;
-                            }
-                            else if (input == PlayerInput.forward) targetNode += new Node(0, 1);
-                        }
-                        else if (blockComponent.blockData.direction == Direction.down)
-                        {
-                            if (input == PlayerInput.left)
-                            {
-                                targetNode += new Node(1, -1);
-                                BlockComponent targetBlockComponent = pathManager.GetBlockComponentByOrigin(targetNode);
-                                targetDirection = targetBlockComponent.blockData.direction;
-                            }
-                            else if (input == PlayerInput.right) targetNode += new Node(-1, -1);
-                            else if (input == PlayerInput.forward) targetNode += new Node(0, -1);
-                        }
-                    }
-                }
-                else if (blockComponent.blockData.blockCategory == BlockCategory.corner && champion.direction != blockComponent.blockData.direction)
-                {
-                    if (champion.direction == Direction.right)
-                    {
-                        if (blockComponent.blockData.direction == Direction.up)
-                        {
-                            if (input == PlayerInput.left)
-                            {
-                                targetNode += new Node(1, 1);
-                                targetDirection = blockComponent.blockData.direction;
-                            }
-                            else if (input == PlayerInput.right) targetNode += new Node(1, -1);
-                            else if (input == PlayerInput.forward) targetNode += new Node(1, 0);
-
-                        }
-                        else if (blockComponent.blockData.direction == Direction.down)
-                        {
-                            if (input == PlayerInput.left) targetNode += new Node(1, 1);
-                            else if (input == PlayerInput.right)
-                            {
-                                targetNode += new Node(1, -1);
-                                targetDirection = blockComponent.blockData.direction;
-                            }
-                            else if (input == PlayerInput.forward) targetNode += new Node(1, 0);
-                        }
                     }
                     else if (champion.direction == Direction.up)
                     {
                         if (input == PlayerInput.left) targetNode += new Node(-1, 1);
-                        else if (input == PlayerInput.right)
-                        {
-                            targetNode += new Node(1, 1);
-                            targetDirection = blockComponent.blockData.direction;
-                        }
+                        else if (input == PlayerInput.right) targetNode += new Node(1, 1);
                         else if (input == PlayerInput.forward) targetNode += new Node(0, 1);
                     }
                     else if (champion.direction == Direction.down)
                     {
-                        if (input == PlayerInput.left)
-                        {
-                            targetNode += new Node(1, -1);
-                            targetDirection = blockComponent.blockData.direction;
-                        }
+                        if (input == PlayerInput.left) targetNode += new Node(1, -1);
                         else if (input == PlayerInput.right) targetNode += new Node(-1, -1);
                         else if (input == PlayerInput.forward) targetNode += new Node(0, -1);
                     }
-                }
-                else if (blockComponent.blockData.blockCategory == BlockCategory.corner_edge && champion.direction != blockComponent.blockData.direction)
-                {
-                    if (blockComponent.blockData.direction == Direction.right)
+                    if (nextBlockComponent != null && (nextBlockComponent.blockData.blockCategory == BlockCategory.turn || nextBlockComponent.blockData.blockCategory == BlockCategory.shortcut_end))
                     {
-                        if (champion.direction == Direction.up)
-                        {
-                            if (input == PlayerInput.left) targetNode += new Node(-1, 1);
-                            else if (input == PlayerInput.right)
-                            {
-                                targetNode += new Node(1, 0);
-                                targetDirection = blockComponent.blockData.direction;
-                            }
-                            else if (input == PlayerInput.forward) targetNode += new Node(0, 1);
-                        }
-                        else if (champion.direction == Direction.down)
-                        {
-                            if (input == PlayerInput.left)
-                            {
-                                targetNode += new Node(1, 0);
-                                targetDirection = blockComponent.blockData.direction;
-                            }
-                            else if (input == PlayerInput.right) targetNode += new Node(-1, -1);
-                            else if (input == PlayerInput.forward) targetNode += new Node(0, -1);
-                        }
-                    }
-                    else if (blockComponent.blockData.direction == Direction.up)
-                    {
-                        if (input == PlayerInput.left)
-                        {
-                            targetNode += new Node(0, 1);
-                            targetDirection = blockComponent.blockData.direction;
-                        }
-                        else if (input == PlayerInput.right) targetNode += new Node(1, -1);
-                        else if (input == PlayerInput.forward) targetNode += new Node(1, 0);
-                    }
-                    else if (blockComponent.blockData.direction == Direction.down)
-                    {
-                        if (input == PlayerInput.left) targetNode += new Node(1, 1);
-                        else if (input == PlayerInput.right)
-                        {
-                            targetNode += new Node(0, -1);
-                            targetDirection = blockComponent.blockData.direction;
-                        }
-                        else if (input == PlayerInput.forward) targetNode += new Node(1, 0);
+                        targetDirection = nextBlockComponent.blockData.direction;
                     }
                 }
-                else if (blockComponent.blockData.blockCategory == BlockCategory.straight_edge)
-                {
-                    if (blockComponent.blockData.direction == Direction.right)
-                    {
-                        if (blockComponent.sectionComponent.nextSectionComponent.sectionData.direction == Direction.up)
-                        {
-                            if (input == PlayerInput.left)
-                            {
-                                targetNode += new Node(1, 1);
-                                targetDirection = Direction.up;
-                            }
-                            else if (input == PlayerInput.right) targetNode += new Node(1, -1);
-                            else if (input == PlayerInput.forward) targetNode += new Node(1, 0);
-                        }
-                        else if (blockComponent.sectionComponent.nextSectionComponent.sectionData.direction == Direction.down)
-                        {
-                            if (input == PlayerInput.left) targetNode += new Node(1, 1);
-                            else if (input == PlayerInput.right)
-                            {
-                                targetNode += new Node(1, -1);
-                                targetDirection = Direction.down;
-                            }
-                            else if (input == PlayerInput.forward) targetNode += new Node(1, 0);
-                        }
-                    }
-                    else if (blockComponent.blockData.direction == Direction.up)
-                    {
-                        if (input == PlayerInput.left) targetNode += new Node(-1, 1);
-                        else if (input == PlayerInput.right)
-                        {
-                            targetNode += new Node(1, 1);
-                            targetDirection = Direction.right;
-                        }
-                        else if (input == PlayerInput.forward) targetNode += new Node(0, 1);
-                    }
-                    else if (blockComponent.blockData.direction == Direction.down)
-                    {
-                        if (input == PlayerInput.left)
-                        {
-                            targetNode += new Node(1, -1);
-                            targetDirection = Direction.right;
-                        }
-                        else if (input == PlayerInput.right)
-                        {
-                            targetNode += new Node(-1, -1);
-                        }
-                        else if (input == PlayerInput.forward) targetNode += new Node(0, -1);
-                    }
 
-                }
                 bool isRotate = champion.direction != targetDirection;
                 champion.MoveChampion(champion.origin, targetNode, 0.2f, MoveType.walk
                 , isRotate);
@@ -537,16 +328,55 @@ namespace DoonaLegend
             }
         }
 
-        public void AddDistance(int add)
+        public void AddDistance(int add, bool updateScoreUI = false)
         {
+            // Debug.Log("ChampionComponent.AddDistance(" + add.ToString() + ")");
             this.distance += add;
+            this.score += add;
             uiManager.UpdateDistance(this.distance, true);
+            if (updateScoreUI)
+                uiManager.UpdateScoreUI(this.score);
         }
 
-        public void AddKill(int add)
+        public void AddKill(int add, bool updateScoreUI = false)
         {
             this.kill += add;
+            this.score += (add * 10);
             uiManager.UpdateKill(this.kill, true);
+            if (updateScoreUI)
+                uiManager.UpdateScoreUI(this.score);
+        }
+
+        public void ContinueGame()
+        {
+            playSceneState = PlaySceneState.ready;
+            isContinued = true;
+            champion.isDead = false;
+            SectionComponent sectionComponent = pathManager.currentSectionComponent.nextSectionComponent;
+            Node continueNode = new Node(0, 0);
+            if (sectionComponent.sectionData.direction == Direction.right)
+            {
+                continueNode = sectionComponent.sectionData.origin + new Node(0, 1);
+            }
+            else if (sectionComponent.sectionData.direction == Direction.up)
+            {
+                continueNode = sectionComponent.sectionData.origin + new Node(1, 0);
+            }
+            else if (sectionComponent.sectionData.direction == Direction.down)
+            {
+                continueNode = sectionComponent.sectionData.origin + new Node(1, sectionComponent.sectionData.height - 1);
+            }
+            champion.InitChampionComponent(continueNode, sectionComponent.sectionData.direction);
+            champion.animator.SetTrigger("continue");
+            gameOverPanel.HideGameOverPanel();
+            pausePanel.button_pause.gameObject.SetActive(true);
+            gameOverPanel.animator_continue.SetTrigger("slideout");
+            uiManager.animator_control.SetTrigger("slidein");
+            uiManager.InitHpUI(champion.maxHp, champion.hp, false);
+            //챔피언 되살리고
+            //어느 위치에 되살려야 하는가?
+            //각종 변수 초기화하고
+            //카운트 넣어준다음 게임시작시킴
         }
 
         public void GameOver()
@@ -554,6 +384,7 @@ namespace DoonaLegend
             playSceneState = PlaySceneState.gameover;
             if (gameOverCoroutine != null) StopCoroutine(gameOverCoroutine);
             gameOverCoroutine = StartCoroutine(GameOverHelper());
+            pausePanel.button_pause.gameObject.SetActive(false);
         }
 
         IEnumerator GameOverHelper()
@@ -565,7 +396,12 @@ namespace DoonaLegend
                 GameManager.Instance.SetBestScoreToPref(distance);
             }
             uiManager.animator_control.SetTrigger("slideout");
-            uiManager.animator_menu.SetTrigger("slidein");
+            if (!isContinued) { gameOverPanel.animator_continue.SetTrigger("slidein"); }
+            else
+            {
+                gameOverPanel.animator_menu.SetTrigger("slidein");
+                gameOverPanel.animator_labels.SetTrigger("slidein");
+            }
             gameOverPanel.ShowGameOverPanel();
         }
 
@@ -575,7 +411,8 @@ namespace DoonaLegend
             if (this.combo >= 2)
             {
                 this.totalCombo++;
-                uiManager.UpdateComboUI(this.combo);
+                // uiManager.UpdateComboUI(this.combo);
+                uiManager.MakeCanvasMessageHud(champion.transform, (this.combo).ToString() + " Combo!", champion.canvasHudOffset, Color.green, Color.black);
             }
         }
 
@@ -583,8 +420,9 @@ namespace DoonaLegend
         {
             if (this.combo >= 2)
             {
-                uiManager.UpdateComboUI(this.combo, Color.red, Color.white);
-                uiManager.animator_combo.SetTrigger("over");
+                // uiManager.UpdateComboUI(this.combo, Color.red, Color.white);
+                // uiManager.animator_combo.SetTrigger("update");
+                uiManager.MakeCanvasMessageHud(champion.transform, (this.combo).ToString() + " Combo!", champion.canvasHudOffset, Color.red, Color.white);
             }
             this.combo = 0;
         }
@@ -611,7 +449,7 @@ namespace DoonaLegend
     }
     public enum PlaySceneState
     {
-        ready, play, pause, gameover
+        main, ready, play, pause, gameover
     }
     /*
      */

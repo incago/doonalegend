@@ -18,6 +18,7 @@ namespace DoonaLegend
             get { if (_pm == null) _pm = GameObject.FindGameObjectWithTag("PlayManager").GetComponent<PlayManager>(); return _pm; }
         }
         private ChampionComponent champion;
+        public Camera mainCamera;
         public Transform pivot;
         public Vector3 championUpAngle = new Vector3(45.0f, 30.0f, 0);
         public Vector3 championRightUpAngle = new Vector3(45.0f, 60.0f, 0);
@@ -27,9 +28,13 @@ namespace DoonaLegend
         private Coroutine animatePivotRotateCoroutine;
         public float pivotRotateDuration = 0.2f;
         public float smoothing = 5f;	// The speed with which the camera will be following.
+        public float camerasize_phone = 8.0f;
+        public float camerasize_tablet = 10.0f;
         #endregion
 
         #region Method
+
+
         void FixedUpdate()
         {
             if (champion != null && !champion.isDead)
@@ -53,24 +58,26 @@ namespace DoonaLegend
         public void SetInitialRotation(Node championOrigin)
         {
             BlockComponent currentBlockComponent = pm.pathManager.GetBlockComponentByOrigin(championOrigin);
+            SectionComponent firstStraightSectionComponent = currentBlockComponent.sectionComponent.nextSectionComponent;
             // SectionComponent firstSectionComponent = pm.pathManager.GetSectionComponent(1);
             // SectionComponent secondSectionComponent = pm.pathManager.GetSectionComponent(2);
             int currentProgress = currentBlockComponent.blockData.progress;
-            int minProgressInSection = currentBlockComponent.sectionComponent.minProgress;
-            int maxProgressInSection = currentBlockComponent.sectionComponent.maxProgress;
+            currentProgress = 1;
+            int minProgressInSection = firstStraightSectionComponent.minProgress;
+            int maxProgressInSection = firstStraightSectionComponent.maxProgress;
             float startPercent = (float)(currentProgress - minProgressInSection - 1) / (float)(maxProgressInSection - minProgressInSection);
             float endPercent = (float)(currentProgress - minProgressInSection) / (float)(maxProgressInSection - minProgressInSection);
             Quaternion initialRotation = Quaternion.identity;
             Quaternion targetRotation = Quaternion.identity;
 
-            if (currentBlockComponent.sectionComponent.nextSectionComponent.nextSectionComponent.sectionData.direction == Direction.up)
+            if (firstStraightSectionComponent.nextSectionComponent.nextSectionComponent.sectionData.direction == Direction.up)
             { initialRotation = Quaternion.Euler(pm.cameraController.championRightUpAngle); }
-            else if (currentBlockComponent.sectionComponent.nextSectionComponent.nextSectionComponent.sectionData.direction == Direction.down)
+            else if (firstStraightSectionComponent.nextSectionComponent.nextSectionComponent.sectionData.direction == Direction.down)
             { initialRotation = Quaternion.Euler(pm.cameraController.championRightDownAngle); }
 
-            if (currentBlockComponent.sectionComponent.nextSectionComponent.nextSectionComponent.sectionData.direction == Direction.up)
+            if (firstStraightSectionComponent.nextSectionComponent.nextSectionComponent.sectionData.direction == Direction.up)
             { targetRotation = Quaternion.Euler(pm.cameraController.championUpAngle); }
-            else if (currentBlockComponent.sectionComponent.nextSectionComponent.nextSectionComponent.sectionData.direction == Direction.down)
+            else if (firstStraightSectionComponent.nextSectionComponent.nextSectionComponent.sectionData.direction == Direction.down)
             { targetRotation = Quaternion.Euler(pm.cameraController.championDownAngle); }
 
             pm.cameraController.AnimatePivotAngle(initialRotation, targetRotation, startPercent, endPercent, 0.3f);
@@ -92,6 +99,24 @@ namespace DoonaLegend
             {
                 percent += Time.deltaTime * (1.0f / duration);
                 pivot.rotation = Quaternion.Lerp(initialRotation, targetRotation, startPercent + percent * deltaPercent);
+                yield return null;
+            }
+        }
+
+        public void AnimatePivotAngle(Quaternion targetRotation, float duration)
+        {
+            if (animatePivotRotateCoroutine != null) StopCoroutine(animatePivotRotateCoroutine);
+            animatePivotRotateCoroutine = StartCoroutine(AnimatePivotAngleHelper(targetRotation, duration));
+        }
+
+        IEnumerator AnimatePivotAngleHelper(Quaternion targetRotation, float duration)
+        {
+            float percent = 0;
+            Quaternion initialRotation = pivot.rotation;
+            while (percent <= 1)
+            {
+                percent += Time.deltaTime * (1.0f / duration);
+                pivot.rotation = Quaternion.Lerp(initialRotation, targetRotation, percent);
                 yield return null;
             }
         }

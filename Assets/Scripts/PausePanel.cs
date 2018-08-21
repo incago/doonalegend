@@ -40,6 +40,8 @@ namespace DoonaLegend
 
         public void Pause()
         {
+            if (pm.champion.isDead) return;
+
             pm.playSceneState = PlaySceneState.pause;
             Time.timeScale = 0.0f;
             animator_pause.SetTrigger("fadein");

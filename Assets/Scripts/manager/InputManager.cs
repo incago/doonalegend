@@ -57,7 +57,7 @@ namespace DoonaLegend
                 // pm.uiManager.panel_pause.SetActive(false);
                 pm.gameOverPanel.HideGameOverPanel();
                 pm.uiManager.animator_control.SetTrigger("slidein");
-                pm.uiManager.animator_menu.SetTrigger("slideout");
+                pm.gameOverPanel.animator_menu.SetTrigger("slideout");
                 pm.ResetGame();
             }
 

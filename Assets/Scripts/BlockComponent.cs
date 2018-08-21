@@ -20,6 +20,7 @@ namespace DoonaLegend
         public BlockModel blockData;
         public TerrainGid terrainGid;
         public SectionComponent sectionComponent;
+        public Transform body;
         public Renderer[] renderers;
         // public Material greenMaterial, purpleMaterial, redMaterial, orangeMaterial, yellowMaterial;
         // public Material brightGreenMaterial, brightPurpleMaterial;
@@ -62,11 +63,20 @@ namespace DoonaLegend
                 foreach (Renderer renderer in renderers) { renderer.sharedMaterial = brightMaterial; }
             }
             SetBlockPosition(this.blockData.origin);
+            SetBlockDirection(this.blockData.direction);
         }
 
         void SetBlockPosition(Node node)
         {
             gameObject.transform.position = new Vector3(node.x, 0, node.y);
+        }
+
+        void SetBlockDirection(Direction direction)
+        {
+            if (direction == Direction.up) { body.rotation = Quaternion.Euler(new Vector3(0, 0, 0)); }
+            else if (direction == Direction.right) { body.rotation = Quaternion.Euler(new Vector3(0, 90.0f, 0)); }
+            else if (direction == Direction.down) { body.rotation = Quaternion.Euler(new Vector3(0, 180.0f, 0)); }
+            else if (direction == Direction.left) { body.rotation = Quaternion.Euler(new Vector3(0, 270.0f, 0)); }
         }
 
         //delay초 이후에 떨리는 애니메이션이 실행된다.

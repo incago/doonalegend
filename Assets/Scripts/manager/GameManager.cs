@@ -71,6 +71,19 @@ namespace DoonaLegend
             PlayerPrefs.SetInt("bestScore", value);
             PlayerPrefs.Save();
         }
+
+        public UISizeType GetUISizeType()
+        {
+            return (UISizeType)PlayerPrefs.GetInt("uiSize", 0);
+        }
+
+        public void SetUISizeType(UISizeType uiSizeType)
+        {
+            PlayerPrefs.SetInt("uiSize", (int)uiSizeType);
+            PlayerPrefs.Save();
+        }
         #endregion
     }
+
+
 }

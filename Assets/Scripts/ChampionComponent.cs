@@ -77,16 +77,17 @@ namespace DoonaLegend
             // hp = maxHp = 8; //선택할수있는 캐릭터(?) 가다양해 지면 최대 hp가 달라질 수 있다
             maxSp = 100.0f;
             sp = 0;
+            hp = maxHp;
 
             SetChampionPosition(this.origin);
             SetChampionRotation(this.direction);
         }
 
-        void SetChampionPosition(Node node)
+        public void SetChampionPosition(Node node)
         {
             gameObject.transform.position = new Vector3(node.x + 0.5f, 0, node.y + 0.5f);
         }
-        void SetChampionRotation(Direction direction)
+        public void SetChampionRotation(Direction direction)
         {
             Quaternion targetRotation = Quaternion.identity;
             if (direction == Direction.up) { targetRotation = Quaternion.Euler(0, 0.0f, 0); }
@@ -141,7 +142,7 @@ namespace DoonaLegend
                 currentBlockComponent.sectionComponent.enemyComponents.Remove(enemyComponent);
                 Destroy(enemyComponent.gameObject);
 
-                CameraWork(currentBlockComponent);
+                // CameraWork(currentBlockComponent);
             }
 
             isAttacking = false;
@@ -151,7 +152,7 @@ namespace DoonaLegend
         {
             // Debug.Log("ChampionComponent.MoveChampion()");
             SoundManager.Instance.Play("pop");
-            if (moveCoroutine != null) StopCoroutine(moveCoroutine);
+            if (isMoving) StopCoroutine(moveCoroutine);
             moveCoroutine = StartCoroutine(MoveChampionHelper(beforeNode, afterNode, moveDuration, isRotate));
             if (moveType == MoveType.walk || moveType == MoveType.knockback)
             {
@@ -174,6 +175,7 @@ namespace DoonaLegend
             isMoving = true;
             Vector3 initialPosition = new Vector3(beforeNode.x + 0.5f, 0, beforeNode.y + 0.5f);
             Vector3 targetPosition = new Vector3(afterNode.x + 0.5f, 0, afterNode.y + 0.5f);
+
             if (currentBlockComponent.terrainGid == TerrainGid.water)
             {
                 initialPosition += new Vector3(0, -0.083333f * 2, 0);
@@ -197,6 +199,8 @@ namespace DoonaLegend
         }
         void OnMoveComplete(Node beforeNode, bool isRotate)
         {
+            // Debug.Log("ChampionComponent.OnMoveComplete()");
+            int addScore = 0;
             BlockComponent beforeBlockComponent = pm.pathManager.GetBlockComponentByOrigin(beforeNode);
             BlockComponent currentBlockComponent = pm.pathManager.GetBlockComponentByOrigin(this.origin);
             if (currentBlockComponent == null)
@@ -233,13 +237,15 @@ namespace DoonaLegend
                     {
                         AddHp((int)itemComponent.value);
                         pm.uiManager.UpdateHpUI(true);
-                        pm.uiManager.MakeCanvasMessageHud(gameObject.transform, "+" + ((int)itemComponent.value).ToString(), canvasHudOffset, Color.green, Color.black);
+                        addScore += 2;
+                        pm.score += 2;
                     }
                     else if (itemComponent.itemType == ItemType.sp)
                     {
                         AddSp(itemComponent.value);
                         pm.uiManager.UpdateSp();
-                        pm.uiManager.MakeCanvasMessageHud(gameObject.transform, "+" + ((int)itemComponent.value).ToString(), canvasHudOffset, Color.magenta, Color.black);
+                        addScore += 2;
+                        pm.score += 2;
                     }
                     else if (itemComponent.itemType == ItemType.coin)
                     {
@@ -247,17 +253,19 @@ namespace DoonaLegend
                         pm.addCoin += (int)itemComponent.value;
                         GameManager.Instance.SetPlayerCoinToPref(pm.totalCoin);
                         pm.uiManager.UpdateCoin(true);
-                        pm.uiManager.MakeCanvasMessageHud(gameObject.transform, "+" + ((int)itemComponent.value).ToString(), canvasHudOffset, Color.yellow, Color.black);
+                        addScore += 1;
+                        pm.score += 1;
                     }
                     else if (itemComponent.itemType == ItemType.heart)
                     {
                         int addHp = (int)itemComponent.value;
                         pm.champion.maxHp += addHp;
-                        pm.champion.maxHp = Mathf.Clamp(pm.champion.maxHp, 1, 32);
+                        pm.champion.maxHp = Mathf.Clamp(pm.champion.maxHp, 1, 14);
                         pm.champion.hp += addHp;
-                        pm.champion.hp = Mathf.Clamp(pm.champion.hp, 1, 32);
+                        pm.champion.hp = Mathf.Clamp(pm.champion.hp, 1, 14);
                         pm.uiManager.InitHpUI(pm.champion.maxHp, pm.champion.hp, true);
-                        pm.uiManager.MakeCanvasMessageHud(gameObject.transform, "Feeling Healty!", canvasHudOffset, Color.white, Color.black);
+                        addScore += 5;
+                        pm.score += 5;
                     }
 
                     pm.pathManager.RemoveItemComponent(itemComponent);
@@ -323,10 +331,13 @@ namespace DoonaLegend
                     }
                 }
 
+                // Debug.Log("currentBlockComponent.blockData.progress: " + currentBlockComponent.blockData.progress.ToString());
+                // Debug.Log("progress: " + progress.ToString());
                 if (currentBlockComponent.blockData.progress > progress)
                 {
+                    // Debug.Log("Here");
+                    pm.AddDistance(currentBlockComponent.blockData.progress - progress, !gotItem);
                     progress = currentBlockComponent.blockData.progress;
-                    pm.AddDistance(currentBlockComponent.blockData.progress - beforeBlockComponent.blockData.progress);
                 }
 
                 // if (currentBlockComponent.sectionComponent.sectionData.sectionType == SectionType.straight)
@@ -347,16 +358,60 @@ namespace DoonaLegend
                     {
                         trapComponent.JawmachineAttack();
                     }
+                    else if (trapComponent.trapType == TrapType.pushpad)
+                    {
+                        trapComponent.PushpadAction(this, origin, beforeNode);
+                    }
                 }
             }
 
             if (!isDead &&
             // !isRotate &&
+            currentBlockComponent != null &&
             currentBlockComponent.sectionComponent.sectionData.sectionType == SectionType.straight &&
             currentBlockComponent.blockData.progress >= progress &&
             beforeBlockComponent != currentBlockComponent)
             {
-                CameraWork(currentBlockComponent);
+                // CameraWork(currentBlockComponent);
+            }
+            if (isRotate)
+            {
+                // Debug.Log("champion rotate");
+                Quaternion targetRotation = Quaternion.identity;
+                if (currentBlockComponent.sectionComponent.sectionData.direction == Direction.right)
+                {
+                    if (currentBlockComponent.sectionComponent.beforeSectionComponent == null)
+                    {
+                        if (currentBlockComponent.sectionComponent.nextSectionComponent.nextSectionComponent.sectionData.direction == Direction.up)
+                        { targetRotation = Quaternion.Euler(pm.cameraController.championRightUpAngle); }
+                        else if (currentBlockComponent.sectionComponent.nextSectionComponent.nextSectionComponent.sectionData.direction == Direction.down)
+                        { targetRotation = Quaternion.Euler(pm.cameraController.championRightDownAngle); }
+                    }
+                    else if (currentBlockComponent.sectionComponent.beforeSectionComponent.beforeSectionComponent == null)
+                    {
+                        if (currentBlockComponent.sectionComponent.nextSectionComponent.nextSectionComponent.sectionData.direction == Direction.up)
+                        { targetRotation = Quaternion.Euler(pm.cameraController.championRightUpAngle); }
+                        else if (currentBlockComponent.sectionComponent.nextSectionComponent.nextSectionComponent.sectionData.direction == Direction.down)
+                        { targetRotation = Quaternion.Euler(pm.cameraController.championRightDownAngle); }
+                    }
+                    else if (currentBlockComponent.sectionComponent.beforeSectionComponent.beforeSectionComponent.sectionData.direction == Direction.down)
+                    { targetRotation = Quaternion.Euler(pm.cameraController.championRightDownAngle); }
+                    else if (currentBlockComponent.sectionComponent.beforeSectionComponent.beforeSectionComponent.sectionData.direction == Direction.up)
+                    { targetRotation = Quaternion.Euler(pm.cameraController.championRightUpAngle); }
+                }
+                else if (currentBlockComponent.sectionComponent.sectionData.direction == Direction.up)
+                {
+                    targetRotation = Quaternion.Euler(pm.cameraController.championUpAngle);
+                }
+                else if (currentBlockComponent.sectionComponent.sectionData.direction == Direction.down)
+                {
+                    targetRotation = Quaternion.Euler(pm.cameraController.championDownAngle);
+                }
+                pm.cameraController.AnimatePivotAngle(targetRotation, 0.3f);
+            }
+            if (addScore > 0)
+            {
+                pm.uiManager.UpdateScoreUI(pm.score);
             }
         }
 
@@ -373,6 +428,13 @@ namespace DoonaLegend
             if (currentBlockComponent.sectionComponent.sectionData.direction == Direction.right)
             {
                 if (currentBlockComponent.sectionComponent.beforeSectionComponent == null)
+                {
+                    if (currentBlockComponent.sectionComponent.nextSectionComponent.nextSectionComponent.sectionData.direction == Direction.up)
+                    { initialRotation = Quaternion.Euler(pm.cameraController.championRightUpAngle); }
+                    else if (currentBlockComponent.sectionComponent.nextSectionComponent.nextSectionComponent.sectionData.direction == Direction.down)
+                    { initialRotation = Quaternion.Euler(pm.cameraController.championRightDownAngle); }
+                }
+                else if (currentBlockComponent.sectionComponent.beforeSectionComponent.beforeSectionComponent == null)
                 {
                     if (currentBlockComponent.sectionComponent.nextSectionComponent.nextSectionComponent.sectionData.direction == Direction.up)
                     { initialRotation = Quaternion.Euler(pm.cameraController.championRightUpAngle); }
@@ -435,9 +497,9 @@ namespace DoonaLegend
 
         public void TakeDamage(int damage, DamageType damageType)
         {
-            // Debug.Log("ChampionComponent.TakeDamage(" + damage.ToString() + ")");
+            // Debug.Log("ChampionComponent.TakeDamage(" + damage.ToString() + ", " + damageType.ToString() + ")");
             if (isDead) return;
-            if (isInvincible) return;
+            if (isInvincible && damageType != DamageType.drop) return;
             else
             {
                 isInvincible = true;

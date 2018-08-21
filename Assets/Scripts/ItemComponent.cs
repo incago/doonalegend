@@ -50,6 +50,6 @@ namespace DoonaLegend
 
     public enum ItemType
     {
-        coin = 0, hp = 1, sp = 2, heart = 3
+        coin = 0, hp = 1, sp = 2, heart = 3, weapon = 4, shield = 5
     }
 }

@@ -1,7 +1,7 @@
 { "height":3,
  "layers":[
         {
-         "data":[2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5, 2, 2, 2, 5, 2, 2, 2, 5, 2, 2, 2, 5, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+         "data":[2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5, 2, 2, 2, 5, 2, 2, 2, 5, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
          "height":3,
          "name":"terrain",
          "opacity":1,
@@ -197,30 +197,6 @@
                  "y":48
                 }, 
                 {
-                 "gid":35,
-                 "height":24,
-                 "id":32,
-                 "name":"",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":24,
-                 "x":72,
-                 "y":48
-                }, 
-                {
-                 "gid":36,
-                 "height":24,
-                 "id":33,
-                 "name":"",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":24,
-                 "x":24,
-                 "y":24
-                }, 
-                {
                  "gid":36,
                  "height":24,
                  "id":34,
@@ -321,6 +297,28 @@
                  "width":24,
                  "x":240,
                  "y":72
+                }, 
+                {
+                 "gid":37,
+                 "height":24,
+                 "id":47,
+                 "name":"",
+                 "properties":
+                    {
+                     "delay":1,
+                     "direction":"up"
+                    },
+                 "propertytypes":
+                    {
+                     "delay":"float",
+                     "direction":"string"
+                    },
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":24,
+                 "x":72,
+                 "y":72
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -329,7 +327,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":47,
+ "nextobjectid":48,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tileheight":24,

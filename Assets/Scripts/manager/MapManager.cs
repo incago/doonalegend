@@ -10,6 +10,7 @@ using UnityEngine;
 
 using Newtonsoft.Json;
 using INCAGO_TMX;
+using System;
 
 namespace DoonaLegend
 {
@@ -35,11 +36,15 @@ namespace DoonaLegend
         public TextAsset[] unit_4;
         public TextAsset[] unit_5;
         public TextAsset[] tilesets;
+        public TextAsset verticalCorner, horizontalCorner, decreaseCorner, increaseCorner;
         public List<Tileset> tilesetList = new List<Tileset>();
         private Dictionary<int, Tileset> tilesetDictionary = new Dictionary<int, Tileset>();
         private Dictionary<int, TileProperty> tileObjectDictionary = new Dictionary<int, TileProperty>();
         private Dictionary<int, List<SectionContent>> sectionContentList = new Dictionary<int, List<SectionContent>>();
         private Dictionary<int, Queue<SectionContent>> sectionContentQueue = new Dictionary<int, Queue<SectionContent>>();
+        public SectionContent verticalCornerSectionContent, horizontalCornerSectionContent;
+        public SectionContent decreaseCornerSectionContent, increaseCornerSectionContent;
+
         public TileProperty GetObjectPropertyByGid(int gid)
         {
             if (!tileObjectDictionary.ContainsKey(gid))
@@ -105,22 +110,13 @@ namespace DoonaLegend
             sectionContentQueue.Add(4, new Queue<SectionContent>(sectionContentList[4]));
             sectionContentQueue.Add(5, new Queue<SectionContent>(sectionContentList[5]));
 
-            // SectionContent sectionContent = GetSectorData(2);
-            // Debug.Log(sectionContent.fileName.ToString());
-            // foreach (KeyValuePair<int, Dictionary<int, int>> kv in sectionContent.objects)
-            // {
-            //     int x = kv.Key;
-            //     foreach (KeyValuePair<int, int> kv2 in kv.Value)
-            //     {
-            //         int y = kv2.Key;
-            //         int gid = kv2.Value;
-            //         Debug.Log(x.ToString() + "," + y.ToString() + ":" + gid.ToString());
-            //     }
-            // }
-            // Debug.Log(sectionContent.objects.Count.ToString());
+            verticalCornerSectionContent = GetSectionContentFromTextAsset(verticalCorner);
+            horizontalCornerSectionContent = GetSectionContentFromTextAsset(horizontalCorner);
+            decreaseCornerSectionContent = GetSectionContentFromTextAsset(decreaseCorner);
+            increaseCornerSectionContent = GetSectionContentFromTextAsset(increaseCorner);
         }
 
-        public SectionContent GetSectorContent(int unitLength)
+        public SectionContent GetSectionContent(int unitLength)
         {
             if (sectionContentQueue[unitLength].Count == 0)
             {
@@ -131,11 +127,46 @@ namespace DoonaLegend
             return sectionContentQueue[unitLength].Dequeue();
         }
 
+        public SectionContent GetSectionContentFromTextAsset(TextAsset textAsset)
+        {
+            TiledMap tileMap = JsonConvert.DeserializeObject<TiledMap>(textAsset.text);
+            int unitLength = tileMap.width / 3;
+            //tiledMap을 읽어서 terrain레이어는 그대로 terrains 배열에 넣고
+            //object레이어의 각 오브젝트는 읽어서 해당하는 인덱스에 gid값을 집어넣는다
+            int[,] terrains = new int[3, 3 * unitLength];
+            // Dictionary<int, Dictionary<int, int>> objects = new Dictionary<int, Dictionary<int, int>>();
+            Dictionary<Node, TiledObject> objects = new Dictionary<Node, TiledObject>();
+            foreach (Layer layer in tileMap.layers)
+            {
+                if (layer.name.Equals("terrain"))
+                {
+                    for (int i = 0; i < layer.data.Count; i++)
+                    {
+                        int y = i % terrains.GetLength(1);
+                        int x = terrains.GetLength(0) - (i / terrains.GetLength(1)) - 1;
+                        terrains[x, y] = layer.data[i];
+                    }
+                }
+                else if (layer.name.Equals("object"))
+                {
+                    foreach (TiledObject tiledObject in layer.objects)
+                    {
+                        int y = tiledObject.x / 24;
+                        int x = (24 * 3 - tiledObject.y) / 24;
+                        Node node = new Node(x, y);
+                        if (!objects.ContainsKey(node)) objects.Add(node, tiledObject);
+                    }
+                }
+            }
+            return new SectionContent(unitLength, textAsset.name, terrains, objects);
+        }
+
         public List<SectionContent> GetSectionContents(TextAsset[] textAssets, int unitLength)
         {
             List<SectionContent> returnData = new List<SectionContent>();
             foreach (TextAsset textAsset in textAssets)
             {
+                /*
                 TiledMap tileMap = JsonConvert.DeserializeObject<TiledMap>(textAsset.text);
                 //tiledMap을 읽어서 terrain레이어는 그대로 terrains 배열에 넣고
                 //object레이어의 각 오브젝트는 읽어서 해당하는 인덱스에 gid값을 집어넣는다
@@ -146,14 +177,6 @@ namespace DoonaLegend
                 {
                     if (layer.name.Equals("terrain"))
                     {
-                        // for (int i = 0; i < terrains.GetLength(0); i++)
-                        // for (int i = terrains.GetLength(0) - 1; i >= 0; i--)
-                        // {
-                        //     for (int j = 0; j < terrains.GetLength(1); j++)
-                        //     {
-                        //         terrains[i, j] = layer.data[(terrains.GetLength(0) - 1 - i) * unitLength * 3 + j];
-                        //     }
-                        // }
                         for (int i = 0; i < layer.data.Count; i++)
                         {
                             int y = i % terrains.GetLength(1);
@@ -163,26 +186,18 @@ namespace DoonaLegend
                     }
                     else if (layer.name.Equals("object"))
                     {
-                        // Debug.Log("layer.objects.Count: " + layer.objects.Count.ToString());
                         foreach (TiledObject tiledObject in layer.objects)
                         {
                             int y = tiledObject.x / 24;
                             int x = (24 * 3 - tiledObject.y) / 24;
-
-                            // Direction direction = Direction.up;
-                            // if (tiledObject.properties != null)
-                            // {
-                            //     direction = tiledObject.properties.direction;
-                            // }
                             Node node = new Node(x, y);
                             if (!objects.ContainsKey(node)) objects.Add(node, tiledObject);
-
-                            // if (!objects.ContainsKey(x)) objects.Add(x, new Dictionary<int, int>());
-                            // objects[x].Add(y, tiledObject.gid);
                         }
                     }
                 }
                 SectionContent sectionContent = new SectionContent(unitLength, textAsset.name, terrains, objects);
+                 */
+                SectionContent sectionContent = GetSectionContentFromTextAsset(textAsset);
                 returnData.Add(sectionContent);
             }
 
@@ -218,7 +233,8 @@ namespace DoonaLegend
         water = 4,
         ice = 5,
         cracked = 6,
-        magma = 7
+        magma = 7,
+        turn = 8
     }
 
     public enum ItemGid
@@ -228,7 +244,9 @@ namespace DoonaLegend
         potion_sp = 19,
         heart = 20,
         coin_blue = 21,
-        coin_red = 25
+        weapon = 22,
+        shield = 23,
+        coin_red = 25,
     }
 
     public enum TrapGid
@@ -239,7 +257,8 @@ namespace DoonaLegend
         jawmachine = 36,
         punchmachine = 37,
         crossbow = 38,
-        flamemachine = 39
+        flamemachine = 39,
+        pushpad = 40,
     }
 
     public enum EnemyGid

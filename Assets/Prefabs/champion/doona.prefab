@@ -650,11 +650,14 @@ MonoBehaviour:
   isDead: 0
   isWatered: 0
   isBitten: 0
+  isInvincible: 0
+  invincibleTime: 0.5
   body: {fileID: 4473065177158678}
   animator: {fileID: 95492772105582416}
   isLeftLeg: 0
   explosionEffect: {fileID: 4342531059715746, guid: 7883827e55ed64af6b6be22aa65516ad,
     type: 2}
+  gotItem: 0
   bodyRenderer:
   - {fileID: 23706326543934502}
   - {fileID: 23732525463726294}
@@ -662,8 +665,8 @@ MonoBehaviour:
   - {fileID: 23996560724793238}
   damagedMaterial: {fileID: 2100000, guid: ce2fed80c09ac408e98ee55c19738f8a, type: 2}
   originalMaterial: {fileID: 2100000, guid: f4e4d9c1eda6e4d4991519d8f2b87a83, type: 2}
-  maxHp: 16
-  hp: 9
+  maxHp: 6
+  hp: 6
   attack: 1
   maxSp: 0
   sp: 0

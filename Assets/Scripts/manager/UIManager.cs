@@ -22,7 +22,10 @@ namespace DoonaLegend
             get { if (_pm == null) _pm = GameObject.FindGameObjectWithTag("PlayManager").GetComponent<PlayManager>(); return _pm; }
         }
         public PathManager pathManager;
-        public Button button_addsection;
+        // public Button button_addsection;
+        public Canvas canvas;
+        [Header("Top Panel")]
+        public Animator animator_toppanel;
         public Text text_distance, text_kill;
         public Animator animator_distance, animator_kill;
 
@@ -34,9 +37,10 @@ namespace DoonaLegend
         public Animator animator_control;
         public Button button_left, button_forward, button_right, button_backward;
 
-        [Header("Menu")]
-        public Animator animator_menu;
-        public Button button_restart;
+        // [Header("Menu")]
+        // public Animator animator_menu;
+        // public Animator animator_continue;
+        // public Button button_restart;
 
         [Header("HP")]
         // public Slider slider_hp;
@@ -53,10 +57,10 @@ namespace DoonaLegend
         [Header("SP")]
         public Slider slider_sp;
 
-        [Header("Combo")]
-        public Text text_combo;
-        public NicerOutline text_combooutline;
-        public Animator animator_combo;
+        [Header("Score")]
+        public Text text_score;
+        public NicerOutline text_scoreoutline;
+        public Animator animator_score;
 
         // [Header("Pause")]
         // public Animator animator_pause;
@@ -78,20 +82,27 @@ namespace DoonaLegend
         #region Method
         void Awake()
         {
-            sceneTransition.gameObject.SetActive(true);
-            animator_menu.gameObject.SetActive(true);
+            // sceneTransition.gameObject.SetActive(true);
+            animator_toppanel.gameObject.SetActive(true);
+            animator_control.gameObject.SetActive(true);
+            pm.gameOverPanel.animator_menu.gameObject.SetActive(true);
+            pm.gameOverPanel.animator_continue.gameObject.SetActive(true);
 
-            button_addsection.onClick.AddListener(() =>
-            {
-                pathManager.AddSection();
-            });
+            // button_addsection.onClick.AddListener(() =>
+            // {
+            //     pathManager.AddSection();
+            // });
 
-            button_restart.onClick.AddListener(() =>
-            {
-                pm.gameOverPanel.HideGameOverPanel();
-                animator_menu.SetTrigger("slideout");
-                sceneTransition.FadeIn(pm.RestartGame);
-            });
+            /*
+                    button_restart.onClick.AddListener(() =>
+                    {
+                        Debug.Log("UIManager.button_restart.onClick()");
+                        pm.gameOverPanel.HideGameOverPanel();
+                        animator_menu.SetTrigger("slideout");
+                        pm.mainPanel.FadeIn(pm.RestartGame);
+                        // sceneTransition.FadeIn(pm.RestartGame);
+                    });
+             */
 
             button_left.onClick.AddListener(() => { pm.PlayerAction(PlayerInput.left); });
             button_forward.onClick.AddListener(() => { pm.PlayerAction(PlayerInput.forward); });
@@ -105,7 +116,7 @@ namespace DoonaLegend
 
         void Start()
         {
-            sceneTransition.FadeOut();
+            // sceneTransition.FadeOut();
         }
 
         public void InitUIManager()
@@ -156,10 +167,10 @@ namespace DoonaLegend
         {
             hearts.Clear();
             DestroyChildGameObject(container_heart);
-            if (maxHp > 32) maxHp = 32;
+            if (maxHp > 14) maxHp = 14;
             int heartCount = maxHp % 2 == 1 ? (maxHp + 1) / 2 : maxHp / 2;
 
-            grid.constraintCount = Mathf.Clamp(heartCount, 1, 8);
+            grid.constraintCount = Mathf.Clamp(heartCount, 1, 7);
             // Debug.Log("maxHp: " + maxHp.ToString());
             // Debug.Log("heartCount: " + heartCount.ToString());
             for (int i = 0; i < heartCount; i++)
@@ -212,17 +223,17 @@ namespace DoonaLegend
             // { fill_hp.color = Color.Lerp(color_hp_yellow, color_hp_green, (percent - 0.5f) * 2); }
         }
 
-        public void UpdateComboUI(int value, Color? color = null, Color? outline = null)
+        public void UpdateScoreUI(int value, Color? color = null, Color? outline = null)
         {
-            UpdateComboUI(value.ToString() + " Combo!", color, outline);
+            UpdateScoreUI(value.ToString(), color, outline);
         }
 
-        public void UpdateComboUI(string message, Color? color = null, Color? outline = null)
+        public void UpdateScoreUI(string message, Color? color = null, Color? outline = null)
         {
-            text_combo.text = message;
-            text_combo.color = color ?? Color.white;
-            text_combooutline.effectColor = outline ?? Color.black;
-            animator_combo.SetTrigger("update");
+            text_score.text = message;
+            text_score.color = color ?? Color.white;
+            text_scoreoutline.effectColor = outline ?? Color.black;
+            animator_score.SetTrigger("update");
         }
 
         public void MakeCanvasMessageHud(Transform target, string message, Vector3 localOffset, Color fontColor, Color outlineColor)
