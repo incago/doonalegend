@@ -82,6 +82,39 @@ namespace DoonaLegend
             PlayerPrefs.SetInt("uiSize", (int)uiSizeType);
             PlayerPrefs.Save();
         }
+
+        public bool GetEffectActive()
+        {
+            return PlayerPrefs.GetInt("useEffect", 1) == 1;
+        }
+
+        public void SetEffectActive(bool value)
+        {
+            PlayerPrefs.SetInt("useEffect", value ? 1 : 0);
+            PlayerPrefs.Save();
+        }
+
+        public bool GetPaddingActive()
+        {
+            return PlayerPrefs.GetInt("usePadding", 0) == 1;
+        }
+
+        public void SetPaddingActive(bool value)
+        {
+            PlayerPrefs.SetInt("usePadding", value ? 1 : 0);
+            PlayerPrefs.Save();
+        }
+
+        public bool GetSoundActive()
+        {
+            return PlayerPrefs.GetInt("useSound", 1) == 1;
+        }
+
+        public void SetSoundActive(bool value)
+        {
+            PlayerPrefs.SetInt("useSound", value ? 1 : 0);
+            PlayerPrefs.Save();
+        }
         #endregion
     }
 

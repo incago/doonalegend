@@ -240,7 +240,7 @@ namespace DoonaLegend
     public enum ItemGid
     {
         coin_yellow = 17,
-        food_apple = 18,
+        food = 18,
         potion_sp = 19,
         heart = 20,
         coin_blue = 21,

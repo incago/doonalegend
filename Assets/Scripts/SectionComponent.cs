@@ -278,6 +278,11 @@ namespace DoonaLegend
                         itemComponent.InitItemComponent(this, itemOrigin, blockComponent.blockData.direction);
                         itemComponents.Add(itemComponent);
                         pm.pathManager.PutItemComponent(itemComponent);
+                        if (itemComponent.itemType == ItemType.food)
+                        {
+                            FoodItemComponent foodItemComponent = itemComponent.GetComponent<FoodItemComponent>();
+                            foodItemComponent.InitFoodRender();
+                        }
                     }
                     else if (33 <= objectGid && objectGid < 49) //trap
                     {

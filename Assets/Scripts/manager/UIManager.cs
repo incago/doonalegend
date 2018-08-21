@@ -83,6 +83,7 @@ namespace DoonaLegend
         void Awake()
         {
             // sceneTransition.gameObject.SetActive(true);
+            animator_score.gameObject.SetActive(true);
             animator_toppanel.gameObject.SetActive(true);
             animator_control.gameObject.SetActive(true);
             pm.gameOverPanel.animator_menu.gameObject.SetActive(true);

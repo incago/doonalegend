@@ -673,4 +673,4 @@ MonoBehaviour:
   damageSfx: pop
   deadSfx: pop
   attackSfx: pop
-  canvasHudOffset: {x: 0, y: 1.5, z: 0}
+  canvasHudOffset: {x: 0, y: 2, z: 0}

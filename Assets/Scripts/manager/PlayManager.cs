@@ -399,6 +399,7 @@ namespace DoonaLegend
             if (!isContinued) { gameOverPanel.animator_continue.SetTrigger("slidein"); }
             else
             {
+                uiManager.animator_score.SetTrigger("reset");
                 gameOverPanel.animator_menu.SetTrigger("slidein");
                 gameOverPanel.animator_labels.SetTrigger("slidein");
             }

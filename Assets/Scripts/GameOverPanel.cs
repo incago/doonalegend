@@ -57,6 +57,7 @@ namespace DoonaLegend
 
             button_endgame.onClick.AddListener(() =>
             {
+                pm.uiManager.animator_score.SetTrigger("reset");
                 animator_labels.SetTrigger("slidein");
                 animator_menu.SetTrigger("slidein");
                 animator_continue.SetTrigger("slideout");
