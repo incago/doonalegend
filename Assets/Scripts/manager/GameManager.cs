@@ -25,6 +25,7 @@ namespace DoonaLegend
                 return _instance;
             }
         }
+        public static float championMoveDuration = 0.15f;
         #endregion
 
         #region Method
@@ -58,17 +59,6 @@ namespace DoonaLegend
         public void SetPlayerCoinToPref(int value)
         {
             PlayerPrefs.SetInt("coin", value);
-            PlayerPrefs.Save();
-        }
-
-        public int GetBestScoreFromPref()
-        {
-            return PlayerPrefs.GetInt("bestScore", 0);
-        }
-
-        public void SetBestScoreToPref(int value)
-        {
-            PlayerPrefs.SetInt("bestScore", value);
             PlayerPrefs.Save();
         }
 
@@ -112,7 +102,48 @@ namespace DoonaLegend
 
         public void SetSoundActive(bool value)
         {
+            SoundManager.Instance.SetSFXState(value);
             PlayerPrefs.SetInt("useSound", value ? 1 : 0);
+            PlayerPrefs.Save();
+        }
+
+        public PlayMode GetPlayMode()
+        {
+            return (PlayMode)PlayerPrefs.GetInt("playMode", 1);
+        }
+
+        public void SetPlayMode(PlayMode playMode)
+        {
+            PlayerPrefs.SetInt("playMode", (int)playMode);
+            PlayerPrefs.Save();
+        }
+
+        public int GetBestScore()
+        {
+            return PlayerPrefs.GetInt("bestScore", 0);
+        }
+        public bool SetBestScore(int value)
+        {
+            int currentBestScore = GetBestScore();
+            if (value > currentBestScore)
+            {
+                PlayerPrefs.SetInt("bestScore", value);
+                PlayerPrefs.Save();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public string GetLastPlayChampion()
+        {
+            return PlayerPrefs.GetString("lastPlayChampion", "doona");
+        }
+        public void SetLastPlayChampion(string championId)
+        {
+            PlayerPrefs.SetString("lastPlayChampion", championId);
             PlayerPrefs.Save();
         }
         #endregion

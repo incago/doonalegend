@@ -25,6 +25,9 @@ namespace DoonaLegend
                 return _instance;
             }
         }
+        [Header("Champion")]
+        public ChampionComponent[] champions;
+        public Dictionary<string, GameObject> championDictionary = new Dictionary<string, GameObject>();
 
         [Header("Item")]
         public ItemComponent[] items;
@@ -62,9 +65,19 @@ namespace DoonaLegend
 
         public void InitPrefabManager()
         {
+            championDictionary.Clear();
             enemyDictionary.Clear();
             blockDictionary.Clear();
             itemDictionary.Clear();
+            foreach (ChampionComponent champion in champions)
+            {
+                if (championDictionary.ContainsKey(champion.championId))
+                {
+                    Debug.Log("championDictionary already have key: " + champion.championId);
+                }
+                championDictionary.Add(champion.championId, champion.gameObject);
+            }
+
             foreach (EnemyComponent enemy in enemies)
             {
                 if (enemyDictionary.ContainsKey(enemy.enemyGid))
@@ -102,11 +115,23 @@ namespace DoonaLegend
             }
         }
 
+
+
+        public GameObject GetChampionPrefab(string championId)
+        {
+            if (!championDictionary.ContainsKey(championId))
+            {
+                Debug.Log("championDictionary do have key: " + championId.ToString());
+                return null;
+            }
+            return championDictionary[championId];
+        }
+
         public GameObject GetEnemyPrefab(EnemyGid enemyGid)
         {
             if (!enemyDictionary.ContainsKey(enemyGid))
             {
-                Debug.Log("enemyDictionry do have key: " + enemyGid.ToString());
+                Debug.Log("enemyDictionary do have key: " + enemyGid.ToString());
                 return null;
             }
             return enemyDictionary[enemyGid];

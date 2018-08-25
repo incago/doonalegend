@@ -41,7 +41,7 @@ namespace DoonaLegend
         #endregion
 
         #region Method
-        public void InitSectionComponent(SectionModel sectionData, SectionModel nextSectionData, SectionComponent lastSectionComponent)
+        public void InitSectionComponent(SectionModel sectionData, SectionModel nextSectionData, SectionComponent lastSectionComponent, bool isLastSection = false)
         {
             // Debug.Log("SectionComponent.InitSectionComponent(" + sectionData.sectionId.ToString() + ")");
             isCollapsing = false;
@@ -112,26 +112,11 @@ namespace DoonaLegend
                                 blockCategory = BlockCategory.corner;
                             }
                         }
-                        /*
-                        else if (this.sectionData.direction == Direction.right)
+
+                        if (isLastSection)
                         {
-                            if (lastSectionComponent.sectionData.direction == Direction.up)
-                            {
-                                if (i == 0) blockCategory = BlockCategory.turn;
-                                else blockCategory = BlockCategory.corner;
-                            }
-                            else if (lastSectionComponent.sectionData.direction == Direction.down)
-                            {
-                                if (i == this.sectionData.height - 1) blockCategory = BlockCategory.turn;
-                                else blockCategory = BlockCategory.corner;
-                            }
+                            blockCategory = BlockCategory.straight;
                         }
-                        else if (this.sectionData.direction == Direction.up || this.sectionData.direction == Direction.down)
-                        {
-                            if (j == 0) blockCategory = BlockCategory.turn;
-                            else blockCategory = BlockCategory.corner;
-                        }
-                         */
                     }
                     else if (this.sectionData.sectionType == SectionType.straight)
                     {

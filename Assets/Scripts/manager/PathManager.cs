@@ -14,6 +14,11 @@ namespace DoonaLegend
     public class PathManager : MonoBehaviour
     {
         #region Variables
+        private PlayManager _pm;
+        public PlayManager pm
+        {
+            get { if (_pm == null) _pm = GameObject.FindGameObjectWithTag("PlayManager").GetComponent<PlayManager>(); return _pm; }
+        }
         public Transform sectionPrefab;
         public Transform sectionContainer;
         public SectionComponent lastSectionComponent
@@ -28,6 +33,7 @@ namespace DoonaLegend
         public int maxMaintainSectionCount = 20;
         public SectionComponent currentSectionComponent;
         public bool drawGizmos = false;
+        public int sectionIndex = 0;
 
         [Header("Enemy Components")]
         public Dictionary<int, Dictionary<int, EnemyComponent>> enemyDictionaryByOrigin = new Dictionary<int, Dictionary<int, EnemyComponent>>();
@@ -206,14 +212,14 @@ namespace DoonaLegend
 
         #region Method
 
-        SectionComponent MakeSection(SectionModel sectionData, SectionModel nextSectionData = null)
+        SectionComponent MakeSection(SectionModel sectionData, SectionModel nextSectionData = null, bool isLastSection = false)
         {
             // Debug.Log("PathManager.MakeSection(" + sectionData.sectionId + ")");
             Transform sectionTransform = Instantiate(sectionPrefab) as Transform;
             sectionTransform.gameObject.name = "section#" + sectionData.sectionId.ToString();
             sectionTransform.SetParent(sectionContainer);
             SectionComponent sectionComponent = sectionTransform.GetComponent<SectionComponent>();
-            sectionComponent.InitSectionComponent(sectionData, nextSectionData, lastSectionComponent);
+            sectionComponent.InitSectionComponent(sectionData, nextSectionData, lastSectionComponent, isLastSection);
 
             return sectionComponent;
         }
@@ -236,6 +242,7 @@ namespace DoonaLegend
         public void InitPath()
         {
             int startSectionId = 0;
+            sectionIndex = 0;
             ClearPath();
 
             SectionModel firstCornerSection = new SectionModel(
@@ -246,9 +253,9 @@ namespace DoonaLegend
                 pathWidth, pathWidth, MapManager.Instance.verticalCornerSectionContent.terrains);
 
             int unitLength = Random.Range(3, 6);
-            unitLength = 3;
+            unitLength = 2;
             int firstStraightSectionLength = unitLength * 3;
-            SectionContent sectionContent = MapManager.Instance.GetSectionContent(unitLength);
+            SectionContent sectionContent = MapManager.Instance.GetSectionContentByUnitLength(unitLength);
             SectionModel firstStraightSection = new SectionModel(
                 firstCornerSection.sectionId + 1,
                 SectionType.straight,
@@ -257,6 +264,7 @@ namespace DoonaLegend
                 firstStraightSectionLength, pathWidth);
 
             Direction secondCornerSectionDirection = Random.Range(0, 100) < 50 ? Direction.up : Direction.down;
+            secondCornerSectionDirection = pm.playMode == PlayMode.campaign ? Direction.up : Direction.down;
             SectionModel secondCornerSection = new SectionModel(
                 firstStraightSection.sectionId + 1,
                 SectionType.corner,
@@ -278,51 +286,32 @@ namespace DoonaLegend
             currentSectionComponent = firstCornerSectionComponent;
 
 
-            // int startSectionId = 0;
-            // ClearPath();
-            // int unitLength = Random.Range(3, 6);
-            // unitLength = 3;
-            // int firstStraightSectionLength = unitLength * 3;
-            // SectionContent sectionContent = MapManager.Instance.GetSectionContent(unitLength);
-            // SectionModel firstStraightSection = new SectionModel(
-            //     startSectionId,
-            //     SectionType.straight,
-            //     Direction.right,
-            //     new Node(0, 0),
-            //     firstStraightSectionLength, pathWidth);
-            // Direction firstCornerSectionDirection = Random.Range(0, 100) < 50 ? Direction.up : Direction.down;
-            // SectionModel firstCornerSection = new SectionModel(
-            //     firstStraightSection.sectionId + 1,
-            //     SectionType.corner,
-            //     // Direction.up,
-            //     firstCornerSectionDirection,
-            //     new Node(firstStraightSectionLength, 0),
-            //     pathWidth, pathWidth);
-
-            // SectionComponent firstStraightSectionComponent = MakeSection(firstStraightSection, firstCornerSection);
-            // PutSectionComponent(firstStraightSectionComponent);
-            // SectionComponent firstCornerSectionComponent = MakeSection(firstCornerSection);
-            // firstStraightSectionComponent.nextSectionComponent = firstCornerSectionComponent;
-            // firstCornerSectionComponent.beforeSectionComponent = firstStraightSectionComponent;
-            // PutSectionComponent(firstCornerSectionComponent);
-            // currentSectionComponent = firstStraightSectionComponent;
-
-
-            for (int i = 0; i < 5; i++) { AddSection(); }
+            for (int i = 0; i < 5; i++) { AddSection(pm.playMode); }
         }
 
-        public void AddSection()
+        public void AddSection(PlayMode playMode)
         {
-            int unitLength = Random.Range(2, 6);
-            int straightSectionLength = unitLength * 3; //6, 9, 12, 15
 
-            SectionContent sectionContent = MapManager.Instance.GetSectionContent(unitLength);
-            // Debug.Log("unitLength: " + unitLength.ToString());
-            // Debug.Log(sectionContent.unitLength.ToString());
-            // Debug.Log(sectionContent.fileName);
-            // Debug.Log(sectionContent.terrains.GetLength(0)); //always 3
-            // Debug.Log(sectionContent.terrains.GetLength(1));
-            // Debug.Log("---");
+            SectionContent sectionContent = null;
+            int unitLength = -1;
+            int straightSectionLength = -1;
+            if (playMode == PlayMode.infinity)
+            {
+                unitLength = Random.Range(2, 6);
+                straightSectionLength = unitLength * 3; //6, 9, 12, 15
+                sectionContent = MapManager.Instance.GetSectionContentByUnitLength(unitLength);
+            }
+            else if (playMode == PlayMode.campaign)
+            {
+                sectionContent = MapManager.Instance.GetSectionContentBySectionIndex(sectionIndex++);
+                if (sectionContent == null)
+                {
+                    // Debug.Log("sectionContent is null, sectionIndex : " + sectionIndex.ToString());
+                    return;
+                }
+                unitLength = sectionContent.unitLength;
+                straightSectionLength = unitLength * 3;
+            }
 
             Node straightSectionOrigin = lastSectionComponent.sectionData.origin;
             int straightSectionWidth = 0;
@@ -346,10 +335,7 @@ namespace DoonaLegend
                 straightSectionHeight = straightSectionLength;
             }
             int[,] terrains = new int[straightSectionHeight, straightSectionWidth];
-            // int[,] objects = new int[straightSectionHeight, straightSectionWidth];
             Dictionary<Node, TiledObject> objects = new Dictionary<Node, TiledObject>();
-            // Debug.Log("straightSectionHeight: " + straightSectionHeight.ToString());
-            // Debug.Log("straightSectionWidth: " + straightSectionWidth.ToString());
 
             if (lastSectionComponent.sectionData.direction == Direction.right)
             {
@@ -367,7 +353,6 @@ namespace DoonaLegend
                 {
                     for (int j = 0; j < sectionContent.terrains.GetLength(1); j++)
                     {
-                        //TODO: 검증해봐야 함
                         terrains[j, sectionContent.terrains.GetLength(0) - 1 - i] = sectionContent.terrains[i, j];
                     }
                 }
@@ -376,7 +361,6 @@ namespace DoonaLegend
                 {
                     Node node = new Node(sectionContent.terrains.GetLength(0) - 1 - kv.Key.x, kv.Key.y);
                     objects.Add(node, kv.Value);
-                    // Debug.Log(kv.Key.x.ToString() + "," + kv.Key.y.ToString() + ":" + kv.Value.gid.ToString());
                 }
             }
             else if (lastSectionComponent.sectionData.direction == Direction.down)
@@ -385,7 +369,6 @@ namespace DoonaLegend
                 {
                     for (int j = 0; j < sectionContent.terrains.GetLength(1); j++)
                     {
-                        //TODO: 검증해봐야 함
                         terrains[sectionContent.terrains.GetLength(1) - 1 - j, i] = sectionContent.terrains[i, j];
                     }
                 }
@@ -403,7 +386,6 @@ namespace DoonaLegend
                 straightSectionOrigin,
                 straightSectionWidth, straightSectionHeight,
                 terrains,
-                //objects,
                 objects);
 
 
@@ -425,7 +407,11 @@ namespace DoonaLegend
                 cornerSectionOrigin += new Node(0, -pathWidth);
             }
             SectionContent cornerSectionContent = null;
-            if (cornerSectionDirection == Direction.up)
+            if (playMode == PlayMode.campaign && sectionIndex == MapManager.Instance.campaignSectionContent.Count)
+            {
+                cornerSectionContent = MapManager.Instance.finishSectionContent;
+            }
+            else if (cornerSectionDirection == Direction.up)
             {
                 cornerSectionContent = MapManager.Instance.decreaseCornerSectionContent;
             }
@@ -445,10 +431,11 @@ namespace DoonaLegend
                 }
             }
 
+            bool isLastSection = playMode == PlayMode.campaign && sectionIndex == MapManager.Instance.campaignSectionContent.Count;
             SectionModel addCornerSection = new SectionModel(
                 addStraightSection.sectionId + 1,
                 SectionType.corner,
-                cornerSectionDirection,
+                isLastSection ? addStraightSection.direction : cornerSectionDirection,
                 cornerSectionOrigin,
                 pathWidth, pathWidth, cornerSectionContent.terrains);
 
@@ -456,7 +443,7 @@ namespace DoonaLegend
             lastSectionComponent.nextSectionComponent = straightSectionComponent;
             straightSectionComponent.beforeSectionComponent = lastSectionComponent;
             PutSectionComponent(straightSectionComponent);
-            SectionComponent cornerSectionComponent = MakeSection(addCornerSection);
+            SectionComponent cornerSectionComponent = MakeSection(addCornerSection, null, isLastSection);
             straightSectionComponent.nextSectionComponent = cornerSectionComponent;
             cornerSectionComponent.beforeSectionComponent = straightSectionComponent;
             PutSectionComponent(cornerSectionComponent);

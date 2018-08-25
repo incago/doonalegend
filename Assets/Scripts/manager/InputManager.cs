@@ -34,15 +34,23 @@ namespace DoonaLegend
             // { lastInput = PlayerInput.right; }
 
             if (Input.GetKeyDown(KeyCode.LeftArrow))
-            { pm.PlayerAction(PlayerInput.left); }
+            { pm.champion.SetAnimatorCrouch(true); }
             if (Input.GetKeyDown(KeyCode.RightArrow))
-            { pm.PlayerAction(PlayerInput.right); }
+            { pm.champion.SetAnimatorCrouch(true); }
             if (Input.GetKeyDown(KeyCode.UpArrow))
-            { pm.PlayerAction(PlayerInput.forward); }
-            if (Input.GetKeyDown(KeyCode.Slash))
-            { pm.PlayerAction(PlayerInput.forward); }
-            if (Input.GetKeyDown(KeyCode.RightShift))
-            { pm.PlayerAction(PlayerInput.forward); }
+            { pm.champion.SetAnimatorCrouch(true); }
+
+            if (Input.GetKeyUp(KeyCode.LeftArrow))
+            { pm.AddActionToQueue(PlayerInput.left); }
+            if (Input.GetKeyUp(KeyCode.RightArrow))
+            { pm.AddActionToQueue(PlayerInput.right); }
+            if (Input.GetKeyUp(KeyCode.UpArrow))
+            { pm.AddActionToQueue(PlayerInput.forward); }
+
+            // if (Input.GetKeyDown(KeyCode.Slash))
+            // { pm.PlayerAction(PlayerInput.forward); }
+            // if (Input.GetKeyDown(KeyCode.RightShift))
+            // { pm.PlayerAction(PlayerInput.forward); }
 
             // if (Input.GetKeyDown(KeyCode.DownArrow))
             // { pm.PlayerAction(PlayerInput.backward); }

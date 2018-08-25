@@ -17,6 +17,7 @@ namespace DoonaLegend
         {
             get { if (_pm == null) _pm = GameObject.FindGameObjectWithTag("PlayManager").GetComponent<PlayManager>(); return _pm; }
         }
+        public string championId;
         public Node origin;
         public Direction direction;
         public int progress;
@@ -24,6 +25,7 @@ namespace DoonaLegend
         private Coroutine rotateCoroutine;
         public bool isAttacking = false;
         public bool isMoving = false;
+        public bool isSliping = false;
         public bool isRotating = false;
         public bool isDead = false;
         public bool isWatered = false;
@@ -43,7 +45,8 @@ namespace DoonaLegend
 
         [Header("Stats")]
         public int maxHp;
-        public int hp;
+        public int startingHp;
+        public int currentHp;
         public int attack;
 
         [Header("SP")]
@@ -77,7 +80,7 @@ namespace DoonaLegend
             // hp = maxHp = 8; //선택할수있는 캐릭터(?) 가다양해 지면 최대 hp가 달라질 수 있다
             maxSp = 100.0f;
             sp = 0;
-            hp = maxHp;
+            currentHp = startingHp;
 
             SetChampionPosition(this.origin);
             SetChampionRotation(this.direction);
@@ -148,6 +151,11 @@ namespace DoonaLegend
             isAttacking = false;
         }
 
+        public void SetAnimatorCrouch(bool value)
+        {
+            animator.SetBool("isCrouch", value);
+        }
+
         public void MoveChampion(Node beforeNode, Node afterNode, float moveDuration, MoveType moveType, bool isRotate = false)
         {
             // Debug.Log("ChampionComponent.MoveChampion()");
@@ -162,6 +170,7 @@ namespace DoonaLegend
             }
             else if (moveType == MoveType.slip)
             {
+                isSliping = true;
                 //nothing
                 //미끄러지는 애니메이션을 넣어야 하나?
             }
@@ -200,13 +209,15 @@ namespace DoonaLegend
         void OnMoveComplete(Node beforeNode, bool isRotate)
         {
             // Debug.Log("ChampionComponent.OnMoveComplete()");
+            isSliping = false;
+            animator.SetBool("isCrouch", false);
             int addScore = 0;
             BlockComponent beforeBlockComponent = pm.pathManager.GetBlockComponentByOrigin(beforeNode);
             BlockComponent currentBlockComponent = pm.pathManager.GetBlockComponentByOrigin(this.origin);
             if (currentBlockComponent == null)
             {
                 //there is no block blow player
-                TakeDamage(hp, DamageType.drop);
+                TakeDamage(currentHp, DamageType.drop);
             }
             else
             {
@@ -221,7 +232,7 @@ namespace DoonaLegend
                 (currentBlockComponent.blockData.progress > progress))
                 {
                     //time to generate more section
-                    pm.pathManager.AddSection();
+                    pm.pathManager.AddSection(pm.playMode);
                 }
 
                 ItemComponent itemComponent = pm.pathManager.GetItemComponent(this.origin);
@@ -261,9 +272,9 @@ namespace DoonaLegend
                         int addHp = (int)itemComponent.value;
                         pm.champion.maxHp += addHp;
                         pm.champion.maxHp = Mathf.Clamp(pm.champion.maxHp, 1, 14);
-                        pm.champion.hp += addHp;
-                        pm.champion.hp = Mathf.Clamp(pm.champion.hp, 1, 14);
-                        pm.uiManager.InitHpUI(pm.champion.maxHp, pm.champion.hp, true);
+                        pm.champion.currentHp += addHp;
+                        pm.champion.currentHp = Mathf.Clamp(pm.champion.currentHp, 1, 14);
+                        pm.uiManager.InitHpUI(pm.champion.maxHp, pm.champion.currentHp, true);
                         addScore += 5;
                         pm.score += 5;
                     }
@@ -312,8 +323,20 @@ namespace DoonaLegend
                     TrapComponent _trapComponent = pm.pathManager.GetTrapComponent(targetNode);
                     if (_trapComponent == null || !_trapComponent.isObstacle)
                     {
-                        MoveChampion(origin, targetNode, 0.2f, MoveType.slip, true);
+                        MoveChampion(origin, targetNode, GameManager.championMoveDuration, MoveType.slip, true);
                     }
+                }
+                else if (currentBlockComponent.terrainGid == TerrainGid.finish)
+                {
+                    //finish!
+                    pm.pathManager.currentSectionComponent.StopCollapse();
+                    pm.isClear = true;
+                    gameObject.transform.SetParent(currentBlockComponent.objectContainer);
+                    animator.SetTrigger("finish");
+                    currentBlockComponent.Finish();
+                    Vector3 targetRotation = pm.cameraController.pivot.rotation.eulerAngles + new Vector3(0, 180, 0);
+                    pm.cameraController.AnimatePivotAngle(Quaternion.Euler(targetRotation), 0.5f);
+                    pm.GameOver("Clear", "", true);
                 }
 
 
@@ -411,7 +434,7 @@ namespace DoonaLegend
             }
             if (addScore > 0)
             {
-                pm.uiManager.UpdateScoreUI(pm.score);
+                pm.uiManager.UpdateScoreUI(pm.score, addScore);
             }
         }
 
@@ -514,13 +537,13 @@ namespace DoonaLegend
             Vector3 attackPosition = new Vector3(origin.x + 0.5f, 0, origin.y + 0.5f);
             pm.uiManager.MakeCanvasMessageHud(attackPosition, "-" + damage.ToString(), _canvasHudOffset, Color.red, Color.white);
 
-            hp -= damage;
+            currentHp -= damage;
             pm.uiManager.UpdateHpUI(true);
-            if (hp <= 0)
+            if (currentHp <= 0)
             {
                 if (!string.IsNullOrEmpty(deadSfx)) SoundManager.Instance.Play(deadSfx);
 
-                hp = 0;
+                currentHp = 0;
                 isDead = true;
                 pm.pathManager.currentSectionComponent.StopCollapse();
                 if (damageType == DamageType.trap ||
@@ -536,7 +559,7 @@ namespace DoonaLegend
                 {
                     animator.SetTrigger("dead_drop");
                 }
-                pm.GameOver();
+                pm.GameOver("Game", "Over");
             }
             else
             {
@@ -597,8 +620,8 @@ namespace DoonaLegend
 
         public void AddHp(int value)
         {
-            hp += value;
-            hp = Mathf.Clamp(hp, 0, maxHp);
+            currentHp += value;
+            currentHp = Mathf.Clamp(currentHp, 0, maxHp);
         }
 
         public void AddSp(float value)

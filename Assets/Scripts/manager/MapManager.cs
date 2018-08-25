@@ -30,7 +30,13 @@ namespace DoonaLegend
                 return _instance;
             }
         }
+        [Header("Campaign")]
+        public TextAsset[] campaign;
+        public List<SectionContent> campaignSectionContent;
+        public TextAsset finish;
+        public SectionContent finishSectionContent;
 
+        [Header("Infinity")]
         public TextAsset[] unit_2;
         public TextAsset[] unit_3;
         public TextAsset[] unit_4;
@@ -94,11 +100,14 @@ namespace DoonaLegend
                 tilesetDictionary.Add(i, tileset);
             }
 
+            campaignSectionContent = GetSectionContents(campaign);
+            finishSectionContent = GetSectionContentFromTextAsset(finish);
+
             sectionContentList.Clear();
-            sectionContentList.Add(2, GetSectionContents(unit_2, 2));
-            sectionContentList.Add(3, GetSectionContents(unit_3, 3));
-            sectionContentList.Add(4, GetSectionContents(unit_4, 4));
-            sectionContentList.Add(5, GetSectionContents(unit_5, 5));
+            sectionContentList.Add(2, GetSectionContents(unit_2));
+            sectionContentList.Add(3, GetSectionContents(unit_3));
+            sectionContentList.Add(4, GetSectionContents(unit_4));
+            sectionContentList.Add(5, GetSectionContents(unit_5));
             sectionContentList[2].Shuffle();
             sectionContentList[3].Shuffle();
             sectionContentList[4].Shuffle();
@@ -116,7 +125,20 @@ namespace DoonaLegend
             increaseCornerSectionContent = GetSectionContentFromTextAsset(increaseCorner);
         }
 
-        public SectionContent GetSectionContent(int unitLength)
+        //캠페인모드의 맵 생성을 위해 사용합니다
+        public SectionContent GetSectionContentBySectionIndex(int sectionIndex)
+        {
+            if (sectionIndex < campaignSectionContent.Count)
+            {
+                return campaignSectionContent[sectionIndex];
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public SectionContent GetSectionContentByUnitLength(int unitLength)
         {
             if (sectionContentQueue[unitLength].Count == 0)
             {
@@ -161,42 +183,11 @@ namespace DoonaLegend
             return new SectionContent(unitLength, textAsset.name, terrains, objects);
         }
 
-        public List<SectionContent> GetSectionContents(TextAsset[] textAssets, int unitLength)
+        public List<SectionContent> GetSectionContents(TextAsset[] textAssets)
         {
             List<SectionContent> returnData = new List<SectionContent>();
             foreach (TextAsset textAsset in textAssets)
             {
-                /*
-                TiledMap tileMap = JsonConvert.DeserializeObject<TiledMap>(textAsset.text);
-                //tiledMap을 읽어서 terrain레이어는 그대로 terrains 배열에 넣고
-                //object레이어의 각 오브젝트는 읽어서 해당하는 인덱스에 gid값을 집어넣는다
-                int[,] terrains = new int[3, 3 * unitLength];
-                // Dictionary<int, Dictionary<int, int>> objects = new Dictionary<int, Dictionary<int, int>>();
-                Dictionary<Node, TiledObject> objects = new Dictionary<Node, TiledObject>();
-                foreach (Layer layer in tileMap.layers)
-                {
-                    if (layer.name.Equals("terrain"))
-                    {
-                        for (int i = 0; i < layer.data.Count; i++)
-                        {
-                            int y = i % terrains.GetLength(1);
-                            int x = terrains.GetLength(0) - (i / terrains.GetLength(1)) - 1;
-                            terrains[x, y] = layer.data[i];
-                        }
-                    }
-                    else if (layer.name.Equals("object"))
-                    {
-                        foreach (TiledObject tiledObject in layer.objects)
-                        {
-                            int y = tiledObject.x / 24;
-                            int x = (24 * 3 - tiledObject.y) / 24;
-                            Node node = new Node(x, y);
-                            if (!objects.ContainsKey(node)) objects.Add(node, tiledObject);
-                        }
-                    }
-                }
-                SectionContent sectionContent = new SectionContent(unitLength, textAsset.name, terrains, objects);
-                 */
                 SectionContent sectionContent = GetSectionContentFromTextAsset(textAsset);
                 returnData.Add(sectionContent);
             }
@@ -207,6 +198,7 @@ namespace DoonaLegend
         #endregion
     }
 
+    [Serializable]
     public class SectionContent
     {
         public int unitLength;
@@ -234,7 +226,8 @@ namespace DoonaLegend
         ice = 5,
         cracked = 6,
         magma = 7,
-        turn = 8
+        turn = 8,
+        finish = 16
     }
 
     public enum ItemGid

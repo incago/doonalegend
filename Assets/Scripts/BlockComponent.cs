@@ -33,7 +33,7 @@ namespace DoonaLegend
 
         [Header("Effect")]
         public bool hasStepEffect;
-        public Transform effect_step;
+        public ParticleSystem effect_step;
         public Transform effectTransform;
 
         #endregion
@@ -112,15 +112,25 @@ namespace DoonaLegend
             animator.SetTrigger("collapse");
             if (pm.champion.origin == blockData.origin)
             {
-                pm.champion.TakeDamage(pm.champion.hp, DamageType.drop);
+                pm.champion.TakeDamage(pm.champion.currentHp, DamageType.drop);
             }
             //자신(블럭)의 위에 플레이어가 있는지 확인후 있다면 낙사판정
         }
 
+        public void Finish()
+        {
+            animator.SetTrigger("finish");
+        }
+
         public void MakeStepEffect()
         {
-            Transform _effectTransform = Instantiate(effect_step) as Transform;
-            _effectTransform.position = effectTransform.position;
+            // Transform _effectTransform = Instantiate(effect_step);
+            // _effectTransform.position = effectTransform.position;
+            if (GameManager.Instance.GetEffectActive())
+            {
+                Destroy(Instantiate(effect_step, effectTransform.position, Quaternion.identity).gameObject, effect_step.main.startLifetimeMultiplier);
+
+            }
         }
         #endregion
     }

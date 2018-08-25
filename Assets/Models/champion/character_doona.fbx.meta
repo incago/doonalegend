@@ -8,24 +8,29 @@ ModelImporter:
     100004: move_0
     100006: move_1
     100008: move_2
+    100010: finish
     400000: //RootNode
     400002: idle_0
     400004: move_0
     400006: move_1
     400008: move_2
+    400010: finish
     2100000: character_doona_material
     2300000: idle_0
     2300002: move_0
     2300004: move_1
     2300006: move_2
+    2300008: finish
     3300000: idle_0
     3300002: move_0
     3300004: move_1
     3300006: move_2
+    3300008: finish
     4300000: idle_0
     4300002: move_0
     4300004: move_1
     4300006: move_2
+    4300008: finish
   externalObjects:
   - first:
       type: UnityEngine:Material

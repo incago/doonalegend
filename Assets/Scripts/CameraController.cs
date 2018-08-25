@@ -80,7 +80,7 @@ namespace DoonaLegend
             else if (firstStraightSectionComponent.nextSectionComponent.nextSectionComponent.sectionData.direction == Direction.down)
             { targetRotation = Quaternion.Euler(pm.cameraController.championDownAngle); }
 
-            pm.cameraController.AnimatePivotAngle(initialRotation, targetRotation, startPercent, endPercent, 0.3f);
+            pm.cameraController.AnimatePivotAngle(initialRotation, initialRotation, startPercent, endPercent, 0.3f);
         }
 
         public void AnimatePivotAngle(Quaternion initialRotation, Quaternion targetRotation, float startPercent, float endPercent, float duration)
@@ -117,6 +117,24 @@ namespace DoonaLegend
             {
                 percent += Time.deltaTime * (1.0f / duration);
                 pivot.rotation = Quaternion.Lerp(initialRotation, targetRotation, percent);
+                yield return null;
+            }
+        }
+
+        private Coroutine animateCameraBackgroundColorCoroutine;
+        public void AnimateCameraBackgroundColor(Color initialColor, Color targetColor, float duration)
+        {
+            if (animateCameraBackgroundColorCoroutine != null) StopCoroutine(animateCameraBackgroundColorCoroutine);
+            animateCameraBackgroundColorCoroutine = StartCoroutine(AnimateCameraBackgroundColorHelper(initialColor, targetColor, duration));
+        }
+        IEnumerator AnimateCameraBackgroundColorHelper(Color initialColor, Color targetColor, float duration)
+        {
+            float percent = 0;
+            while (percent <= 1)
+            {
+                percent += Time.deltaTime * (1.0f / duration);
+                mainCamera.backgroundColor = Color.Lerp(initialColor, targetColor, percent);
+                pm.mainPanel.backgroundMaterial.color = Color.Lerp(initialColor, targetColor, percent);
                 yield return null;
             }
         }

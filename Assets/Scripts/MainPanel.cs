@@ -21,9 +21,15 @@ namespace DoonaLegend
         }
         public Animator animator;
         Action callback;
+        public Button button_champion;
+        public Color color_campaign_space, color_infinity_space;
+        public Material backgroundMaterial;
 
         [Header("Play")]
+        // public PlayMode playMode;
         public Button button_play;
+        public Button button_campaign, button_infinity;
+        public Image image_outline_campaign, image_outline_infinity;
 
         [Header("More")]
         public Button button_more;
@@ -36,8 +42,9 @@ namespace DoonaLegend
 
         #region Method
 
-        void Awake()
+        public void InitMainPanel()
         {
+            // Debug.Log("MainPanel.InitMainPanel()");
             button_more.onClick.AddListener(() =>
             {
                 ToggleMorePanel();
@@ -52,6 +59,10 @@ namespace DoonaLegend
             {
                 OnSettingButtonClick();
             });
+            button_champion.onClick.AddListener(() =>
+            {
+                OnChampionButtonClick();
+            });
 
             button_leaderboard.onClick.AddListener(() =>
             {
@@ -60,6 +71,41 @@ namespace DoonaLegend
 
             isMorePanelOpened = false;
             wrapper_more.SetActive(false);
+
+            button_campaign.onClick.AddListener(() =>
+            {
+                if (pm.playMode != PlayMode.campaign) //이미 캠페인 모드라면 스테이지를 재 생성할 필요가 없다
+                {
+                    SetPlayMode(PlayMode.campaign);
+                    pm.cameraController.AnimateCameraBackgroundColor(color_infinity_space, color_campaign_space, 0.5f);
+                }
+            });
+            button_infinity.onClick.AddListener(() =>
+            {
+                if (pm.playMode != PlayMode.infinity)
+                {
+                    pm.cameraController.AnimateCameraBackgroundColor(color_campaign_space, color_infinity_space, 0.5f);
+                }
+                SetPlayMode(PlayMode.infinity, true);
+            });
+        }
+
+        public void SetPlayMode(PlayMode playMode, bool withRestart = false)
+        {
+            GameManager.Instance.SetPlayMode(playMode);
+            pm.playMode = playMode;
+            if (playMode == PlayMode.campaign)
+            {
+                image_outline_campaign.enabled = true;
+                image_outline_infinity.enabled = false;
+                pm.RestartGame();
+            }
+            else if (playMode == PlayMode.infinity)
+            {
+                image_outline_campaign.enabled = false;
+                image_outline_infinity.enabled = true;
+                if (withRestart) pm.RestartGame();
+            }
         }
 
         void PlayGame()
@@ -118,10 +164,22 @@ namespace DoonaLegend
             pm.settingPanel.OpenSettingPanel(PlaySceneState.main);
         }
 
+        void OnChampionButtonClick()
+        {
+            // Debug.Log("MainPanel.OnChampionButtonClick()");
+            FastOut();
+            pm.championPanel.OpenChampionPanel(PlaySceneState.main);
+        }
+
         void OnLeaderboardButtonClick()
         {
             //TODO
         }
         #endregion
+    }
+
+    public enum PlayMode
+    {
+        campaign = 0, infinity = 1
     }
 }

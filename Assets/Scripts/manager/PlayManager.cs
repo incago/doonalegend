@@ -20,7 +20,8 @@ namespace DoonaLegend
         public ObjectPool objectPool;
 
         [Header("Champion")]
-        public Transform playerPrefab;
+        public string championId;
+        // public Transform playerPrefab;
         public ChampionComponent champion;
         public bool isHpDecreasing = false;
         public bool isSpIncreasing = false;
@@ -39,6 +40,8 @@ namespace DoonaLegend
         public int score;
 
         [Header("Play State")]
+        public PlayMode playMode;
+        public bool isClear = false;
         public PlaySceneState playSceneState;
         // private bool isWaitExit = false;
 
@@ -47,6 +50,9 @@ namespace DoonaLegend
 
         [Header("Setting")]
         public SettingPanel settingPanel;
+
+        [Header("Champion")]
+        public ChampionPanel championPanel;
 
         [Header("Pause")]
         public PausePanel pausePanel;
@@ -62,9 +68,16 @@ namespace DoonaLegend
 
         void Awake()
         {
+            championId = GameManager.Instance.GetLastPlayChampion();
+            playMode = GameManager.Instance.GetPlayMode();
+            mainPanel.SetPlayMode(playMode);
+            cameraController.mainCamera.backgroundColor = playMode == PlayMode.campaign ? mainPanel.color_campaign_space : mainPanel.color_infinity_space;
+            mainPanel.backgroundMaterial.color = playMode == PlayMode.campaign ? mainPanel.color_campaign_space : mainPanel.color_infinity_space;
             objectPool.InitStartupPools();
             mainPanel.gameObject.SetActive(true);
+            mainPanel.InitMainPanel();
             settingPanel.gameObject.SetActive(true);
+            championPanel.gameObject.SetActive(true);
             pausePanel.gameObject.SetActive(true);
             gameOverPanel.gameObject.SetActive(true);
 
@@ -86,6 +99,12 @@ namespace DoonaLegend
                     OnPressBackButton();
                 }
             }
+
+            if (actionQueue.Count > 0 && !champion.isMoving)
+            {
+                PlayerInput playerInput = actionQueue.Dequeue();
+                PlayerAction(playerInput);
+            }
         }
 
         void OnPressBackButton()
@@ -106,6 +125,7 @@ namespace DoonaLegend
 
         public void RestartGame()
         {
+            // Debug.Log("PlayManager.RestartGame()");
             ResetGame();
             // uiManager.animator_control.SetTrigger("slidein");
             // uiManager.sceneTransition.FadeOut();
@@ -124,8 +144,9 @@ namespace DoonaLegend
             uiManager.UpdateKill(this.kill);
             uiManager.UpdateDistance(this.distance);
             uiManager.UpdateCoin(false);
-            uiManager.UpdateScoreUI(this.score);
+            uiManager.UpdateScoreUI(this.score, 0);
 
+            isClear = false;
             isContinued = false;
             pausePanel.isPaused = false;
             pausePanel.button_pause.gameObject.SetActive(true);
@@ -137,19 +158,29 @@ namespace DoonaLegend
             if (spIncreasingCoroutine != null) StopCoroutine(spIncreasingCoroutine);
             if (autoMoveCoroutine != null) StopCoroutine(autoMoveCoroutine);
             if (this.champion != null) Destroy(this.champion.gameObject);
-            Transform playerTransform = Instantiate(playerPrefab) as Transform;
-            ChampionComponent playerComponent = playerTransform.GetComponent<ChampionComponent>();
+            GameObject championPrefab = PrefabManager.Instance.GetChampionPrefab(GameManager.Instance.GetLastPlayChampion());
+            GameObject championInstance = Instantiate(championPrefab) as GameObject;
+            ChampionComponent championComponent = championInstance.GetComponent<ChampionComponent>();
             Node startNode = new Node(1, 1);
-            playerComponent.InitChampionComponent(startNode, Direction.right);
-            this.champion = playerComponent;
-            // autoMoveCoroutine = StartCoroutine(AutoMove());
+            championComponent.InitChampionComponent(startNode, Direction.right);
+            this.champion = championComponent;
 
             cameraController.SetPosition(startNode);
-            cameraController.SetTarget(playerComponent);
+            cameraController.SetTarget(championComponent);
             cameraController.SetInitialRotation(startNode);
             // cameraController.SetPivotAngle(Direction.right);
 
             uiManager.InitUIManager();
+        }
+
+        private Queue<PlayerInput> actionQueue = new Queue<PlayerInput>();
+
+        public void AddActionToQueue(PlayerInput input)
+        {
+            if (actionQueue.Count < 4 && !champion.isSliping)
+            {
+                actionQueue.Enqueue(input);
+            }
         }
 
         //TODO:특수스킬이나 아이템 사용과 같은 입력이 들어올 수 있으
@@ -160,6 +191,8 @@ namespace DoonaLegend
             //     isHpDecreasing = true;
             //     hpDecreasingCoroutine = StartCoroutine(DecreasingPlayerHp());
             // }
+            if (isClear) return;
+
             if (playSceneState == PlaySceneState.main ||
             playSceneState == PlaySceneState.gameover ||
             playSceneState == PlaySceneState.pause)
@@ -184,7 +217,11 @@ namespace DoonaLegend
                     // Debug.Log("player is dead");
                     return;
                 }
-                if (champion.isMoving) return;
+                if (champion.isMoving)
+                {
+                    Debug.Log("champion is moving. so skip action");
+                    return;
+                }
                 if (champion.isAttacking) return;
 
                 Node targetNode = champion.origin;
@@ -196,13 +233,13 @@ namespace DoonaLegend
                 if (champion.isWatered)
                 {
                     champion.isWatered = false;
-                    champion.MoveChampion(champion.origin, champion.origin, 0.2f, MoveType.walk, false);
+                    champion.MoveChampion(champion.origin, champion.origin, GameManager.championMoveDuration, MoveType.walk, false);
                     return;
                 }
                 else if (champion.isBitten)
                 {
                     champion.isBitten = false;
-                    champion.MoveChampion(champion.origin, champion.origin, 0.2f, MoveType.walk, false);
+                    champion.MoveChampion(champion.origin, champion.origin, GameManager.championMoveDuration, MoveType.walk, false);
                     return;
                 }
 
@@ -213,13 +250,13 @@ namespace DoonaLegend
                 TrapComponent trapComponent = pathManager.GetTrapComponent(nextNode);
                 if (trapComponent != null && trapComponent.isObstacle)
                 {
-                    champion.MoveChampion(champion.origin, champion.origin, 0.2f, MoveType.walk, false);
+                    champion.MoveChampion(champion.origin, champion.origin, GameManager.championMoveDuration, MoveType.walk, false);
                     return;
                 }
 
                 if (IsEnemyInDirection(nextNode))
                 {
-                    champion.Attack(champion.origin, nextNode, 0.2f);
+                    champion.Attack(champion.origin, nextNode, GameManager.championMoveDuration);
                     return;
                 }
                 else
@@ -250,11 +287,11 @@ namespace DoonaLegend
                 }
 
                 bool isRotate = champion.direction != targetDirection;
-                champion.MoveChampion(champion.origin, targetNode, 0.2f, MoveType.walk
+                champion.MoveChampion(champion.origin, targetNode, GameManager.championMoveDuration, MoveType.walk
                 , isRotate);
                 if (isRotate)
                 {
-                    champion.RotateChampion(champion.direction, targetDirection, 0.2f);
+                    champion.RotateChampion(champion.direction, targetDirection, GameManager.championMoveDuration);
                 }
             }
             else
@@ -291,24 +328,6 @@ namespace DoonaLegend
             return pathManager.GetEnemyComponent(targetNode) != null;
         }
 
-        private float step = 0.3f;
-        IEnumerator AutoMove()
-        {
-            while (!champion.isDead)
-            {
-                yield return new WaitForSeconds(step);
-                if (inputManager.lastInput == PlayerInput.none)
-                {
-                    PlayerAction(PlayerInput.forward);
-                }
-                else
-                {
-                    PlayerAction(inputManager.lastInput);
-                    inputManager.lastInput = PlayerInput.none;
-                }
-            }
-        }
-
         IEnumerator DecreasingPlayerHp()
         {
             while (!champion.isDead)
@@ -335,7 +354,7 @@ namespace DoonaLegend
             this.score += add;
             uiManager.UpdateDistance(this.distance, true);
             if (updateScoreUI)
-                uiManager.UpdateScoreUI(this.score);
+                uiManager.UpdateScoreUI(this.score, add);
         }
 
         public void AddKill(int add, bool updateScoreUI = false)
@@ -344,7 +363,7 @@ namespace DoonaLegend
             this.score += (add * 10);
             uiManager.UpdateKill(this.kill, true);
             if (updateScoreUI)
-                uiManager.UpdateScoreUI(this.score);
+                uiManager.UpdateScoreUI(this.score, add);
         }
 
         public void ContinueGame()
@@ -356,15 +375,15 @@ namespace DoonaLegend
             Node continueNode = new Node(0, 0);
             if (sectionComponent.sectionData.direction == Direction.right)
             {
-                continueNode = sectionComponent.sectionData.origin + new Node(0, 1);
+                continueNode = sectionComponent.sectionData.origin + new Node(sectionComponent.sectionData.sectionType == SectionType.corner ? 1 : 0, 1);
             }
             else if (sectionComponent.sectionData.direction == Direction.up)
             {
-                continueNode = sectionComponent.sectionData.origin + new Node(1, 0);
+                continueNode = sectionComponent.sectionData.origin + new Node(1, sectionComponent.sectionData.sectionType == SectionType.corner ? 1 : 0);
             }
             else if (sectionComponent.sectionData.direction == Direction.down)
             {
-                continueNode = sectionComponent.sectionData.origin + new Node(1, sectionComponent.sectionData.height - 1);
+                continueNode = sectionComponent.sectionData.origin + new Node(1, sectionComponent.sectionData.height - 1 - (sectionComponent.sectionData.sectionType == SectionType.corner ? 1 : 0));
             }
             champion.InitChampionComponent(continueNode, sectionComponent.sectionData.direction);
             champion.animator.SetTrigger("continue");
@@ -372,36 +391,67 @@ namespace DoonaLegend
             pausePanel.button_pause.gameObject.SetActive(true);
             gameOverPanel.animator_continue.SetTrigger("slideout");
             uiManager.animator_control.SetTrigger("slidein");
-            uiManager.InitHpUI(champion.maxHp, champion.hp, false);
-            //챔피언 되살리고
-            //어느 위치에 되살려야 하는가?
-            //각종 변수 초기화하고
-            //카운트 넣어준다음 게임시작시킴
+            uiManager.InitHpUI(champion.maxHp, champion.startingHp, false);
+            // cameraController.SetInitialRotation(continueNode);
+
+            Quaternion targetRotation = Quaternion.identity;
+            BlockComponent currentBlockComponent = pathManager.GetBlockComponentByOrigin(continueNode);
+            if (currentBlockComponent.sectionComponent.sectionData.direction == Direction.right)
+            {
+                if (currentBlockComponent.sectionComponent.beforeSectionComponent == null)
+                {
+                    if (currentBlockComponent.sectionComponent.nextSectionComponent.nextSectionComponent.sectionData.direction == Direction.up)
+                    { targetRotation = Quaternion.Euler(cameraController.championRightUpAngle); }
+                    else if (currentBlockComponent.sectionComponent.nextSectionComponent.nextSectionComponent.sectionData.direction == Direction.down)
+                    { targetRotation = Quaternion.Euler(cameraController.championRightDownAngle); }
+                }
+                else if (currentBlockComponent.sectionComponent.beforeSectionComponent.beforeSectionComponent == null)
+                {
+                    if (currentBlockComponent.sectionComponent.nextSectionComponent.nextSectionComponent.sectionData.direction == Direction.up)
+                    { targetRotation = Quaternion.Euler(cameraController.championRightUpAngle); }
+                    else if (currentBlockComponent.sectionComponent.nextSectionComponent.nextSectionComponent.sectionData.direction == Direction.down)
+                    { targetRotation = Quaternion.Euler(cameraController.championRightDownAngle); }
+                }
+                else if (currentBlockComponent.sectionComponent.beforeSectionComponent.beforeSectionComponent.sectionData.direction == Direction.down)
+                { targetRotation = Quaternion.Euler(cameraController.championRightDownAngle); }
+                else if (currentBlockComponent.sectionComponent.beforeSectionComponent.beforeSectionComponent.sectionData.direction == Direction.up)
+                { targetRotation = Quaternion.Euler(cameraController.championRightUpAngle); }
+            }
+            else if (currentBlockComponent.sectionComponent.sectionData.direction == Direction.up)
+            {
+                targetRotation = Quaternion.Euler(cameraController.championUpAngle);
+            }
+            else if (currentBlockComponent.sectionComponent.sectionData.direction == Direction.down)
+            {
+                targetRotation = Quaternion.Euler(cameraController.championDownAngle);
+            }
+            cameraController.AnimatePivotAngle(targetRotation, 0.3f);
+
         }
 
-        public void GameOver()
+        public void GameOver(string upperMessage, string lowerMessage, bool forceGameOver = false)
         {
             playSceneState = PlaySceneState.gameover;
             if (gameOverCoroutine != null) StopCoroutine(gameOverCoroutine);
-            gameOverCoroutine = StartCoroutine(GameOverHelper());
+            gameOverCoroutine = StartCoroutine(GameOverHelper(forceGameOver));
             pausePanel.button_pause.gameObject.SetActive(false);
+            gameOverPanel.SetMessage(upperMessage, lowerMessage);
         }
 
-        IEnumerator GameOverHelper()
+        IEnumerator GameOverHelper(bool forceGameOver = false)
         {
             yield return new WaitForSeconds(1.5f);
-            int bestScore = GameManager.Instance.GetBestScoreFromPref();
-            if (distance > bestScore)
-            {
-                GameManager.Instance.SetBestScoreToPref(distance);
-            }
             uiManager.animator_control.SetTrigger("slideout");
-            if (!isContinued) { gameOverPanel.animator_continue.SetTrigger("slidein"); }
-            else
+            if (isContinued || forceGameOver)
             {
                 uiManager.animator_score.SetTrigger("reset");
                 gameOverPanel.animator_menu.SetTrigger("slidein");
                 gameOverPanel.animator_labels.SetTrigger("slidein");
+                gameOverPanel.SetScoreLabel(score);
+            }
+            else
+            {
+                gameOverPanel.animator_continue.SetTrigger("slidein");
             }
             gameOverPanel.ShowGameOverPanel();
         }

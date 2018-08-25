@@ -37,15 +37,7 @@ namespace DoonaLegend
         public Animator animator_control;
         public Button button_left, button_forward, button_right, button_backward;
 
-        // [Header("Menu")]
-        // public Animator animator_menu;
-        // public Animator animator_continue;
-        // public Button button_restart;
-
         [Header("HP")]
-        // public Slider slider_hp;
-        // public Image fill_hp;
-        // public Color color_hp_green, color_hp_yellow, color_hp_red;
         public HorizontalLayoutGroup layoutgroup_heart;
         public Animator animator_heart;
         public Transform container_heart;
@@ -59,6 +51,7 @@ namespace DoonaLegend
 
         [Header("Score")]
         public Text text_score;
+        public Text text_score_add;
         public NicerOutline text_scoreoutline;
         public Animator animator_score;
 
@@ -105,9 +98,9 @@ namespace DoonaLegend
                     });
              */
 
-            button_left.onClick.AddListener(() => { pm.PlayerAction(PlayerInput.left); });
-            button_forward.onClick.AddListener(() => { pm.PlayerAction(PlayerInput.forward); });
-            button_right.onClick.AddListener(() => { pm.PlayerAction(PlayerInput.right); });
+            button_left.onClick.AddListener(() => { pm.AddActionToQueue(PlayerInput.left); });
+            button_forward.onClick.AddListener(() => { pm.AddActionToQueue(PlayerInput.forward); });
+            button_right.onClick.AddListener(() => { pm.AddActionToQueue(PlayerInput.right); });
 
             // button_left.onClick.AddListener(() => { pm.inputManager.lastInput = PlayerInput.left; });
             // button_right.onClick.AddListener(() => { pm.inputManager.lastInput = PlayerInput.right; });
@@ -122,7 +115,7 @@ namespace DoonaLegend
 
         public void InitUIManager()
         {
-            InitHpUI(pm.champion.maxHp, pm.champion.hp);
+            InitHpUI(pm.champion.maxHp, pm.champion.startingHp);
             // slider_hp.value = slider_hp.maxValue = 100.0f;
             // fill_hp.color = color_hp_green;
             slider_sp.maxValue = 100.0f;
@@ -164,7 +157,7 @@ namespace DoonaLegend
             }
         }
 
-        public void InitHpUI(int maxHp, int currentHp, bool withAnimation = false)
+        public void InitHpUI(int maxHp, int startingHp, bool withAnimation = false)
         {
             hearts.Clear();
             DestroyChildGameObject(container_heart);
@@ -190,8 +183,8 @@ namespace DoonaLegend
                 // Debug.Log("i: " + i.ToString());
                 // Debug.Log("remainHp: " + remainHp.ToString());
 
-                if (i < currentHp / 2) heartStatus = HeartStatus.full;
-                else if ((i == currentHp / 2) && (currentHp % 2 == 1)) heartStatus = HeartStatus.half;
+                if (i < startingHp / 2) heartStatus = HeartStatus.full;
+                else if ((i == startingHp / 2) && (startingHp % 2 == 1)) heartStatus = HeartStatus.half;
                 else heartStatus = HeartStatus.empty;
 
                 heartSlot.SetHeartSlot(heartStatus);
@@ -208,7 +201,7 @@ namespace DoonaLegend
         {
             for (int i = 0; i < hearts.Count; i++)
             {
-                int currentHp = pm.champion.hp;
+                int currentHp = pm.champion.currentHp;
                 HeartStatus heartStatus = HeartStatus.empty;
                 if (i < currentHp / 2) heartStatus = HeartStatus.full;
                 else if ((i == currentHp / 2) && (currentHp % 2 == 1)) heartStatus = HeartStatus.half;
@@ -224,14 +217,16 @@ namespace DoonaLegend
             // { fill_hp.color = Color.Lerp(color_hp_yellow, color_hp_green, (percent - 0.5f) * 2); }
         }
 
-        public void UpdateScoreUI(int value, Color? color = null, Color? outline = null)
+        public void UpdateScoreUI(int value, int value2, Color? color = null, Color? outline = null)
         {
-            UpdateScoreUI(value.ToString(), color, outline);
+            UpdateScoreUI(value.ToString(), value2 == 0 ? "" : "+" + value2.ToString(), color, outline);
         }
 
-        public void UpdateScoreUI(string message, Color? color = null, Color? outline = null)
+        public void UpdateScoreUI(string message1, string message2, Color? color = null, Color? outline = null)
         {
-            text_score.text = message;
+            message2 = ""; //hot fix
+            text_score.text = message1;
+            text_score_add.text = message2;
             text_score.color = color ?? Color.white;
             text_scoreoutline.effectColor = outline ?? Color.black;
             animator_score.SetTrigger("update");

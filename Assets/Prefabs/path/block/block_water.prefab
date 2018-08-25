@@ -482,6 +482,6 @@ MonoBehaviour:
   isCollapsed: 0
   isGrid: 0
   hasStepEffect: 1
-  effect_step: {fileID: 4342531059715746, guid: 3c9629169cbc8415fbc73bc72d0a99d4,
+  effect_step: {fileID: 198257682142381236, guid: 3c9629169cbc8415fbc73bc72d0a99d4,
     type: 2}
   effectTransform: {fileID: 4475289268663622}

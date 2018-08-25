@@ -152,6 +152,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2f04cc60953146db9c0f96a53af6bc9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  campaign:
+  - {fileID: 4900000, guid: 57a2aa0bee97d49089d66b2d96481545, type: 3}
+  - {fileID: 4900000, guid: 6e8a7481228d544ffb4f8b31421be3b7, type: 3}
+  - {fileID: 4900000, guid: 5bc059994c86a452db0f490fdb52af5d, type: 3}
+  - {fileID: 4900000, guid: 6c4ae1758674742b59b38704fc4cf0c8, type: 3}
+  - {fileID: 4900000, guid: 1061df0e0017d4968b06f7294f70d72f, type: 3}
+  campaignSectionContent: []
+  finish: {fileID: 4900000, guid: 6df71ea5c8892416f8b061aa2db61c78, type: 3}
+  finishSectionContent:
+    unitLength: 0
+    fileName: 
   unit_2:
   - {fileID: 4900000, guid: c2ef8fc28768d496499252d078a553d3, type: 3}
   - {fileID: 4900000, guid: 3f2e1f929d4564a32b077b3fae4315b7, type: 3}
@@ -171,6 +182,18 @@ MonoBehaviour:
   decreaseCorner: {fileID: 4900000, guid: 8b0dfc9817dde413da870a2f2b1f4ea6, type: 3}
   increaseCorner: {fileID: 4900000, guid: 289520da8f0074ed780c1a4ca9a0e9a6, type: 3}
   tilesetList: []
+  verticalCornerSectionContent:
+    unitLength: 0
+    fileName: 
+  horizontalCornerSectionContent:
+    unitLength: 0
+    fileName: 
+  decreaseCornerSectionContent:
+    unitLength: 0
+    fileName: 
+  increaseCornerSectionContent:
+    unitLength: 0
+    fileName: 
 --- !u!114 &114304304033333160
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -243,6 +266,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4fb1650c8c3f44cabe37d7aa16ec767, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  champions:
+  - {fileID: 114612440774086294, guid: 59ecd31435793430b9d1f0c42aa0b5ca, type: 2}
+  - {fileID: 114612440774086294, guid: 8521254ed49954b238d41e0768f5f8b1, type: 2}
+  - {fileID: 114612440774086294, guid: a00ab0a4f182b4b0fa7fc8bd730f367f, type: 2}
+  - {fileID: 114612440774086294, guid: ca3b1a2e465b14d208796e6eeca14d92, type: 2}
+  - {fileID: 114612440774086294, guid: 03d8a806a3f8e43feaa1a0abae770ead, type: 2}
   items:
   - {fileID: 114658203791606688, guid: c69c8430b06d74c3aa82baa04e52b8f0, type: 2}
   - {fileID: 114658203791606688, guid: 9303d7048f7d548b0b7351de2cdf9523, type: 2}
@@ -271,3 +300,4 @@ MonoBehaviour:
   - {fileID: 114345600494116732, guid: b02a7a8cf1c414eaeb01ee9704aa087f, type: 2}
   - {fileID: 114223160356133612, guid: 0363f6c6d9cca470f9b566498638965a, type: 2}
   - {fileID: 114979247916057648, guid: b5eb2caae06c84ed6848d74f8abba35c, type: 2}
+  - {fileID: 114979247916057648, guid: e9e880265af954dc9aa8bbb91c9e5b3f, type: 2}

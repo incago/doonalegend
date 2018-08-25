@@ -196,7 +196,7 @@ namespace DoonaLegend
                 if (trapComponent == null || !trapComponent.isObstacle)
                 {
                     pm.champion.TakeDamage(attack, DamageType.trap);
-                    pm.champion.MoveChampion(targetNode, knockBackNode, 0.2f, MoveType.knockback, false);
+                    pm.champion.MoveChampion(targetNode, knockBackNode, GameManager.championMoveDuration, MoveType.knockback, false);
                     //밀쳐내기
                     //기존에 이동중이라면 이동과 관련된 코루틴을 정지시키고
                     //목적지만 파라미터로 받는(출발지는 현재 플레이어의 위치)
@@ -255,11 +255,11 @@ namespace DoonaLegend
             TrapComponent trapComponent = pm.pathManager.GetTrapComponent(targetNode);
             if (trapComponent == null || !trapComponent.isObstacle)
             {
-                champion.MoveChampion(currentNode, targetNode, 0.2f, MoveType.walk, false);
+                champion.MoveChampion(currentNode, targetNode, GameManager.championMoveDuration, MoveType.walk, false);
             }
             else
             {
-                champion.MoveChampion(currentNode, beforeNode, 0.2f, MoveType.walk, false);
+                champion.MoveChampion(currentNode, beforeNode, GameManager.championMoveDuration, MoveType.walk, false);
             }
 
         }

@@ -19,6 +19,7 @@ namespace DoonaLegend
             get { if (_pm == null) _pm = GameObject.FindGameObjectWithTag("PlayManager").GetComponent<PlayManager>(); return _pm; }
         }
         public Animator animator_gameover;
+        public Text text_uppermessage, text_lowermessage;
 
         [Header("Labels")]
         public Animator animator_labels;
@@ -32,6 +33,7 @@ namespace DoonaLegend
 
         [Header("Menu")]
         public Animator animator_menu;
+        public Button button_champion;
         public Button button_setting;
         public Button button_restart;
 
@@ -40,6 +42,10 @@ namespace DoonaLegend
         #region Method
         void Awake()
         {
+            button_champion.onClick.AddListener(() =>
+            {
+                OnChampionButtonClick();
+            });
             button_setting.onClick.AddListener(() =>
             {
                 OnSettingButtonClick();
@@ -47,7 +53,7 @@ namespace DoonaLegend
 
             button_restart.onClick.AddListener(() =>
             {
-                Debug.Log("UIManager.button_restart.onClick()");
+                // Debug.Log("UIManager.button_restart.onClick()");
                 pm.gameOverPanel.HideGameOverPanel();
                 animator_menu.SetTrigger("slideout");
                 pm.uiManager.animator_toppanel.SetTrigger("slideout");
@@ -61,6 +67,7 @@ namespace DoonaLegend
                 animator_labels.SetTrigger("slidein");
                 animator_menu.SetTrigger("slidein");
                 animator_continue.SetTrigger("slideout");
+                SetScoreLabel(pm.score);
             });
             button_continuewithad.onClick.AddListener(() =>
             {
@@ -82,7 +89,13 @@ namespace DoonaLegend
         {
             animator_gameover.SetTrigger("fadeout");
         }
-
+        void OnChampionButtonClick()
+        {
+            HideGameOverPanel();
+            pm.championPanel.OpenChampionPanel(PlaySceneState.gameover);
+            animator_menu.SetTrigger("slideout");
+            pm.uiManager.animator_toppanel.SetTrigger("slideout");
+        }
         void OnSettingButtonClick()
         {
             HideGameOverPanel();
@@ -94,6 +107,20 @@ namespace DoonaLegend
         void OnContinueButtonClick()
         {
             pm.ContinueGame();
+        }
+
+        public void SetMessage(string upperMessage, string lowerMessage)
+        {
+            text_uppermessage.text = upperMessage;
+            text_lowermessage.text = lowerMessage;
+        }
+
+        public void SetScoreLabel(int score)
+        {
+            text_score.text = score.ToString();
+            bool isNewBestScore = GameManager.Instance.SetBestScore(score);
+            string colorString = isNewBestScore ? "red" : "white";
+            text_highestscore.text = "<color=" + colorString + ">Highest Score " + GameManager.Instance.GetBestScore().ToString() + "</color>";
         }
         #endregion
     }
